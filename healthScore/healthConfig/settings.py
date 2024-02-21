@@ -77,7 +77,11 @@ WSGI_APPLICATION = 'healthConfig.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': BASE_DIR / 'db.mysql',
+        'NAME': 'HealthScore',
+        'USER': 'root',
+        'PASSWORD': '', # change it with your sql server password for local testing
+        'HOST':'localhost',
+        'PORT':'3306',
     }
 }
 
