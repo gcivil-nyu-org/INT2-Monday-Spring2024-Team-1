@@ -39,7 +39,7 @@ class user(models.Model): # Viewed by User
     email = models.EmailField(null=False)
     name = models.TextField(null=False)
     password = models.TextField(null=False)
-    userName = models.TextField(null=False, unique=True)
+    userName = models.CharField(null=False, max_length=50, unique=True)
     dob = models.DateField(null=False)
     contactInfo = models.TextField(null=False, default="", max_length=10)
     proofOfIdentity = models.TextField(null=True)    # Convert image to base64 string and store it here
@@ -59,8 +59,8 @@ class healthRecord(models.Model): # Viewed by User and hospitalStaff who are doc
     userID = models.ForeignKey("user", to_field="id", on_delete=models.CASCADE)                                                           
     hospitalID = models.TextField(default="", null=False)                                                       
     status = models.TextField(choices=STATUS_CHOICES, default="pending")
-    createdAt = models.DateTimeField(null=False, default=datetime.datetime.now())                                       
-    updatedAt = models.DateTimeField(null=False, default=datetime.datetime.now())                                       
+    createdAt = models.DateTimeField(null=False)                                       
+    updatedAt = models.DateTimeField(null=False)                                       
     appointmentId = models.ForeignKey("appointment", to_field="id", on_delete=models.CASCADE)                                                                                       
     healthDocuments = models.JSONField(null=True)
 
@@ -80,7 +80,7 @@ class communityInteraction(models.Model):
     postID = models.AutoField(primary_key=True)
     postTitle = models.TextField(null=False, default="")
     postDescription = models.TextField(null=False, default="")
-    postTimeStamp = models.DateTimeField(null=False, default=datetime.datetime.now())                                       
+    postTimeStamp = models.DateTimeField(null=False)                                       
     upvote = models.IntegerField(null=False, default=0)
     downvote = models.IntegerField(null=False, default=0)
     tags = models.TextField(null=True, default="")
