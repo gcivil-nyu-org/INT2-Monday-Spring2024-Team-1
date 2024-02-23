@@ -14,7 +14,7 @@ def test_default_values(request):
     healthRecordObjects = healthRecord.objects.all().values()      
     # To create new records and save them 
     # h = hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
-    return HttpResponse(healthRecordObjects)
+    return HttpResponse("<h1>Finaly Workingggggggg</h1>")
 
 
 @csrf_exempt
