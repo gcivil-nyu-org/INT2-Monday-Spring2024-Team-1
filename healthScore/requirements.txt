@@ -34,3 +34,4 @@ tzdata==2024.1
 urllib3==1.26.18
 virtualenv==20.24.6
 wcwidth==0.1.9
+wheel==0.42.0
