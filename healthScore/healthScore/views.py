@@ -64,15 +64,15 @@ def add_mock_data(request):
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=5), admin=False, name="Dr. Steve Johnson", email="sj@langone.com", password="pass1234", specialization="Orthopedics", contactInfo="1234567890")
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Coco Gauff", email="cgauff@sinai.com", password="pass1234", specialization="Anesthesiology", contactInfo="1234567890")
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=7), admin=False, name="Carlos Alcaraz", email="ca@cvs.com", password="pass1234", specialization="", contactInfo="1234567890")
-        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=8), admin=False, name="Betty Johnson", email="betty@duanereade.com", password="pass1234", specialization="", contactInfo="1234567890")
+        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=8), admin=False, name="Sofia Kenin", email="betty@duanereade.com", password="pass1234", specialization="", contactInfo="1234567890")
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Jannik Sinner", email="jsinner@sinai.com", password="pass1234", specialization="Psychiatry", contactInfo="1234567890")
 
         # Adding user data
         # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", userName="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
 
         # Adding appointment Data
-        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"vaccine A", "dose_2": False, "date":datetime.datetime.now()}, default=str))
-        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"vaccine A", "dose_2": True, "date":datetime.datetime.now()}, default=str))
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Fluzone Sanofi", "dose_2": False, "date":datetime.datetime.now()}, default=str))
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Comirnaty Pfizer", "dose_2": True, "date":datetime.datetime.now()}, default=str))
         # appointment.objects.create(name="Blood test", properties = json.dumps({"type":"Iron check", "dose_2": False, "date":datetime.datetime.now()}, default=str))
         # appointment.objects.create(name="MRI", properties = json.dumps({"type":"Bad back", "dose_2": False, "date":datetime.datetime.now()}, default=str))
 
