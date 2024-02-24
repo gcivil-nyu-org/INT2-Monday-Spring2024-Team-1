@@ -21,10 +21,10 @@ def test_default_values(request):
 def add_mock_data(request):
     if(request.method == "POST"):
         # Adding data to the Hospital table
-        hospital.objects.create(name="Hospital A", address="Address A", email="hospital_a@example.com", password="123456", contactInfo="123456781", status="approved")
-        hospital.objects.create(name="Hospital B", address="Address B", email="hospital_b@example.com", password="123456", contactInfo="123456781", status="pending")
-        hospital.objects.create(name="Hospital C", address="Address C", email="hospital_c@example.com", password="123456", contactInfo="123456781", status="rejected")
-        hospital.objects.create(name="Hospital D", address="Address D", email="hospital_d@example.com", password="123456", contactInfo="123456781", status="pending")
+        # hospital.objects.create(name="Hospital A", address="Address A", email="hospital_a@example.com", password="123456", contactInfo="123456781", status="approved")
+        # hospital.objects.create(name="Hospital B", address="Address B", email="hospital_b@example.com", password="123456", contactInfo="123456781", status="pending")
+        # hospital.objects.create(name="Hospital C", address="Address C", email="hospital_c@example.com", password="123456", contactInfo="123456781", status="rejected")
+        # hospital.objects.create(name="Hospital D", address="Address D", email="hospital_d@example.com", password="123456", contactInfo="123456781", status="pending")
 
         # Adding hospitalStaff data
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=1), admin=True, name="Admin A", email="admin_a@hospitala.com", password="pass1234", specialization="", contactInfo="1234567890")
