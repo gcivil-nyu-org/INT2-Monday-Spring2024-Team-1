@@ -16,6 +16,28 @@ def test_default_values(request):
     # h = hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
     return HttpResponse("<h1>Finally Workingggggggg. Welcome to HealthScore</h1>")
 
+def view_health_history(request):
+    if request.method == "GET":
+        return render(request, "view_history.html")
+
+    user_id = request.POST.get("user_id")
+    # return HttpResponse("your id is:"+str(user_id))
+    history_list = healthRecord.objects.filter(userID=user_id)
+
+    for h in history_list:
+        print(h.userID_id)
+        print(h.doctorID)
+        print(h.hospitalID)
+        print(h.status)
+        print(h.createdAt)
+        print(h.updatedAt)
+        print(h.appointmentId_id)
+        print(h.healthDocuments)
+    # healthRecord.objects.create(doctorID=1, userID=user.objects.get(id=1), hospitalID=1, status="approved",
+    #                             createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(),
+    #                             appointmentId=appointment.objects.get(id=1), healthDocuments="")
+    return render(request,'view_history.html', {'history_list':history_list})
+
 
 @csrf_exempt
 def add_mock_data(request):
