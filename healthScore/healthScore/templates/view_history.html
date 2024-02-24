@@ -8,74 +8,71 @@
 </head>
 <body>
 
-<h1 class="text-center my-4">View Health History</h1>
+<div class="container my-4">
+    <h1 class="text-center">Your Health History</h1>
 
-<div class="container">
-    <form method="post" action="{% url 'view_health_history' %}">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="user_id">User ID</label>
-            <input type="text" class="form-control" name="user_id" placeholder="id" required>
+    <!-- Filter Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>Filter to View Your History</h2>
+            <form method="post" action="{% url 'view_health_history' %}" class="form-inline">
+                {% csrf_token %}
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="UserID" class="sr-only">User ID:</label>
+                        <input type="text" class="form-control" id="UserID" name="UserID" placeholder="Reason for Visit" required>
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="UserName" class="sr-only">User Name:</label>
+                    <input type="text" class="form-control" id="UserName" name="UserName" placeholder="User Name">
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="DocumentName" class="sr-only">Document Name:</label>
+                    <input type="text" class="form-control" id="DocumentName" name="DocumentName" placeholder="Document Name">
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="hospital" class="sr-only">Hospital:</label>
+                    <input type="text" class="form-control" id="hospital" name="hospital" placeholder="Healthcare Facility">
+                </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="date" class="sr-only">Date:</label>
+                    <input type="date" class="form-control" id="date" name="date">
+                </div>
+                <button type="submit" class="btn btn-secondary mb-2">Filter</button>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+    </div>
 
-    <table class="table my-4">
-    <thead class="thead-dark">
-    <tr>
-        <th scope="col">doctorID</th>
-        <th scope="col">userID</th>
-        <th scope="col">hospitalID</th>
-        <th scope="col">status</th>
-        <th scope="col">createdAt</th>
-        <th scope="col">updatedAt</th>
-        <th scope="col">appointmentId</th>
-        <th scope="col">healthDocuments</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    {% for record in history_list %}
-        <tr>
-            <td>{{ record.doctorID }}</td>
-            <td>{{ record.userID_id }}</td>
-            <td>{{ record.hospitalID }}</td>
-            <td>{{ record.status }}</td>
-            <td>{{ record.createdAt }}</td>
-            <td>{{ record.updatedAt }}</td>
-            <td>{{ record.appointmentId_id }}</td>
-            <td>{{ record.healthDocuments }}</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-
-    <h2 class="text-center my-4">Filter to View Your History</h2>
-    <form method="post" action="{% url 'view_health_history' %}">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="UserID">User ID:</label>
-            <input type="text" class="form-control" id="UserID" name="UserID" required>
+    <!-- Data Display Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table table-striped my-4">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Reason for Visit</th>
+                    <th scope="col">Visit Details</th>
+                    <th scope="col">Healthcare Worker</th>
+                    <th scope="col">Healthcare Facility</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Created Date</th>
+                    <th scope="col">Update Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for record in history_list %}
+                    <tr>
+                        <td>{{ record.appointment_name }}</td>
+                        <td>{{ record.appointment_type }}</td>
+                        <td>{{ record.doctor_name }}</td>
+                        <td>{{ record.hospital_name }}</td>
+                        <td>{{ record.hospital_address}}</td>
+                        <td>{{ record.createdAt }}</td>
+                        <td>{{ record.updatedAt }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <div class="form-group">
-            <label for="UserName">User Name:</label>
-            <input type="text" class="form-control" id="UserName" name="UserName">
-        </div>
-        <div class="form-group">
-            <label for="DocumentName">Document Name:</label>
-            <input type="text" class="form-control" id="DocumentName" name="DocumentName">
-        </div>
-        <div class="form-group">
-            <label for="hospital">Hospital:</label>
-            <input type="text" class="form-control" id="hospital" name="hospital">
-        </div>
-        <div class="form-group">
-            <label for="date">Date:</label>
-            <input type="date" class="form-control" id="date" name="date">
-        </div>
-
-        <button type="submit" class="btn btn-secondary">Filter</button>
-    </form>
+    </div>
 </div>
 
 <!-- Optional JavaScript -->
