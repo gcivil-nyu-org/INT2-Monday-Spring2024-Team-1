@@ -16,15 +16,40 @@ def test_default_values(request):
     # h = hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
     return HttpResponse("<h1>Finally Workingggggggg. Welcome to HealthScore</h1>")
 
+def view_health_history(request):
+    if request.method == "GET":
+        return render(request, "view_history.html")
+
+    user_id = request.POST.get("user_id")
+    # return HttpResponse("your id is:"+str(user_id))
+    history_list = healthRecord.objects.filter(userID=user_id)
+
+    for h in history_list:
+        print(h.userID_id)
+        print(h.doctorID)
+        print(h.hospitalID)
+        print(h.status)
+        print(h.createdAt)
+        print(h.updatedAt)
+        print(h.appointmentId_id)
+        print(h.healthDocuments)
+    # healthRecord.objects.create(doctorID=1, userID=user.objects.get(id=1), hospitalID=1, status="approved",
+    #                             createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(),
+    #                             appointmentId=appointment.objects.get(id=1), healthDocuments="")
+    return render(request,'view_history.html', {'history_list':history_list})
+
+
+
+
 
 @csrf_exempt
 def add_mock_data(request):
     if(request.method == "POST"):
         # Adding data to the Hospital table
-        hospital.objects.create(name="Hospital A", address="Address A", email="hospital_a@example.com", password="123456", contactInfo="123456781", status="approved")
-        hospital.objects.create(name="Hospital B", address="Address B", email="hospital_b@example.com", password="123456", contactInfo="123456781", status="pending")
-        hospital.objects.create(name="Hospital C", address="Address C", email="hospital_c@example.com", password="123456", contactInfo="123456781", status="rejected")
-        hospital.objects.create(name="Hospital D", address="Address D", email="hospital_d@example.com", password="123456", contactInfo="123456781", status="pending")
+        # hospital.objects.create(name="Hospital A", address="Address A", email="hospital_a@example.com", password="123456", contactInfo="123456781", status="approved")
+        # hospital.objects.create(name="Hospital B", address="Address B", email="hospital_b@example.com", password="123456", contactInfo="123456781", status="pending")
+        # hospital.objects.create(name="Hospital C", address="Address C", email="hospital_c@example.com", password="123456", contactInfo="123456781", status="rejected")
+        # hospital.objects.create(name="Hospital D", address="Address D", email="hospital_d@example.com", password="123456", contactInfo="123456781", status="pending")
 
         # Adding hospitalStaff data
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=1), admin=True, name="Admin A", email="admin_a@hospitala.com", password="pass1234", specialization="", contactInfo="1234567890")
@@ -53,6 +78,7 @@ def add_mock_data(request):
         # healthRecord.objects.create(doctorID=2, userID=user.objects.get(id=2), hospitalID=2, status="rejected", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=2), healthDocuments="")
         # healthRecord.objects.create(doctorID=3, userID=user.objects.get(id=3), hospitalID=3, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=3), healthDocuments="")
         # healthRecord.objects.create(doctorID=4, userID=user.objects.get(id=4), hospitalID=4, status="pending", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=4), healthDocuments="")
+
         return HttpResponse("Data Added to the database")
     else:
         return HttpResponse("Please change the request method to POST")
