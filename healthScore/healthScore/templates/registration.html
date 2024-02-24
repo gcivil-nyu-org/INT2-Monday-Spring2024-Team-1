@@ -43,37 +43,93 @@
   h2 {
     text-align: center;
   }
+  .error-message {
+    color: red;
+    font-size: 12px;
+  }
+  .password-requirements {
+    font-size: 12px;
+    color: #333;
+    margin-top: 5px;
+  }
 </style>
+<script>
+  function validateForm() {
+    var password = document.getElementById("password").value;
+    var retypePassword = document.getElementById("retype_password").value;
+    var hasCapitalLetter = /[A-Z]/.test(password);
+    var hasSpecialCharacter = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+
+    // Ensure password and retype password match
+    if (password !== retypePassword) {
+      document.getElementById("retype_password_error").innerHTML = "Passwords do not match";
+      return false;
+    } else {
+      document.getElementById("retype_password_error").innerHTML = "";
+    }
+
+    // Ensure password meets all requirements
+    if (password.length < 8 || !hasCapitalLetter || !hasSpecialCharacter) {
+      document.getElementById("password_error").innerHTML = "Password must be at least 8 characters long, contain a capital letter, and a special character";
+      return false;
+    } else {
+      document.getElementById("password_error").innerHTML = "";
+    }
+
+    // Ensure all fields are filled out
+    var formElements = document.getElementById("registration_form").elements;
+    for (var i = 0; i < formElements.length; i++) {
+      if (formElements[i].tagName === "INPUT" || formElements[i].tagName === "SELECT") {
+        if (formElements[i].value === "") {
+          document.getElementById("form_error").innerHTML = "Please fill out all fields";
+          return false;
+        }
+      }
+    }
+    document.getElementById("form_error").innerHTML = "";
+    return true;
+  }
+
+  function showPasswordRequirements() {
+    document.getElementById("password_requirements").style.display = "block";
+  }
+
+  function hidePasswordRequirements() {
+    document.getElementById("password_requirements").style.display = "none";
+  }
+</script>
+
 </head>
-
-
-
-
-
 <body>
+
 <h2>User Registration</h2>
 
-<form action="#" method="post">
+<form id="registration_form" action="#" method="post" onsubmit="return validateForm()">
   <label for="email">Email:</label>
-  <input type="email" id="email" name="email" required>
+  <input type="email" id="email" name="email" required><br>
 
   <label for="username">Username:</label>
-  <input type="text" id="username" name="username" required>
+  <input type="text" id="username" name="username" required><br>
 
   <label for="password">Password:</label>
-  <input type="password" id="password" name="password" required>
+  <input type="password" id="password" name="password" required onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
+  <div id="password_requirements" class="password-requirements" style="display: none;">
+    Password must contain at least one capital letter and one special character.
+  </div>
+  <span id="password_error" class="error-message"></span><br>
 
   <label for="retype_password">Retype Password:</label>
   <input type="password" id="retype_password" name="retype_password" required>
+  <span id="retype_password_error" class="error-message"></span><br>
 
   <label for="fullname">Full Name:</label>
-  <input type="text" id="fullname" name="fullname" required>
+  <input type="text" id="fullname" name="fullname" required><br>
 
   <label for="dob">Date of Birth:</label>
-  <input type="date" id="dob" name="dob" required>
+  <input type="date" id="dob" name="dob" required><br>
 
   <label for="address">Address:</label>
-  <input type="text" id="address" name="address" required>
+  <input type="text" id="address" name="address" required><br>
 
   <label for="gender">Gender:</label>
   <select id="gender" name="gender" required>
@@ -81,9 +137,10 @@
     <option value="male">Male</option>
     <option value="female">Female</option>
     <option value="other">Other</option>
-  </select>
+  </select><br>
 
   <input type="submit" value="Register">
+  <span id="form_error" class="error-message"></span>
 </form>
 
 </body>
