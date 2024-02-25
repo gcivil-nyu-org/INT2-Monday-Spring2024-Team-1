@@ -1,8 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
 import json
+from .forms import UserRegistrationForm
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
@@ -117,3 +118,13 @@ def add_mock_data(request):
         return HttpResponse("Data Added to the database")
     else:
         return HttpResponse("Please change the request method to POST")
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'registration.html', {'form': form})
