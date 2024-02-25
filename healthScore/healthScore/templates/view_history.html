@@ -5,11 +5,58 @@
     <title>View Health History</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        @media screen and (max-height: 450px) {
+          .sidebar {padding-top: 15px;}
+          .sidebar a {font-size: 18px;}
+        }
+    </style>
 </head>
 <body>
 
+<div id="mySidebar" class="sidebar">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+  <a href="#">Home</a>
+  <a href="#">Health History</a>
+  <a href="#">Raising a Request</a>
+</div>
+
 <div class="container my-4">
-    <h1 class="text-center">Your Health History</h1>
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+        <span style="font-size:30px;cursor:pointer" onclick="openNav()">☰ Health Score</span>
+    </nav>
+
+    <h2 class="text-center">Your Health History</h2>
 
     <!-- Filter Section -->
     <div class="row">
@@ -18,20 +65,16 @@
             <form method="post" action="{% url 'view_health_history' %}" class="form-inline">
                 {% csrf_token %}
                 <div class="form-group mx-sm-3 mb-2">
-                    <label for="UserID" class="sr-only">User ID:</label>
-                        <input type="text" class="form-control" id="UserID" name="UserID" placeholder="Reason for Visit" required>
+                    <label for="appointment_name" class="sr-only">User ID:</label>
+                        <input type="text" class="form-control" id="appointment_name" name="appointment_name" placeholder="Reason for Visit" required>
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="UserName" class="sr-only">User Name:</label>
-                    <input type="text" class="form-control" id="UserName" name="UserName" placeholder="User Name">
+                    <input type="text" class="form-control" id="UserName" name="UserName" placeholder="Healthcare Worker">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="DocumentName" class="sr-only">Document Name:</label>
-                    <input type="text" class="form-control" id="DocumentName" name="DocumentName" placeholder="Document Name">
-                </div>
-                <div class="form-group mx-sm-3 mb-2">
-                    <label for="hospital" class="sr-only">Hospital:</label>
-                    <input type="text" class="form-control" id="hospital" name="hospital" placeholder="Healthcare Facility">
+                    <input type="text" class="form-control" id="DocumentName" name="DocumentName" placeholder="Healthcare Facility">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="date" class="sr-only">Date:</label>
@@ -80,5 +123,14 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+function openNav() {
+    document.getElementById("mySidebar").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("mySidebar").style.width = "0";
+}
+</script>
 </body>
 </html>
