@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import datetime
+from datetime import datetime
+from django.utils import timezone
 import json
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
@@ -21,26 +23,42 @@ def view_health_history(request):
         return render(request, "view_history.html")
 
     user_id = request.POST.get("user_id")
-    # return HttpResponse("your id is:"+str(user_id))
     history_list = healthRecord.objects.filter(userID=user_id)
 
-    for h in history_list:
-        print(h.userID_id)
-        print(h.doctorID)
-        print(h.hospitalID)
-        print(h.status)
-        print(h.createdAt)
-        print(h.updatedAt)
-        print(h.appointmentId_id)
-        print(h.healthDocuments)
-    # healthRecord.objects.create(doctorID=1, userID=user.objects.get(id=1), hospitalID=1, status="approved",
-    #                             createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(),
-    #                             appointmentId=appointment.objects.get(id=1), healthDocuments="")
-    return render(request,'view_history.html', {'history_list':history_list})
+    return render(request,'view_history.html', {'history_list': history_list})
 
 
+def filter_records(request):
+    if request.method == "GET":
+        return render(request, "view_history.html")
 
+    user_id = request.POST.get("UserID")
+    doc_name = request.POST.get("DocumentName")
+    user_name = request.POST.get("UserName")
+    hospital = request.POST.get("hospital")
+    date = request.POST.get("date")
 
+    filter_kwargs = {}
+    if user_id != '':
+        filter_kwargs['id'] = user_id
+    if doc_name != '':
+        filter_kwargs['healthDocuments'] = doc_name
+    if user_name != '':
+        filter_kwargs['userID'] = user_name
+    if hospital != '':
+        filter_kwargs['hospitalID'] = hospital
+    if date != '':
+        filter_kwargs['createdAt__date'] = timezone.make_aware(datetime.strptime(date, '%Y-%m-%d')).date()
+
+    records = None
+    message = ""
+
+    if not filter_kwargs:
+        message = "Please fill in at least one filter!"
+    else:
+        records = healthRecord.objects.filter(**filter_kwargs)
+
+    return render(request, 'view_history.html', {'records': records, 'message':message})
 
 @csrf_exempt
 def add_mock_data(request):
