@@ -30,16 +30,12 @@ def view_health_history(request):
         doctor_ids = hospitalStaff.objects.filter(name__icontains=healthcare_worker).values_list('id', flat=True)
         history_list = history_list.filter(doctorID__in=doctor_ids)
 
-    user_timezone = timezone.get_default_timezone()
-
     filter_date = request.GET.get("date")
     if filter_date:
         filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
         current_tz = timezone.get_current_timezone()
         start_of_day = timezone.make_aware(datetime.combine(filter_date, datetime.min.time()), current_tz)
         end_of_day = start_of_day + timedelta(days=1)
-
-        print(start_of_day, end_of_day, current_tz)
         history_list = history_list.filter(createdAt__range=(start_of_day, end_of_day))
 
     healthcare_facility = request.GET.get("healthcare_facility")
