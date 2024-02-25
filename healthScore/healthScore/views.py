@@ -17,7 +17,25 @@ def test_default_values(request):
     return HttpResponse("<h1>Finally Workingggggggg. Welcome to HealthScore</h1>")
 
 def view_health_history(request):
+    # Filtering to just userID=5 to simulate it being a users view.
     history_list = healthRecord.objects.filter(userID=5)
+
+    appointment_name = request.GET.get("appointment_name")
+    if appointment_name:
+        history_list = history_list.filter(appointmentId__name__icontains=appointment_name)
+
+    #healthcare_worker = request.GET.get("appointment_name")
+    #if healthcare_worker:
+        #history_list = history_list.filter(doctorID__name__icontains=healthcare_worker)
+
+    filter_date = request.GET.get("date")
+    if filter_date:
+        filter_date = datetime.datetime.strptime(filter_date, "%Y-%m-%d").date()
+        history_list = history_list.filter(createdAt__date=filter_date)
+
+    healthcare_facility = request.GET.get("healthcare_facility")
+    if healthcare_facility:
+        history_list = history_list.filter(hospitalID__name__icontains=healthcare_facility)
 
     detailed_history_list = []
 
