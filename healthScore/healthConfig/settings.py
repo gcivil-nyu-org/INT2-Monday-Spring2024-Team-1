@@ -83,7 +83,7 @@ DATABASES = {
         'NAME': 'HealthScore',
         'USER': 'admin',
         'PASSWORD': 'HealthScoreAdmin', # change it with your sql server password for local testing
-        'HOST':'http://awseb-e-meky4ftcfy-stack-awsebrdsdatabase-yqgueanvxaev.clkwykuegjia.us-west-2.rds.amazonaws.com/',
+        'HOST':'awseb-e-meky4ftcfy-stack-awsebrdsdatabase-yqgueanvxaev.clkwykuegjia.us-west-2.rds.amazonaws.com',
         'PORT':'3306',
     }
 }
