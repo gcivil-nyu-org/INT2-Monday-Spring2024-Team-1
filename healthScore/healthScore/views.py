@@ -19,19 +19,21 @@ def test_default_values(request):
 
 def view_health_history(request):
     if request.method == "GET":
+        return render(request, 'view_history.html')
+    else:
         # Filtering to just userID=5 to simulate it being a users view.
         history_list = healthRecord.objects.filter(userID=5)
 
-        appointment_name = request.GET.get("appointment_name")
+        appointment_name = request.POST.get("appointment_name")
         if appointment_name:
             history_list = history_list.filter(appointmentId__name__icontains=appointment_name)
 
-        healthcare_worker = request.GET.get("healthcare_worker")
+        healthcare_worker = request.POST.get("healthcare_worker")
         if healthcare_worker:
             doctor_ids = hospitalStaff.objects.filter(name__icontains=healthcare_worker).values_list('id', flat=True)
             history_list = history_list.filter(doctorID__in=doctor_ids)
 
-        filter_date = request.GET.get("date")
+        filter_date = request.POST.get("date")
         if filter_date:
             filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
             current_tz = timezone.get_current_timezone()
@@ -39,7 +41,7 @@ def view_health_history(request):
             end_of_day = start_of_day + timedelta(days=1)
             history_list = history_list.filter(createdAt__range=(start_of_day, end_of_day))
 
-        healthcare_facility = request.GET.get("healthcare_facility")
+        healthcare_facility = request.POST.get("healthcare_facility")
         if healthcare_facility:
             hospital_ids = hospital.objects.filter(name__icontains=healthcare_facility).values_list('id', flat=True)
             history_list = history_list.filter(hospitalID__in=hospital_ids)
@@ -72,6 +74,7 @@ def view_health_history(request):
                 'appointment_name': appointment_name,
                 'appointment_type': appointment_type,
             })
+            print(detailed_history_list)
 
     return render(request,'view_history.html', {'history_list':detailed_history_list})
 
@@ -96,16 +99,25 @@ def add_mock_data(request):
         # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", userName="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
 
         # Adding appointment Data
-        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Fluzone Sanofi", "dose_2": False, "date":datetime.datetime.now()}, default=str))
-        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Comirnaty Pfizer", "dose_2": True, "date":datetime.datetime.now()}, default=str))
-        # appointment.objects.create(name="Blood test", properties = json.dumps({"type":"Iron check", "dose_2": False, "date":datetime.datetime.now()}, default=str))
-        # appointment.objects.create(name="MRI", properties = json.dumps({"type":"Bad back", "dose_2": False, "date":datetime.datetime.now()}, default=str))
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Fluzone Sanofi", "dose_2": False, "date":datetime.now()}, default=str))
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Comirnaty Pfizer", "dose_2": True, "date":datetime.now()}, default=str))
+        # appointment.objects.create(name="Blood test", properties = json.dumps({"type":"Iron check", "dose_2": False, "date":datetime.now()}, default=str))
+        # appointment.objects.create(name="MRI", properties = json.dumps({"type":"Bad back", "dose_2": False, "date":datetime.now()}, default=str))
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"vaccine A", "dose_2": False, "date":datetime.now()}, default=str))
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"vaccine A", "dose_2": True, "date":datetime.now()}, default=str))
+        # appointment.objects.create(name="Blood test", properties = json.dumps({"type":"Iron check", "dose_2": False, "date":datetime.now()}, default=str))
+        # appointment.objects.create(name="MRI", properties = json.dumps({"type":"N/A", "dose_2": False, "date":datetime.now()}, default=str))
 
         # healthRecord data 
-        # healthRecord.objects.create(doctorID=11, userID=user.objects.get(id=5), hospitalID=7, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=5), healthDocuments="")
-        # healthRecord.objects.create(doctorID=12, userID=user.objects.get(id=5), hospitalID=8, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=6), healthDocuments="")
-        # healthRecord.objects.create(doctorID=9, userID=user.objects.get(id=5), hospitalID=5, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=7), healthDocuments="")
-        # healthRecord.objects.create(doctorID=10, userID=user.objects.get(id=5), hospitalID=6, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=8), healthDocuments="")
+        # healthRecord.objects.create(doctorID=11, userID=user.objects.get(id=5), hospitalID=7, status="approved", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=5), healthDocuments="")
+        # healthRecord.objects.create(doctorID=12, userID=user.objects.get(id=5), hospitalID=8, status="approved", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=6), healthDocuments="")
+        # healthRecord.objects.create(doctorID=9, userID=user.objects.get(id=5), hospitalID=5, status="approved", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=7), healthDocuments="")
+        # healthRecord.objects.create(doctorID=10, userID=user.objects.get(id=5), hospitalID=6, status="approved", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=8), healthDocuments="")
+        # healthRecord.objects.create(doctorID=1, userID=user.objects.get(id=1), hospitalID=1, status="approved", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=1), healthDocuments="")
+        # healthRecord.objects.create(doctorID=2, userID=user.objects.get(id=2), hospitalID=2, status="rejected", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=2), healthDocuments="")
+        # healthRecord.objects.create(doctorID=3, userID=user.objects.get(id=3), hospitalID=3, status="approved", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=3), healthDocuments="")
+        # healthRecord.objects.create(doctorID=4, userID=user.objects.get(id=4), hospitalID=4, status="pending", createdAt=datetime.now(), updatedAt=datetime.now(), appointmentId=appointment.objects.get(id=4), healthDocuments="")
+
         return HttpResponse("Data Added to the database")
     else:
         return HttpResponse("Please change the request method to POST")
