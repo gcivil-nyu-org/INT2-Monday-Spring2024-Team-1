@@ -62,8 +62,8 @@ def view_health_history(request):
             'doctor_name': doctor_name,
             'hospital_name': hospital_name,
             'hospital_address': hospital_address,
-            'createdAt': h.createdAt,
-            'updatedAt': h.updatedAt,
+            'createdAt': datetime.datetime.date(h.createdAt),
+            'updatedAt': datetime.datetime.date(h.updatedAt),
             'appointment_name': appointment_name,
             'appointment_type': appointment_type,
         })
