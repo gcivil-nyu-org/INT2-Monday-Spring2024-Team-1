@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-import datetime
+from django.utils import timezone
+from datetime import datetime, timedelta
 import json
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
@@ -29,10 +30,17 @@ def view_health_history(request):
         doctor_ids = hospitalStaff.objects.filter(name__icontains=healthcare_worker).values_list('id', flat=True)
         history_list = history_list.filter(doctorID__in=doctor_ids)
 
+    user_timezone = timezone.get_default_timezone()
+
     filter_date = request.GET.get("date")
     if filter_date:
-        filter_date = datetime.datetime.strptime(filter_date, "%Y-%m-%d").date()
-        history_list = history_list.filter(createdAt__date=filter_date)
+        filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
+        current_tz = timezone.get_current_timezone()
+        start_of_day = timezone.make_aware(datetime.combine(filter_date, datetime.min.time()), current_tz)
+        end_of_day = start_of_day + timedelta(days=1)
+
+        print(start_of_day, end_of_day, current_tz)
+        history_list = history_list.filter(createdAt__range=(start_of_day, end_of_day))
 
     healthcare_facility = request.GET.get("healthcare_facility")
     if healthcare_facility:
@@ -62,8 +70,8 @@ def view_health_history(request):
             'doctor_name': doctor_name,
             'hospital_name': hospital_name,
             'hospital_address': hospital_address,
-            'createdAt': datetime.datetime.date(h.createdAt),
-            'updatedAt': datetime.datetime.date(h.updatedAt),
+            'createdAt': datetime.date(h.createdAt),
+            'updatedAt': datetime.date(h.updatedAt),
             'appointment_name': appointment_name,
             'appointment_type': appointment_type,
         })
