@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'HealthScore',
         'USER': 'root',
-        'PASSWORD': '', # change it with your sql server password for local testing
+        'PASSWORD': 'Wyx@0809ml', # change it with your sql server password for local testing
         'HOST':'localhost',
         'PORT':'3306',
     }

@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import datetime
 import json
-from .forms import UserRegistrationForm
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
@@ -58,12 +57,27 @@ def add_mock_data(request):
     else:
         return HttpResponse("Please change the request method to POST")
 
+@csrf_exempt
 def register(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
+    if request.method == 'POST': # when the form is submitted
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        fullname = request.POST.get('fullname')
+        dob = request.POST.get('dob')
+        gender = request.POST.get('gender')
+        street_address = request.POST.get('street_address')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        phone_number = request.POST.get('phone_number')
+        identity_proof = request.POST.get('identity_proof')
+
+        if not user.objects.filter(email=email).exists():
+            user.objects.create(email=email, userName=username, password=password, name=fullname, 
+                                dob=dob, gender=gender, address=street_address, contactInfo=phone_number)
             return redirect('login')
-    else:
-        form = UserRegistrationForm()
-    return render(request, 'registration.html', {'form': form})
+        else:
+            error_msg = "Email already exists."
+            #### temporary error page
+            return render(request, 'error.html',{'error_message': error_msg})
+    return render(request, 'registration.html')
