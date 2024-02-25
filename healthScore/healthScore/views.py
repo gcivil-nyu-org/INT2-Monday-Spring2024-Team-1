@@ -24,9 +24,10 @@ def view_health_history(request):
     if appointment_name:
         history_list = history_list.filter(appointmentId__name__icontains=appointment_name)
 
-    #healthcare_worker = request.GET.get("appointment_name")
-    #if healthcare_worker:
-        #history_list = history_list.filter(doctorID__name__icontains=healthcare_worker)
+    healthcare_worker = request.GET.get("healthcare_worker")
+    if healthcare_worker:
+        doctor_ids = hospitalStaff.objects.filter(name__icontains=healthcare_worker).values_list('id', flat=True)
+        history_list = history_list.filter(doctorID__in=doctor_ids)
 
     filter_date = request.GET.get("date")
     if filter_date:
@@ -35,7 +36,8 @@ def view_health_history(request):
 
     healthcare_facility = request.GET.get("healthcare_facility")
     if healthcare_facility:
-        history_list = history_list.filter(hospitalID__name__icontains=healthcare_facility)
+        hospital_ids = hospital.objects.filter(name__icontains=healthcare_facility).values_list('id', flat=True)
+        history_list = history_list.filter(hospitalID__in=hospital_ids)
 
     detailed_history_list = []
 
