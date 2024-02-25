@@ -18,59 +18,60 @@ def test_default_values(request):
     return HttpResponse("<h1>Finally Workingggggggg. Welcome to HealthScore</h1>")
 
 def view_health_history(request):
-    # Filtering to just userID=5 to simulate it being a users view.
-    history_list = healthRecord.objects.filter(userID=5)
+    if request.method == "GET":
+        # Filtering to just userID=5 to simulate it being a users view.
+        history_list = healthRecord.objects.filter(userID=5)
 
-    appointment_name = request.GET.get("appointment_name")
-    if appointment_name:
-        history_list = history_list.filter(appointmentId__name__icontains=appointment_name)
+        appointment_name = request.GET.get("appointment_name")
+        if appointment_name:
+            history_list = history_list.filter(appointmentId__name__icontains=appointment_name)
 
-    healthcare_worker = request.GET.get("healthcare_worker")
-    if healthcare_worker:
-        doctor_ids = hospitalStaff.objects.filter(name__icontains=healthcare_worker).values_list('id', flat=True)
-        history_list = history_list.filter(doctorID__in=doctor_ids)
+        healthcare_worker = request.GET.get("healthcare_worker")
+        if healthcare_worker:
+            doctor_ids = hospitalStaff.objects.filter(name__icontains=healthcare_worker).values_list('id', flat=True)
+            history_list = history_list.filter(doctorID__in=doctor_ids)
 
-    filter_date = request.GET.get("date")
-    if filter_date:
-        filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
-        current_tz = timezone.get_current_timezone()
-        start_of_day = timezone.make_aware(datetime.combine(filter_date, datetime.min.time()), current_tz)
-        end_of_day = start_of_day + timedelta(days=1)
-        history_list = history_list.filter(createdAt__range=(start_of_day, end_of_day))
+        filter_date = request.GET.get("date")
+        if filter_date:
+            filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
+            current_tz = timezone.get_current_timezone()
+            start_of_day = timezone.make_aware(datetime.combine(filter_date, datetime.min.time()), current_tz)
+            end_of_day = start_of_day + timedelta(days=1)
+            history_list = history_list.filter(createdAt__range=(start_of_day, end_of_day))
 
-    healthcare_facility = request.GET.get("healthcare_facility")
-    if healthcare_facility:
-        hospital_ids = hospital.objects.filter(name__icontains=healthcare_facility).values_list('id', flat=True)
-        history_list = history_list.filter(hospitalID__in=hospital_ids)
+        healthcare_facility = request.GET.get("healthcare_facility")
+        if healthcare_facility:
+            hospital_ids = hospital.objects.filter(name__icontains=healthcare_facility).values_list('id', flat=True)
+            history_list = history_list.filter(hospitalID__in=hospital_ids)
 
-    detailed_history_list = []
+        detailed_history_list = []
 
-    for h in history_list:
-        # Fetch related appointment details
-        appointment_details = appointment.objects.get(id=h.appointmentId_id)
-        appointment_name = appointment_details.name
-        appointment_properties = json.loads(h.appointmentId.properties)
-        appointment_type = appointment_properties.get("type", "Unknown")
+        for h in history_list:
+            # Fetch related appointment details
+            appointment_details = appointment.objects.get(id=h.appointmentId_id)
+            appointment_name = appointment_details.name
+            appointment_properties = json.loads(h.appointmentId.properties)
+            appointment_type = appointment_properties.get("type", "Unknown")
 
-        # Fetch healthcare worker details by Dr. ID
-        doctor_details = hospitalStaff.objects.get(id=h.doctorID)
-        doctor_name = doctor_details.name
+            # Fetch healthcare worker details by Dr. ID
+            doctor_details = hospitalStaff.objects.get(id=h.doctorID)
+            doctor_name = doctor_details.name
 
-        # Fetch hospital details by hospitalID
-        hospital_details = hospital.objects.get(id=h.hospitalID)
-        hospital_name = hospital_details.name
-        hospital_address = hospital_details.address
+            # Fetch hospital details by hospitalID
+            hospital_details = hospital.objects.get(id=h.hospitalID)
+            hospital_name = hospital_details.name
+            hospital_address = hospital_details.address
 
-        # Append a dictionary for each record with all the details needed
-        detailed_history_list.append({
-            'doctor_name': doctor_name,
-            'hospital_name': hospital_name,
-            'hospital_address': hospital_address,
-            'createdAt': datetime.date(h.createdAt),
-            'updatedAt': datetime.date(h.updatedAt),
-            'appointment_name': appointment_name,
-            'appointment_type': appointment_type,
-        })
+            # Append a dictionary for each record with all the details needed
+            detailed_history_list.append({
+                'doctor_name': doctor_name,
+                'hospital_name': hospital_name,
+                'hospital_address': hospital_address,
+                'createdAt': datetime.date(h.createdAt),
+                'updatedAt': datetime.date(h.updatedAt),
+                'appointment_name': appointment_name,
+                'appointment_type': appointment_type,
+            })
 
     return render(request,'view_history.html', {'history_list':detailed_history_list})
 
