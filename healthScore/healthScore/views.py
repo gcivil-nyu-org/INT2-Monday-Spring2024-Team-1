@@ -19,21 +19,19 @@ def test_default_values(request):
 
 def view_health_history(request):
     if request.method == "GET":
-        return render(request, 'view_history.html')
-    else:
         # Filtering to just userID=5 to simulate it being a users view.
         history_list = healthRecord.objects.filter(userID=5)
 
-        appointment_name = request.POST.get("appointment_name")
+        appointment_name = request.GET.get("appointment_name")
         if appointment_name:
             history_list = history_list.filter(appointmentId__name__icontains=appointment_name)
 
-        healthcare_worker = request.POST.get("healthcare_worker")
+        healthcare_worker = request.GET.get("healthcare_worker")
         if healthcare_worker:
             doctor_ids = hospitalStaff.objects.filter(name__icontains=healthcare_worker).values_list('id', flat=True)
             history_list = history_list.filter(doctorID__in=doctor_ids)
 
-        filter_date = request.POST.get("date")
+        filter_date = request.GET.get("date")
         if filter_date:
             filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
             current_tz = timezone.get_current_timezone()
@@ -41,7 +39,7 @@ def view_health_history(request):
             end_of_day = start_of_day + timedelta(days=1)
             history_list = history_list.filter(createdAt__range=(start_of_day, end_of_day))
 
-        healthcare_facility = request.POST.get("healthcare_facility")
+        healthcare_facility = request.GET.get("healthcare_facility")
         if healthcare_facility:
             hospital_ids = hospital.objects.filter(name__icontains=healthcare_facility).values_list('id', flat=True)
             history_list = history_list.filter(hospitalID__in=hospital_ids)
@@ -74,10 +72,8 @@ def view_health_history(request):
                 'appointment_name': appointment_name,
                 'appointment_type': appointment_type,
             })
-            print(detailed_history_list)
 
     return render(request,'view_history.html', {'history_list':detailed_history_list})
-
 
 @csrf_exempt
 def add_mock_data(request):

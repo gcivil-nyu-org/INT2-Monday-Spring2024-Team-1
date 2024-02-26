@@ -29,6 +29,9 @@
         .sidebar a:hover {
             color: #f1f1f1;
         }
+        .navbar-custom {
+            background-color: #e3f2fd;
+        }
         .navbar-brand {
             position: relative;
             background: url();
@@ -59,7 +62,7 @@
 </div>
 
 <div class="container my-4">
-    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+    <nav class="navbar navbar-light navbar-custom">
         <a class="navbar-brand" href="#">Health Score</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -88,23 +91,22 @@
     <div class="row">
         <div class="col-lg-12">
             <h4>Filter Your Health History</h4>
-            <form method="POST" action="{% url 'view_health_history' %}" class="form-inline">
-                {% csrf_token %}
+            <form method="GET" action="{% url 'view_health_history' %}" class="form-inline">
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="appointment_name" class="sr-only">Reason for Visit:</label>
-                        <input type="text" class="form-control" id="appointment_name" name="appointment_name" placeholder="Reason for Visit">
+                        <input type="text" class="form-control" id="appointment_name" name="appointment_name" placeholder="Reason for Visit" value="{{ request.GET.appointment_name }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="healthcare_worker" class="sr-only">User Name:</label>
-                    <input type="text" class="form-control" id="healthcare_worker" name="healthcare_worker" placeholder="Healthcare Worker">
+                    <input type="text" class="form-control" id="healthcare_worker" name="healthcare_worker" placeholder="Healthcare Worker" value="{{ request.GET.healthcare_worker }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="healthcare_facility" class="sr-only">Healthcare Facility:</label>
-                    <input type="text" class="form-control" id="healthcare_facility" name="healthcare_facility" placeholder="Healthcare Facility">
+                    <input type="text" class="form-control" id="healthcare_facility" name="healthcare_facility" placeholder="Healthcare Facility" value="{{ request.GET.healthcare_facility }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="date" class="sr-only">Date:</label>
-                    <input type="date" class="form-control" id="date" name="date">
+                    <input type="date" class="form-control" id="date" name="date" value="{{ request.GET.date }}">
                 </div>
 
                 <div class="form-group mx-sm-3 mb-2">
