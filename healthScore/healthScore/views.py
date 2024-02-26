@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -10,11 +10,13 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import healthRecord, hospital, user, hospitalStaff, communityInteraction, appointment
 
 
+
 def test_default_values(request):
     # To get all records from the  healthRecord table
     healthRecordObjects = healthRecord.objects.all().values()      
     # To create new records and save them 
     # h = hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
+
     return HttpResponse("<h1>Finally Workingggggggg. Welcome to HealthScore</h1>")
 
 def view_health_history(request):
@@ -109,3 +111,28 @@ def add_mock_data(request):
         return HttpResponse("Data Added to the database")
     else:
         return HttpResponse("Please change the request method to POST")
+
+@csrf_exempt
+def register(request):
+    if request.method == 'POST': # when the form is submitted
+        email = request.POST.get('email')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        fullname = request.POST.get('fullname')
+        dob = request.POST.get('dob')
+        gender = request.POST.get('gender')
+        street_address = request.POST.get('street_address')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        phone_number = request.POST.get('phone_number')
+        identity_proof = request.POST.get('identity_proof')
+
+        if not user.objects.filter(email=email).exists():
+            user.objects.create(email=email, userName=username, password=password, name=fullname, 
+                                dob=dob, gender=gender, address=street_address + ', ' + city + ', ' + state, contactInfo=phone_number)
+            # when successfully created an account
+            return redirect('index')
+        else:
+            # when an email has registered already
+            pass
+    return render(request, 'registration.html')
