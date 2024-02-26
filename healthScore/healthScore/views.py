@@ -76,7 +76,7 @@ def register(request):
 
         if not user.objects.filter(email=email).exists():
             user.objects.create(email=email, userName=username, password=password, name=fullname, 
-                                dob=dob, gender=gender, address=street_address, contactInfo=phone_number)
+                                dob=dob, gender=gender, address=street_address + ', ' + city + ', ' + state, contactInfo=phone_number)
             # when successfully created an account
             return redirect('index')
         else:
