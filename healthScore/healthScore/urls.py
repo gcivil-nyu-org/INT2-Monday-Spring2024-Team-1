@@ -4,6 +4,8 @@ from . import views
 
 urlpatterns = [
     path('index', views.test_default_values, name='index'),
-    path('addMockData', views.add_mock_data, name='mock_data'),
-    path('registration', views.register, name='register')
+    path('addMockData', views.add_mock_data, name='mock_data')
+     path('registration', views.register, name='register')
+    path('viewHealthHistory', views.view_health_history, name='view_health_history'),
+]
 ]
