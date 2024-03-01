@@ -1,0 +1,28 @@
+language: python
+
+python:
+- 3.9
+
+install:
+- pip install -r healthScore/requirements.txt
+
+script:
+- black --check .
+- flake8 --max-line-length=300 .
+- coverage run healthScore/manage.py test
+
+after_script:
+- coveralls
+
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: $ACCESS_KEY_ID
+  secret_access_key: $SECRET_ACCESS_KEY
+  region: $REGION
+  app: health-score
+  env: health-env4
+  bucket_name: $BUCKET_NAME
+  on:
+    repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
+    branch: develop
+  skip_cleanup: 'true'
