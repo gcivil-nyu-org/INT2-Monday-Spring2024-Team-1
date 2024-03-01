@@ -6,9 +6,9 @@ python:
 install:
 - pip install -r healthScore/requirements.txt
 
-# script:
-# - black --check .
-# - flake8 --max-line-length=99 .
+script:
+- black --check .
+- flake8 --max-line-length=99 .
 # - coverage run manage.py test
 
 # after_script:
