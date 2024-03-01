@@ -11,13 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import environ
+from getenv import env
 import pymysql
 
 pymysql.install_as_MySQLdb()
-
-env = environ.Env()
-environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,9 +82,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "HealthScore",
-        "USER": env("DB_USER"),
+        "USER": env("DB_USER", "root"),
         "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST"),
+        "HOST": env("DB_HOST", "localhost"),
         "PORT": "3306",
     }
 }
