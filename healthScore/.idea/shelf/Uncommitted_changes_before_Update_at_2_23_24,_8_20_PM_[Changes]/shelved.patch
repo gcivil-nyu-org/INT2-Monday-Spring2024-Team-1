@@ -1,0 +1,116 @@
+Index: healthScore/views.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.shortcuts import render\nfrom django.http import HttpResponse\n\n# Create your views here.\nfrom .models import healthRecord, hospital, user\n\n\ndef test_default_values(request):\n    # To get all records from the  healthRecord table\n    healthRecordObjects = healthRecord.objects.all().values()      \n\n    # To create new records and save them \n    # h = hospital.objects.create(name=\"NYU\", address=\"246\", email=\"nyu@nyu.com\", password=\"123435\", contactInfo=\"123456781\")\n    # h.save() \n    \n    return HttpResponse(healthRecordObjects)\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthScore/views.py b/healthScore/views.py
+--- a/healthScore/views.py	
++++ b/healthScore/views.py	
+@@ -7,10 +7,15 @@
+ 
+ def test_default_values(request):
+     # To get all records from the  healthRecord table
+-    healthRecordObjects = healthRecord.objects.all().values()      
++    healthRecordObjects = healthRecord.objects.all().values()
+ 
+-    # To create new records and save them 
++    # To create new records and save them
+     # h = hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
+-    # h.save() 
+-    
++    # h.save()
++
+     return HttpResponse(healthRecordObjects)
++
++
++
++
++
+Index: healthScore/urls.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.urls import path\n\nfrom . import views\n\nurlpatterns = [\n    path('index', views.test_default_values, name='index')\n]
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthScore/urls.py b/healthScore/urls.py
+--- a/healthScore/urls.py	
++++ b/healthScore/urls.py	
+@@ -3,5 +3,6 @@
+ from . import views
+ 
+ urlpatterns = [
+-    path('index', views.test_default_values, name='index')
++    path('index', views.index, name='index'),
++    path('test', views.test_default_values),
+ ]
+\ No newline at end of file
+Index: healthConfig/urls.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\nURL configuration for healthConfig project.\n\nThe `urlpatterns` list routes URLs to views. For more information please see:\n    https://docs.djangoproject.com/en/4.2/topics/http/urls/\nExamples:\nFunction views\n    1. Add an import:  from my_app import views\n    2. Add a URL to urlpatterns:  path('', views.home, name='home')\nClass-based views\n    1. Add an import:  from other_app.views import Home\n    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')\nIncluding another URLconf\n    1. Import the include() function: from django.urls import include, path\n    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))\n\"\"\"\nfrom django.contrib import admin\nfrom django.urls import path, include\n\nurlpatterns = [\n    path(\"hs/\", include(\"healthScore.urls\")),\n    path('admin/', admin.site.urls),\n]\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthConfig/urls.py b/healthConfig/urls.py
+--- a/healthConfig/urls.py	
++++ b/healthConfig/urls.py	
+@@ -16,8 +16,9 @@
+ """
+ from django.contrib import admin
+ from django.urls import path, include
++from healthScore import views
+ 
+ urlpatterns = [
+-    path("hs/", include("healthScore.urls")),
++    path("healthScore/", include("healthScore.urls")),
+     path('admin/', admin.site.urls),
+ ]
+Index: requirements.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>asgiref==3.7.2\nawsebcli==3.20.10\nblessed==1.20.0\nbotocore==1.31.85\ncement==2.10.14\ncertifi==2024.2.2\ncharset-normalizer==3.3.2\ncolorama==0.4.3\ndistlib==0.3.8\nDjango==4.2\nfilelock==3.13.1\nidna==3.6\njmespath==1.0.1\nmysql-connector==2.2.9\nmysql-connector-python==8.3.0\nmysqlclient==2.2.4\nnumpy==1.26.2\npandas==2.1.3\npathspec==0.10.1\npipenv==2023.11.14\nplatformdirs==3.11.0\nPyJWT==1.7.1\nPyMySQL==1.1.0\npython-dateutil==2.8.2\npytz==2024.1\nPyYAML==6.0.1\nrequests==2.31.0\nsemantic-version==2.8.5\nsetuptools==69.1.0\nsix==1.16.0\nsqlparse==0.4.4\ntermcolor==1.1.0\ntzdata==2024.1\nurllib3==2.1.0\nvirtualenv==20.24.6\nwcwidth==0.1.9\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/requirements.txt b/requirements.txt
+--- a/requirements.txt	
++++ b/requirements.txt	
+@@ -2,7 +2,7 @@
+ awsebcli==3.20.10
+ blessed==1.20.0
+ botocore==1.31.85
+-cement==2.10.14
++cement
+ certifi==2024.2.2
+ charset-normalizer==3.3.2
+ colorama==0.4.3
+@@ -31,6 +31,6 @@
+ sqlparse==0.4.4
+ termcolor==1.1.0
+ tzdata==2024.1
+-urllib3==2.1.0
++urllib3
+ virtualenv==20.24.6
+ wcwidth==0.1.9
+Index: healthConfig/settings.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\nDjango settings for healthConfig project.\n\nGenerated by 'django-admin startproject' using Django 4.2.\n\nFor more information on this file, see\nhttps://docs.djangoproject.com/en/4.2/topics/settings/\n\nFor the full list of settings and their values, see\nhttps://docs.djangoproject.com/en/4.2/ref/settings/\n\"\"\"\n\nfrom pathlib import Path\n\nimport pymysql\n\npymysql.install_as_MySQLdb()\n\n# Build paths inside the project like this: BASE_DIR / 'subdir'.\nBASE_DIR = Path(__file__).resolve().parent.parent\n\n\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/\n\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-n1oep)=z2l=)(()n!2)rsd-vw_+x0@r*lqi#v5oxo37n8^@liy'\n\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\n\nALLOWED_HOSTS = []\n\n\n# Application definition\n\nINSTALLED_APPS = [\n    'healthScore.apps.HealthscoreConfig',\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n]\n\nMIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\n\nROOT_URLCONF = 'healthConfig.urls'\n\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',\n                'django.contrib.messages.context_processors.messages',\n            ],\n        },\n    },\n]\n\nWSGI_APPLICATION = 'healthConfig.wsgi.application'\n\n\n# Database\n# https://docs.djangoproject.com/en/4.2/ref/settings/#databases\n\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.mysql',\n        'NAME': 'HealthScore',\n        'USER': 'root',\n        'PASSWORD': '', # change it with your sql server password for local testing\n        'HOST':'localhost',\n        'PORT':'3306',\n    }\n}\n\n\n# Password validation\n# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators\n\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',\n    },\n]\n\n\n# Internationalization\n# https://docs.djangoproject.com/en/4.2/topics/i18n/\n\nLANGUAGE_CODE = 'en-us'\n\nTIME_ZONE = 'UTC'\n\nUSE_I18N = True\n\nUSE_TZ = True\n\n\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.2/howto/static-files/\n\nSTATIC_URL = 'static/'\n\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field\n\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthConfig/settings.py b/healthConfig/settings.py
+--- a/healthConfig/settings.py	
++++ b/healthConfig/settings.py	
+@@ -83,7 +83,7 @@
+         'ENGINE': 'django.db.backends.mysql',
+         'NAME': 'HealthScore',
+         'USER': 'root',
+-        'PASSWORD': '', # change it with your sql server password for local testing
++        'PASSWORD': 'root123456789', # change it with your sql server password for local testing
+         'HOST':'localhost',
+         'PORT':'3306',
+     }
