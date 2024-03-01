@@ -164,3 +164,6 @@ def register(request):
             # when an email has registered already
             pass
     return render(request, "registration.html")
+
+def report_generation(request):
+    return render(request, "view_history.html")
