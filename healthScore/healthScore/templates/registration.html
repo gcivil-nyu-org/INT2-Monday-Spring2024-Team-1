@@ -51,6 +51,26 @@
   .small-text {
     font-size: 12px;
   }
+  .role-sections {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  }
+
+  .role-section {
+    width: 45%;
+    padding: 20px;
+    background-color: #f0f0f0;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0;
+    border: 2px solid transparent;
+  }
+
+  .role-section.active {
+    border-color: #5B0888;
+    background-color: #E5CFF7;
+  }
 </style>
 <script>
   function validateForm() {
@@ -96,6 +116,15 @@
   function hidePasswordRequirements() {
     document.getElementById("password_requirements").style.display = "none";
   }
+
+  function selectRole(role) {
+    document.getElementById('user_role_section').classList.remove('active');
+    document.getElementById('admin_role_section').classList.remove('active');
+
+    document.getElementById(role === 'User' ? 'user_role_section' : 'admin_role_section').classList.add('active');
+
+    document.getElementById('selected_role').value = role;
+  }
 </script>
 </head>
 
@@ -103,8 +132,14 @@
 
 <body>
 
-<h2>User Registration</h2>
+<h2>Account Registration</h2>
 <form id="registration_form" action="#" method="post" onsubmit="return validateForm()">
+
+    <div class="role-sections">
+    <div id="user_role_section" class="role-section active" onclick="selectRole('User')">User</div>
+    <div id="admin_role_section" class="role-section" onclick="selectRole('Healthcare Admin')">Healthcare Admin</div>
+  </div>
+  <input type="hidden" name="role" id="selected_role">
 
   <div id="error_message" class="error-message">
     {{ error_message }}
