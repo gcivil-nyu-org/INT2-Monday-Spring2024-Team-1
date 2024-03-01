@@ -6,12 +6,6 @@ python:
 install:
 - pip install -r requirements.txt
 
-before_script:
-- touch .env
-- echo DB_USER=$DB_USER >> .env
-- echo DB_PASSWORD=$DB_PASSWORD >> .env
-- echo DB_HOST=$DB_HOST >> .env
-
 script:
 - black --check .
 - flake8 --max-line-length=300 .
