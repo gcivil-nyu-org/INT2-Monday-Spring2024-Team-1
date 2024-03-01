@@ -104,13 +104,17 @@
 <body>
 
 <h2>User Registration</h2>
-
 <form id="registration_form" action="#" method="post" onsubmit="return validateForm()">
+
+  <div id="error_message" class="error-message">
+    {{ error_message }}
+  </div><br>
+
   <label for="email">Email<span style="color: red;">*</span></label>
-  <input type="email" id="email" name="email" required><br>
+  <input type="email" id="email" name="email" required value="{{ email }}"><br>
 
   <label for="username">Username<span style="color: red;">*</span></label>
-  <input type="text" id="username" name="username" required><br>
+  <input type="text" id="username" name="username" required value="{{ username }}"><br>
 
   <label for="password">Password<span style="color: red;">*</span></label>
   <input type="password" id="password" name="password" required onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
@@ -121,86 +125,86 @@
 
   <label for="retype_password">Confirm Password<span style="color: red;">*</span></label>
   <input type="password" id="retype_password" name="retype_password" required>
-  <span id="retype_password_error" class="error-message"></span><br><br><br>
+  <span id="retype_password_error" class="error-message"></span><br><br>
 
   <label for="fullname">Full Name<span style="color: red;">*</span></label>
-  <input type="text" id="fullname" name="fullname" required><br>
+  <input type="text" id="fullname" name="fullname" required value="{{ fullname }}"><br>
 
   <label for="dob">Date of Birth<span style="color: red;">*</span></label>
-  <input type="date" id="dob" name="dob" required><br>
+  <input type="date" id="dob" name="dob" required value="{{ dob }}"><br>
   
   <label for="gender">Gender<span style="color: red;">*</span></label>
   <select id="gender" name="gender" required>
     <option value="">Select Gender</option>
-    <option value="male">Male</option>
-    <option value="female">Female</option>
-    <option value="other">Other</option>
+    <option value="male" {% if gender == "male" %}selected{% endif %}>Male</option>
+    <option value="female" {% if gender == "female" %}selected{% endif %}>Female</option>
+    <option value="other" {% if gender == "other" %}selected{% endif %}>Other</option>
   </select><br><br>
 
   <label for="street_address">Street Address<span style="color: red;">*</span></label>
-  <input type="text" id="street_address" name="street_address" required><br>
+  <input type="text" id="street_address" name="street_address" required value="{{ street_address }}"><br>
 
   <label for="city">City<span style="color: red;">*</span></label>
-  <input type="text" id="city" name="city" required><br>
+  <input type="text" id="city" name="city" required value="{{ city }}"><br>
 
   <label for="state">State<span style="color: red;">*</span></label>
 <select id="state" name="state" required>
   <option value="" disabled selected>Select State</option>
-  <option value="AL">Alabama</option>
-  <option value="AK">Alaska</option>
-  <option value="AZ">Arizona</option>
-  <option value="AR">Arkansas</option>
-  <option value="CA">California</option>
-  <option value="CO">Colorado</option>
-  <option value="CT">Connecticut</option>
-  <option value="DE">Delaware</option>
-  <option value="FL">Florida</option>
-  <option value="GA">Georgia</option>
-  <option value="HI">Hawaii</option>
-  <option value="ID">Idaho</option>
-  <option value="IL">Illinois</option>
-  <option value="IN">Indiana</option>
-  <option value="IA">Iowa</option>
-  <option value="KS">Kansas</option>
-  <option value="KY">Kentucky</option>
-  <option value="LA">Louisiana</option>
-  <option value="ME">Maine</option>
-  <option value="MD">Maryland</option>
-  <option value="MA">Massachusetts</option>
-  <option value="MI">Michigan</option>
-  <option value="MN">Minnesota</option>
-  <option value="MS">Mississippi</option>
-  <option value="MO">Missouri</option>
-  <option value="MT">Montana</option>
-  <option value="NE">Nebraska</option>
-  <option value="NV">Nevada</option>
-  <option value="NH">New Hampshire</option>
-  <option value="NJ">New Jersey</option>
-  <option value="NM">New Mexico</option>
-  <option value="NY">New York</option>
-  <option value="NC">North Carolina</option>
-  <option value="ND">North Dakota</option>
-  <option value="OH">Ohio</option>
-  <option value="OK">Oklahoma</option>
-  <option value="OR">Oregon</option>
-  <option value="PA">Pennsylvania</option>
-  <option value="RI">Rhode Island</option>
-  <option value="SC">South Carolina</option>
-  <option value="SD">South Dakota</option>
-  <option value="TN">Tennessee</option>
-  <option value="TX">Texas</option>
-  <option value="UT">Utah</option>
-  <option value="VT">Vermont</option>
-  <option value="VA">Virginia</option>
-  <option value="WA">Washington</option>
-  <option value="WV">West Virginia</option>
-  <option value="WI">Wisconsin</option>
-  <option value="WY">Wyoming</option>
+  <option value="AL" {% if state == "AL" %}selected{% endif %}>Alabama</option>
+  <option value="AK" {% if state == "AK" %}selected{% endif %}>Alaska</option>
+  <option value="AZ" {% if state == "AZ" %}selected{% endif %}>Arizona</option>
+  <option value="AR" {% if state == "AR" %}selected{% endif %}>Arkansas</option>
+  <option value="CA" {% if state == "CA" %}selected{% endif %}>California</option>
+  <option value="CO" {% if state == "CO" %}selected{% endif %}>Colorado</option>
+  <option value="CT" {% if state == "CT" %}selected{% endif %}>Connecticut</option>
+  <option value="DE" {% if state == "DE" %}selected{% endif %}>Delaware</option>
+  <option value="FL" {% if state == "FL" %}selected{% endif %}>Florida</option>
+  <option value="GA" {% if state == "GA" %}selected{% endif %}>Georgia</option>
+  <option value="HI" {% if state == "HI" %}selected{% endif %}>Hawaii</option>
+  <option value="ID" {% if state == "ID" %}selected{% endif %}>Idaho</option>
+  <option value="IL" {% if state == "IL" %}selected{% endif %}>Illinois</option>
+  <option value="IN" {% if state == "IN" %}selected{% endif %}>Indiana</option>
+  <option value="IA" {% if state == "IA" %}selected{% endif %}>Iowa</option>
+  <option value="KS" {% if state == "KS" %}selected{% endif %}>Kansas</option>
+  <option value="KY" {% if state == "KY" %}selected{% endif %}>Kentucky</option>
+  <option value="LA" {% if state == "LA" %}selected{% endif %}>Louisiana</option>
+  <option value="ME" {% if state == "ME" %}selected{% endif %}>Maine</option>
+  <option value="MD" {% if state == "MD" %}selected{% endif %}>Maryland</option>
+  <option value="MA" {% if state == "MA" %}selected{% endif %}>Massachusetts</option>
+  <option value="MI" {% if state == "MI" %}selected{% endif %}>Michigan</option>
+  <option value="MN" {% if state == "MN" %}selected{% endif %}>Minnesota</option>
+  <option value="MS" {% if state == "MS" %}selected{% endif %}>Mississippi</option>
+  <option value="MO" {% if state == "MO" %}selected{% endif %}>Missouri</option>
+  <option value="MT" {% if state == "MT" %}selected{% endif %}>Montana</option>
+  <option value="NE" {% if state == "NE" %}selected{% endif %}>Nebraska</option>
+  <option value="NV" {% if state == "NV" %}selected{% endif %}>Nevada</option>
+  <option value="NH" {% if state == "NH" %}selected{% endif %}>New Hampshire</option>
+  <option value="NJ" {% if state == "NJ" %}selected{% endif %}>New Jersey</option>
+  <option value="NM" {% if state == "NM" %}selected{% endif %}>New Mexico</option>
+  <option value="NY" {% if state == "NY" %}selected{% endif %}>New York</option>
+  <option value="NC" {% if state == "NC" %}selected{% endif %}>North Carolina</option>
+  <option value="ND" {% if state == "ND" %}selected{% endif %}>North Dakota</option>
+  <option value="OH" {% if state == "OH" %}selected{% endif %}>Ohio</option>
+  <option value="OK" {% if state == "OK" %}selected{% endif %}>Oklahoma</option>
+  <option value="OR" {% if state == "OR" %}selected{% endif %}>Oregon</option>
+  <option value="PA" {% if state == "PA" %}selected{% endif %}>Pennsylvania</option>
+  <option value="RI" {% if state == "RI" %}selected{% endif %}>Rhode Island</option>
+  <option value="SC" {% if state == "SC" %}selected{% endif %}>South Carolina</option>
+  <option value="SD" {% if state == "SD" %}selected{% endif %}>South Dakota</option>
+  <option value="TN" {% if state == "TN" %}selected{% endif %}>Tennessee</option>
+  <option value="TX" {% if state == "TX" %}selected{% endif %}>Texas</option>
+  <option value="UT" {% if state == "UT" %}selected{% endif %}>Utah</option>
+  <option value="VT" {% if state == "VT" %}selected{% endif %}>Vermont</option>
+  <option value="VA" {% if state == "VA" %}selected{% endif %}>Virginia</option>
+  <option value="WA" {% if state == "WA" %}selected{% endif %}>Washington</option>
+  <option value="WV" {% if state == "WV" %}selected{% endif %}>West Virginia</option>
+  <option value="WI" {% if state == "WI" %}selected{% endif %}>Wisconsin</option>
+  <option value="WY" {% if state == "WY" %}selected{% endif %}>Wyoming</option>
 </select><br><br>
 
 
   <label for="phone_number">Phone Number<span style="color: red;">*</span></label>
-  <input type="text" id="phone_number" name="phone_number" maxlength="10" pattern="[0-9]+" required><br><br><br>
+  <input type="text" id="phone_number" name="phone_number" maxlength="10" pattern="[0-9]+" required value="{{ phone_number }}"><br><br><br>
 
   
   <label for="identity_proof">Proof of Identity<span style="color: red;">*</span></label>
@@ -210,8 +214,10 @@
   </div><br>
 
   <input type="submit" value="Register">
-  <span id="form_error" class="error-message"></span>
 </form>
+<div style="text-align:center; margin-top:20px;">
+  Already have an account? <a href="{% url 'index' %}">Login</a>
+</div>
 
 </body>
 </html>
