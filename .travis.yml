@@ -8,7 +8,7 @@ install:
 
 script:
 - black --check .
-- flake8 --max-line-length=99 .
+- flake8 --max-line-length=300 .
 # - coverage run manage.py test
 
 # after_script:

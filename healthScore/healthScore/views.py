@@ -12,14 +12,14 @@ from .models import (
     hospital,
     user,
     hospitalStaff,
-    communityInteraction,
+    # communityInteraction,
     appointment,
 )
 
 
 def test_default_values(request):
     # To get all records from the  healthRecord table
-    healthRecordObjects = healthRecord.objects.all().values()
+    # healthRecordObjects = healthRecord.objects.all().values()
     # To create new records and save them
     # h = hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
 
@@ -145,7 +145,7 @@ def register(request):
         city = request.POST.get("city")
         state = request.POST.get("state")
         phone_number = request.POST.get("phone_number")
-        identity_proof = request.POST.get("identity_proof")
+        # identity_proof = request.POST.get("identity_proof")
 
         if not user.objects.filter(email=email).exists():
             user.objects.create(
