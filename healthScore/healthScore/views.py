@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
-from django.contrib import messages
+# from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 import json
 
@@ -159,7 +159,7 @@ def register(request):
         context["city"] = city = request.POST.get("city")
         context["state"] = state = request.POST.get("state")
         context["phone_number"] = phone_number = request.POST.get("phone_number")
-        identity_proof = request.POST.get("identity_proof")
+        # identity_proof = request.POST.get("identity_proof")
 
         if user.objects.filter(email=email).exists():
             context["error_message"] = (
