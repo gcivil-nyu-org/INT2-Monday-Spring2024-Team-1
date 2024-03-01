@@ -143,7 +143,7 @@
                 <table class="table table-striped my-4">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col">+</th>
+                            <!-- <th scope="col">+</th> -->
                             <th scope="col">Reason for Visit</th>
                             <th scope="col">Visit Details</th>
                             <th scope="col">Healthcare Worker</th>
@@ -155,9 +155,8 @@
                     </thead>
                     <tbody>
                         {% for record in history_list %}
-                        <tr onclick="something(record)" data-toggle="modal"
-                            data-target="#myModal">
-                            <td>{{ record.appointment_properties }}</td>
+                        <tr onclick="something()" data-toggle="modal" data-target="#myModal">
+                            <td id="props" value="{{record.appointment_properties}}" style="visibility: hidden; display: none;">{{ record.appointment_properties }}</td>
                             <td>{{ record.appointment_name }}</td>
                             <td>{{ record.appointment_type }}</td>
                             <td>{{ record.doctor_name }}</td>
@@ -203,6 +202,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
     <script>
         function openNav() {
             document.getElementById("mySidebar").style.width = "250px";
@@ -212,22 +212,14 @@
             document.getElementById("mySidebar").style.width = "0";
         }
 
-        function something(record) {
-            console.log(properties)
-
-            var modalBody = document.getElementById('modal-body');
-            modalBody.innerHTML = `
-            <p>Appointment Properties: ${record.appointment_properties}</p>
-            <p>Appointment Name: ${record.appointment_name}</p>
-            <p>Appointment Type: ${record.appointment_type}</p>
-            <p>Doctor Name: ${record.doctor_name}</p>
-            <p>Hospital Name: ${record.hospital_name}</p>
-            <p>Hospital Address: ${record.hospital_address}</p>
-            <p>Created Date: ${record.createdAt}</p>
-            <p>Updated Date: ${record.updatedAt}</p>
-        `;
-            console.log("Something")
-        }
+        function something() {
+        // console.log(record)
+        var modalBody = document.getElementById('props').getAttribute('value');
+        console.log(typeof(modalBody))
+        console.log(JSON.parse(modalBody))
+        modalBody.innerHTML = "test";
+        console.log("Something");
+    }
 
     </script>
 </body>
