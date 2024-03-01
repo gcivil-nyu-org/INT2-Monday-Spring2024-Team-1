@@ -137,40 +137,44 @@ def add_mock_data(request):
 @csrf_exempt
 def register(request):
     context = {
-        'email': '',
-        'username': '',
-        'fullname': '',
-        'dob': '',
-        'gender': '',
-        'street_address': '',
-        'city': '',
-        'state': '',
-        'phone_number': '',
-        'error_message': '',
+        "email": "",
+        "username": "",
+        "fullname": "",
+        "dob": "",
+        "gender": "",
+        "street_address": "",
+        "city": "",
+        "state": "",
+        "phone_number": "",
+        "error_message": "",
     }
 
-    if request.method == 'POST': # when the form is submitted
-        context['email'] = email = request.POST.get('email')
-        context['username'] = username = request.POST.get('username')
-        context['fullname'] = fullname = request.POST.get('fullname')
-        context['dob'] = dob = request.POST.get('dob')
-        context['gender'] = gender = request.POST.get('gender')
-        context['street_address'] = street_address = request.POST.get('street_address')
-        context['city'] = city = request.POST.get('city')
-        context['state'] = state = request.POST.get('state')
-        context['phone_number'] = phone_number = request.POST.get('phone_number')
-        identity_proof = request.POST.get('identity_proof')
+    if request.method == "POST":  # when the form is submitted
+        context["email"] = email = request.POST.get("email")
+        context["username"] = username = request.POST.get("username")
+        context["fullname"] = fullname = request.POST.get("fullname")
+        context["dob"] = dob = request.POST.get("dob")
+        context["gender"] = gender = request.POST.get("gender")
+        context["street_address"] = street_address = request.POST.get("street_address")
+        context["city"] = city = request.POST.get("city")
+        context["state"] = state = request.POST.get("state")
+        context["phone_number"] = phone_number = request.POST.get("phone_number")
+        identity_proof = request.POST.get("identity_proof")
 
         if user.objects.filter(email=email).exists():
-            context['error_message'] = 'An account already exists for this email address. Please log in.'
-            return render(request, 'registration.html', context)
+            context["error_message"] = (
+                "An account already exists for this email address. Please log in."
+            )
+            return render(request, "registration.html", context)
 
         elif user.objects.filter(userName=username).exists():
-            context['error_message'] = 'Username already exists. Please choose a different one.'
-            return render(request, 'registration.html', context)
+            context["error_message"] = (
+                "Username already exists. Please choose a different one."
+            )
+            return render(request, "registration.html", context)
 
         else:
-            hashed_password = make_password(request.POST.get('password'))
+            hashed_password = make_password(request.POST.get("password"))
 
             user.objects.create(
                 email=email,
@@ -179,10 +183,10 @@ def register(request):
                 name=fullname,
                 dob=dob,
                 gender=gender,
-                address=f'{street_address}, {city}, {state}',
-                contactInfo=phone_number
+                address=f"{street_address}, {city}, {state}",
+                contactInfo=phone_number,
             )
 
-            return redirect('index')
+            return redirect("index")
 
-    return render(request, 'registration.html')
+    return render(request, "registration.html")
