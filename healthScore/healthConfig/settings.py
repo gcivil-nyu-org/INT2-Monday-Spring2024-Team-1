@@ -81,9 +81,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'HealthScore',
-        'USER': 'admin',
-        'PASSWORD': 'HealthScoreAdmin', # change it with your sql server password for local testing
-        'HOST':'awseb-e-meky4ftcfy-stack-awsebrdsdatabase-yqgueanvxaev.clkwykuegjia.us-west-2.rds.amazonaws.com',
+        'USER': 'root',
+        'PASSWORD': '', # change it with your sql server password for local testing
+        'HOST':'localhost',
         'PORT':'3306',
     }
 }
