@@ -19,9 +19,6 @@ idna==3.6
 jmespath==1.0.1
 mccabe==0.7.0
 mypy-extensions==1.0.0
-mysql-connector==2.2.9
-mysql-connector-python==8.3.0
-mysqlclient==2.2.4
 numpy==1.26.2
 packaging==23.2
 pandas==2.1.3
