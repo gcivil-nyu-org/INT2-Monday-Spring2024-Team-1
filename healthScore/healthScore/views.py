@@ -93,6 +93,7 @@ def view_health_history(request):
                     "appointment_type": appointment_type,
                 }
             )
+            report_generation(detailed_history_list)
 
     return render(request, "view_history.html", {"history_list": detailed_history_list})
 
@@ -165,5 +166,6 @@ def register(request):
             pass
     return render(request, "registration.html")
 
-def report_generation(request):
-    return render(request, "view_history.html")
+def report_generation(information_list):
+    pdf = []
+    return pdf
