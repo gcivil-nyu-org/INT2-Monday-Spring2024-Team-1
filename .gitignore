@@ -1,0 +1,7 @@
+healthScore/.venv/bin/pip3
+healthScore/.venv/bin/pip
+.venv/
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
