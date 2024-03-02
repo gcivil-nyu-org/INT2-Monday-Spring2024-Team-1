@@ -75,8 +75,7 @@ def view_health_history(request):
                 'appointment_type': appointment_type,
                 'appointment_properties': json.dumps(appointment_properties),
             })
-            print("\n\n", detailed_history_list, "\n\n")
-
+            
     return render(request,'view_history.html', {'history_list':detailed_history_list})
 
 
