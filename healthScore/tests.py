@@ -253,11 +253,17 @@ class viewHealthHistoryTestCase(TestCase):
         )
 
     def test_view_history(self):
-        url = reverse(
-            "view_health_history"
-        )  
+        url = reverse("view_health_history")
 
-        request = self.factory.get(url, {'appointment_name': "test", "healthcare_worker":"test", "date":datetime.now(),"healthcare_facility":"test"})
+        request = self.factory.get(
+            url,
+            {
+                "appointment_name": "test",
+                "healthcare_worker": "test",
+                "date": datetime.now(),
+                "healthcare_facility": "test",
+            },
+        )
         request = self.factory.get(url)
 
         response = view_health_history(request)
