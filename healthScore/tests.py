@@ -1,7 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 
 from healthScore.models import (
@@ -9,7 +9,6 @@ from healthScore.models import (
     hospital,
     user,
     hospitalStaff,
-    communityInteraction,
     appointment,
 )
 from healthScore.views import view_health_history
