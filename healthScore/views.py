@@ -86,18 +86,20 @@ def view_health_history(request):
             hospital_address = hospital_details.address
 
             # Append a dictionary for each record with all the details needed
-            detailed_history_list.append({
-                'doctor_name': doctor_name,
-                'hospital_name': hospital_name,
-                'hospital_address': hospital_address,
-                'createdAt': datetime.date(h.createdAt),
-                'updatedAt': datetime.date(h.updatedAt),
-                'appointment_name': appointment_name,
-                'appointment_type': appointment_type,
-                'appointment_properties': json.dumps(appointment_properties),
-            })
-            
-    return render(request,'view_history.html', {'history_list':detailed_history_list})
+            detailed_history_list.append(
+                {
+                    "doctor_name": doctor_name,
+                    "hospital_name": hospital_name,
+                    "hospital_address": hospital_address,
+                    "createdAt": datetime.date(h.createdAt),
+                    "updatedAt": datetime.date(h.updatedAt),
+                    "appointment_name": appointment_name,
+                    "appointment_type": appointment_type,
+                    "appointment_properties": json.dumps(appointment_properties),
+                }
+            )
+
+    return render(request, "view_history.html", {"history_list": detailed_history_list})
 
 
 @csrf_exempt
