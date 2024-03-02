@@ -89,7 +89,7 @@ DATABASES = {
         "PORT": "3306",
         "TEST": {
             "NAME": "test_healthScore"
-            + os.getenv("TRAVIS_BUILD_NUMBER", random.randInt(0, 1000000))
+            + os.getenv("TRAVIS_BUILD_NUMBER", random.randint(0, 1000000))
         },
     }
 }
