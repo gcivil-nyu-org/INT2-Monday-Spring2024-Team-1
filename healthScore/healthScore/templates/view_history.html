@@ -53,6 +53,11 @@
             margin-left: 50px;
         }
 
+        .propertiesNoDisplay{
+            visibility: hidden; 
+            display: none;
+        }
+
         @media screen and (max-height: 450px) {
             .sidebar {
                 padding-top: 15px;
@@ -156,7 +161,7 @@
                     <tbody>
                         {% for record in history_list %}
                         <tr onclick="something()" data-toggle="modal" data-target="#myModal">
-                            <td id="props" value="{{record.appointment_properties}}" style="visibility: hidden; display: none;">{{ record.appointment_properties }}</td>
+                            <td id="props" value="{{record.appointment_properties}}" class="propertiesNoDisplay">{{ record.appointment_properties }}</td>
                             <td>{{ record.appointment_name }}</td>
                             <td>{{ record.appointment_type }}</td>
                             <td>{{ record.doctor_name }}</td>
