@@ -18,33 +18,59 @@
       background-color: #FFFFFF;
     }
     .logo {
-      width: 300px;
+      width: 350px;
       height: 100px;
     }
     .buttons {
       display: flex;
-      gap: 10px;
+      gap: 15px;
+    }
+    .register-button{
+      background-color: #6466A8;
+      font-size: 15px;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #5a3cce;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #6466A8;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #5a3cce;
     }
     .welcome-text {
       font-family: Arial;
       font-weight: bold;
       text-align: center;
-      font-size: 40px;
+      font-size: 48px;
       margin-top: 50px;
+      color: #080A45;
     }
     .stats {
       display: flex;
       justify-content: space-between;
-      margin-top: 100px;
-      margin-bottom: 30px;
-      padding: 0 80px;
+      margin-top: 120px;
+      margin-bottom: 100px;
+      padding: 0 100px;
     }
     .stat-item {
       text-align: center;
       flex-grow: 5;
     }
     .stat-number {
-      font-size: 24px; 
+      font-size: 45px; 
       font-weight: bold; 
       color: #4A33E2;
     }
@@ -53,7 +79,7 @@
       padding: 70px;
     }
     .feature-title {
-      font-size: 24px;
+      font-size: 35px;
       margin-bottom: 20px;
       text-align: center;
       font-weight: bold;
@@ -64,7 +90,6 @@
       flex-wrap: wrap;
       gap: 20px;
     }
-
     .feature-item {
       flex: 1 0 calc(50% - 20px);
       padding: 20px;
@@ -82,8 +107,8 @@
     
     
     <div class="buttons">
-      <button>Login</button>
-      <button>Register</button>
+      <button class="login-button">Login</button>
+      <button class="register-button">Register</button>
     </div>
   </header>
   <div class="welcome-text">
