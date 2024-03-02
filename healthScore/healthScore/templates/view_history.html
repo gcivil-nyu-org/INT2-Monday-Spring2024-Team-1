@@ -53,9 +53,20 @@
             margin-left: 50px;
         }
 
-        .propertiesNoDisplay{
-            visibility: hidden; 
+        .propertiesNoDisplay {
+            visibility: hidden;
             display: none;
+        }
+
+        .addPropertiesValues {
+            padding: 0.75rem;
+            vertical-align: top;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .modalHeight {
+            max-height: 25rem;
+            overflow-y: auto;
         }
 
         @media screen and (max-height: 450px) {
@@ -160,9 +171,10 @@
                     </thead>
                     <tbody>
                         {% for record in history_list %}
-                        <tr onclick="something()" data-toggle="modal" data-target="#myModal">
-                            <td id="props" value="{{record.appointment_properties}}" class="propertiesNoDisplay">{{ record.appointment_properties }}</td>
-                            <td>{{ record.appointment_name }}</td>
+                        <tr onclick="getProperties()" data-toggle="modal" data-target="#myModal">
+                            <td id="props" value="{{ record.appointment_properties }}|{{record.appointment_name}}"
+                                class="propertiesNoDisplay">{{ record.appointment_properties }}</td>
+                            <td style="text-decoration: underline; color: blue;">{{ record.appointment_name }}</td>
                             <td>{{ record.appointment_type }}</td>
                             <td>{{ record.doctor_name }}</td>
                             <td>{{ record.hospital_name }}</td>
@@ -180,21 +192,15 @@
 
     <div id="myModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
-
-            <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Modal Header</h4>
+                    <h4 id="modal-title" class="modal-title">Modal Header</h4>
                     <button type="button" class="close" data-dismiss="modal"></button>
 
                 </div>
-                <div class="modal-body" id="modal-body">
-                    <!-- <p>Some text in the modal. -->
-                        <!-- {{something}} dsfs -->
-                    <!-- </p> -->
+                <div class="modal-body modalHeight" id="modal-body">
                 </div>
                 <div class="modal-footer">
-                    <!-- <Button type="button"  class="text-danger btn btn-default" data-dismiss="modal">Close</Button> -->
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -207,7 +213,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+
     <script>
         function openNav() {
             document.getElementById("mySidebar").style.width = "250px";
@@ -217,14 +223,65 @@
             document.getElementById("mySidebar").style.width = "0";
         }
 
-        function something() {
-        // console.log(record)
-        var modalBody = document.getElementById('props').getAttribute('value');
-        console.log(typeof(modalBody))
-        console.log(JSON.parse(modalBody))
-        modalBody.innerHTML = "test";
-        console.log("Something");
-    }
+
+        function formattedDate(date) {
+            var dateObject = new Date(date);
+            var month = dateObject.getMonth() + 1;
+            var day = dateObject.getDate();
+            var year = dateObject.getFullYear();
+
+            if (month < 10) {
+                month = '0' + month;
+            }
+            if (day < 10) {
+                day = '0' + day;
+            }
+
+            var formattedDate = month + '/' + day + '/' + year;
+            return formattedDate
+        }
+
+
+        function capitalizeLetter(key) {
+            return key.charAt(0).toUpperCase() + key.slice(1);
+        }
+
+        function getProperties() {
+            var modalBody = document.getElementById('props').getAttribute('value');
+            appointment_details = modalBody.split("|")
+
+            if (appointment_details[0]) {
+                modalBody.innerHTML = "test";
+
+                appointment_name = appointment_details[1]
+                appointment_properties = JSON.parse(appointment_details[0])
+                document.getElementById('modal-title').innerHTML = appointment_name
+
+                var props = `<table class="table table-striped my-4 addPropertiesKeys">
+                            <thead class="thead-dark">`
+                for (var [key, value] of Object.entries(appointment_properties)) {
+                    if (key == 'date') {
+                        value = formattedDate(value)
+                    }
+                    props += `
+                    <tr>
+                        <th class="addPropertiesKeys">${capitalizeLetter(key)}</th>
+                        <td class="addPropertiesValues">${value}</td>
+                    </tr>
+                `
+                }
+
+                props += `    </thead>
+                    </table>`
+
+                document.getElementById('modal-body').innerHTML = props
+            }
+            else {
+                document.getElementById('modal-body').innerHTML = `<div class='alert alert-danger' role='alert'>
+                                    No Properties!
+                                    </div>`
+            }
+        }
 
     </script>
 </body>
