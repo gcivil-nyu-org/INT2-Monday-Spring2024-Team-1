@@ -250,7 +250,7 @@ class viewHealthHistoryTestCase(TestCase):
             appointmentId=appointment.objects.get(id=4),
             healthDocuments="",
         )
-
+    
     def test_view_history(self):
         url = reverse("view_health_history")
 
