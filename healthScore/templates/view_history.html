@@ -69,6 +69,11 @@
             overflow-y: auto;
         }
 
+        .appointmentName{
+            text-decoration: underline; 
+            color: blue;
+        }
+
         @media screen and (max-height: 450px) {
             .sidebar {
                 padding-top: 15px;
@@ -171,17 +176,15 @@
                     </thead>
                     <tbody>
                         {% for record in history_list %}
-                        <tr onclick="getProperties()" data-toggle="modal" data-target="#myModal">
-                            <td id="props" value="{{ record.appointment_properties }}|{{record.appointment_name}}"
-                                class="propertiesNoDisplay">{{ record.appointment_properties }}</td>
-                            <td style="text-decoration: underline; color: blue;">{{ record.appointment_name }}</td>
+                        <tr onclick="getProperties(`{{ forloop.counter }}|{{ record.appointment_properties }}|{{record.appointment_name}}`)" data-toggle="modal" data-target="#myModal">
+                            <td class="appointmentName">{{ record.appointment_name }}</td>
                             <td>{{ record.appointment_type }}</td>
                             <td>{{ record.doctor_name }}</td>
                             <td>{{ record.hospital_name }}</td>
                             <td>{{ record.hospital_address}}</td>
                             <td>{{ record.createdAt }}</td>
                             <td>{{ record.updatedAt }}</td>
-                        </tr>
+                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -246,15 +249,13 @@
             return key.charAt(0).toUpperCase() + key.slice(1);
         }
 
-        function getProperties() {
-            var modalBody = document.getElementById('props').getAttribute('value');
-            appointment_details = modalBody.split("|")
+        function getProperties(appointment) {
+            appointment_details = appointment.split("|")
+            if (appointment_details[1]) {
+                appointment_name = appointment_details[2]
 
-            if (appointment_details[0]) {
-                modalBody.innerHTML = "test";
+                appointment_properties = JSON.parse(appointment_details[1])
 
-                appointment_name = appointment_details[1]
-                appointment_properties = JSON.parse(appointment_details[0])
                 document.getElementById('modal-title').innerHTML = appointment_name
 
                 var props = `<table class="table table-striped my-4 addPropertiesKeys">
