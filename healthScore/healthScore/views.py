@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
 import json
+from django.forms.models import model_to_dict
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
@@ -64,8 +65,10 @@ def view_health_history(request):
             history_list = history_list.filter(hospitalID__in=hospital_ids)
 
         detailed_history_list = []
-
+        each_details = []
         for h in history_list:
+            h_details = model_to_dict(h)
+            each_details.append(h_details)
             # Fetch related appointment details
             appointment_details = appointment.objects.get(id=h.appointmentId_id)
             appointment_name = appointment_details.name
@@ -93,44 +96,9 @@ def view_health_history(request):
                     "appointment_type": appointment_type,
                 }
             )
-            report_generation(detailed_history_list)
 
-    return render(request, "view_history.html", {"history_list": detailed_history_list})
-
-
-@csrf_exempt
-def add_mock_data(request):
-    if request.method == "POST":
-        # Adding data to the Hospital table
-        # hospital.objects.create(name="NYU Langone Health", address="424 E 34th St, New York, NY 10016", email="hospital_a@example.com", password="123456", contactInfo="123456781", status="approved")
-        # hospital.objects.create(name="Mount Sinai Hospital", address="1468 Madison Ave, New York, NY 10029", email="hospital_b@example.com", password="123456", contactInfo="123456781", status="approved")
-        # hospital.objects.create(name="CVS Pharmacy", address="305 East 86th St, New York, NY 10028", email="hospital_c@example.com", password="123456", contactInfo="123456781", status="approved")
-        # hospital.objects.create(name="Duane Reade", address="1 Union Square South, New York, NY 10003", email="hospital_d@example.com", password="123456", contactInfo="123456781", status="approved")
-
-        # Adding hospitalStaff data
-        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=5), admin=False, name="Dr. Steve Johnson", email="sj@langone.com", password="pass1234", specialization="Orthopedics", contactInfo="1234567890")
-        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Coco Gauff", email="cgauff@sinai.com", password="pass1234", specialization="Anesthesiology", contactInfo="1234567890")
-        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=7), admin=False, name="Carlos Alcaraz", email="ca@cvs.com", password="pass1234", specialization="", contactInfo="1234567890")
-        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=8), admin=False, name="Sofia Kenin", email="betty@duanereade.com", password="pass1234", specialization="", contactInfo="1234567890")
-        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Jannik Sinner", email="jsinner@sinai.com", password="pass1234", specialization="Psychiatry", contactInfo="1234567890")
-
-        # Adding user data
-        # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", userName="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
-
-        # Adding appointment Data
-        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Fluzone Sanofi", "dose_2": False, "date":datetime.datetime.now()}, default=str))
-        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Comirnaty Pfizer", "dose_2": True, "date":datetime.datetime.now()}, default=str))
-        # appointment.objects.create(name="Blood test", properties = json.dumps({"type":"Iron check", "dose_2": False, "date":datetime.datetime.now()}, default=str))
-        # appointment.objects.create(name="MRI", properties = json.dumps({"type":"Bad back", "dose_2": False, "date":datetime.datetime.now()}, default=str))
-
-        # healthRecord data
-        # healthRecord.objects.create(doctorID=11, userID=user.objects.get(id=5), hospitalID=7, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=5), healthDocuments="")
-        # healthRecord.objects.create(doctorID=12, userID=user.objects.get(id=5), hospitalID=8, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=6), healthDocuments="")
-        # healthRecord.objects.create(doctorID=9, userID=user.objects.get(id=5), hospitalID=5, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=7), healthDocuments="")
-        # healthRecord.objects.create(doctorID=10, userID=user.objects.get(id=5), hospitalID=6, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=8), healthDocuments="")
-        return HttpResponse("Data Added to the database")
-    else:
-        return HttpResponse("Please change the request method to POST")
+        zipped_details = zip(detailed_history_list, each_details)
+    return render(request, "view_history.html", {"zipped_details": zipped_details})
 
 
 @csrf_exempt
@@ -166,6 +134,49 @@ def register(request):
             pass
     return render(request, "registration.html")
 
-def report_generation(information_list):
-    pdf = []
-    return pdf
+
+def view_report(request):
+    if request.method == "POST":
+        selected_record_ids = request.POST.getlist('record_ids')
+        for record_id in selected_record_ids:
+            doctor_id = request.POST.get(f'doctor_id_{record_id}')
+            hospital_id = request.POST.get(f'hospital_id_{record_id}')
+            appointment_id = request.POST.get(f'appointment_id_{record_id}')
+            print("doctor " + doctor_id)
+
+    return render(request, "view_reports.html")
+
+
+@csrf_exempt
+def add_mock_data(request):
+    if request.method == "POST":
+        # Adding data to the Hospital table
+        # hospital.objects.create(name="NYU Langone Health", address="424 E 34th St, New York, NY 10016", email="hospital_a@example.com", password="123456", contactInfo="123456781", status="approved")
+        # hospital.objects.create(name="Mount Sinai Hospital", address="1468 Madison Ave, New York, NY 10029", email="hospital_b@example.com", password="123456", contactInfo="123456781", status="approved")
+        # hospital.objects.create(name="CVS Pharmacy", address="305 East 86th St, New York, NY 10028", email="hospital_c@example.com", password="123456", contactInfo="123456781", status="approved")
+        # hospital.objects.create(name="Duane Reade", address="1 Union Square South, New York, NY 10003", email="hospital_d@example.com", password="123456", contactInfo="123456781", status="approved")
+
+        # Adding hospitalStaff data
+        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=5), admin=False, name="Dr. Steve Johnson", email="sj@langone.com", password="pass1234", specialization="Orthopedics", contactInfo="1234567890")
+        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Coco Gauff", email="cgauff@sinai.com", password="pass1234", specialization="Anesthesiology", contactInfo="1234567890")
+        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=7), admin=False, name="Carlos Alcaraz", email="ca@cvs.com", password="pass1234", specialization="", contactInfo="1234567890")
+        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=8), admin=False, name="Sofia Kenin", email="betty@duanereade.com", password="pass1234", specialization="", contactInfo="1234567890")
+        # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Jannik Sinner", email="jsinner@sinai.com", password="pass1234", specialization="Psychiatry", contactInfo="1234567890")
+
+        # Adding user data
+        # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", userName="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
+
+        # Adding appointment Data
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Fluzone Sanofi", "dose_2": False, "date":datetime.datetime.now()}, default=str))
+        # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Comirnaty Pfizer", "dose_2": True, "date":datetime.datetime.now()}, default=str))
+        # appointment.objects.create(name="Blood test", properties = json.dumps({"type":"Iron check", "dose_2": False, "date":datetime.datetime.now()}, default=str))
+        # appointment.objects.create(name="MRI", properties = json.dumps({"type":"Bad back", "dose_2": False, "date":datetime.datetime.now()}, default=str))
+
+        # healthRecord data
+        # healthRecord.objects.create(doctorID=11, userID=user.objects.get(id=5), hospitalID=7, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=5), healthDocuments="")
+        # healthRecord.objects.create(doctorID=12, userID=user.objects.get(id=5), hospitalID=8, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=6), healthDocuments="")
+        # healthRecord.objects.create(doctorID=9, userID=user.objects.get(id=5), hospitalID=5, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=7), healthDocuments="")
+        # healthRecord.objects.create(doctorID=10, userID=user.objects.get(id=5), hospitalID=6, status="approved", createdAt=datetime.datetime.now(), updatedAt=datetime.datetime.now(), appointmentId=appointment.objects.get(id=8), healthDocuments="")
+        return HttpResponse("Data Added to the database")
+    else:
+        return HttpResponse("Please change the request method to POST")

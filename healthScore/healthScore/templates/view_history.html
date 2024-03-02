@@ -18,6 +18,7 @@
             transition: 0.5s;
             padding-top: 60px;
         }
+
         .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
@@ -26,19 +27,23 @@
             display: block;
             transition: 0.3s;
         }
+
         .sidebar a:hover {
             color: #f1f1f1;
         }
+
         .navbar-custom {
             background-color: #e3f2fd;
         }
+
         .navbar-brand {
             position: relative;
             background: url();
             width: 170px;
             left: 15px;
-            background-size:contain;
+            background-size: contain;
         }
+
         .sidebar .closebtn {
             position: absolute;
             top: 0;
@@ -46,25 +51,32 @@
             font-size: 36px;
             margin-left: 50px;
         }
+
         @media screen and (max-height: 450px) {
-          .sidebar {padding-top: 15px;}
-          .sidebar a {font-size: 18px;}
+            .sidebar {
+                padding-top: 15px;
+            }
+
+            .sidebar a {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
 
 <div id="mySidebar" class="sidebar">
-  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-  <a href="#">Home</a>
-  <a href="#">Health History</a>
-  <a href="#">Raising a Request</a>
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    <a href="#">Home</a>
+    <a href="#">Health History</a>
+    <a href="#">Raising a Request</a>
 </div>
 
 <div class="container my-4">
     <nav class="navbar navbar-light navbar-custom">
         <a class="navbar-brand" href="#">Health Score</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -94,15 +106,18 @@
             <form method="GET" action="{% url 'view_health_history' %}" class="form-inline">
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="appointment_name" class="sr-only">Reason for Visit:</label>
-                        <input type="text" class="form-control" id="appointment_name" name="appointment_name" placeholder="Reason for Visit" value="{{ request.GET.appointment_name }}">
+                    <input type="text" class="form-control" id="appointment_name" name="appointment_name"
+                           placeholder="Reason for Visit" value="{{ request.GET.appointment_name }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="healthcare_worker" class="sr-only">User Name:</label>
-                    <input type="text" class="form-control" id="healthcare_worker" name="healthcare_worker" placeholder="Healthcare Worker" value="{{ request.GET.healthcare_worker }}">
+                    <input type="text" class="form-control" id="healthcare_worker" name="healthcare_worker"
+                           placeholder="Healthcare Worker" value="{{ request.GET.healthcare_worker }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="healthcare_facility" class="sr-only">Healthcare Facility:</label>
-                    <input type="text" class="form-control" id="healthcare_facility" name="healthcare_facility" placeholder="Healthcare Facility" value="{{ request.GET.healthcare_facility }}">
+                    <input type="text" class="form-control" id="healthcare_facility" name="healthcare_facility"
+                           placeholder="Healthcare Facility" value="{{ request.GET.healthcare_facility }}">
                 </div>
                 <div class="form-group mx-sm-3 mb-2">
                     <label for="date" class="sr-only">Date:</label>
@@ -122,32 +137,46 @@
     <!-- Data Display Section -->
     <div class="row">
         <div class="col-lg-12">
-            <table class="table table-striped my-4">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Reason for Visit</th>
-                    <th scope="col">Visit Details</th>
-                    <th scope="col">Healthcare Worker</th>
-                    <th scope="col">Healthcare Facility</th>
-                    <th scope="col">Address</th>
-                    <th scope="col">Created Date</th>
-                    <th scope="col">Updated Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for record in history_list %}
+            <form action="{% url 'view_reports' %}" method="post">
+                {% csrf_token %}
+                <table class="table table-striped my-4">
+                    <thead class="thead-dark">
                     <tr>
-                        <td>{{ record.appointment_name }}</td>
-                        <td>{{ record.appointment_type }}</td>
-                        <td>{{ record.doctor_name }}</td>
-                        <td>{{ record.hospital_name }}</td>
-                        <td>{{ record.hospital_address}}</td>
-                        <td>{{ record.createdAt }}</td>
-                        <td>{{ record.updatedAt }}</td>
+                        <th scope="col">Reason for Visit</th>
+                        <th scope="col">Visit Details</th>
+                        <th scope="col">Healthcare Worker</th>
+                        <th scope="col">Healthcare Facility</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Created Date</th>
+                        <th scope="col">Updated Date</th>
+                        <th scope="col">Reports</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for record, details in zipped_details %}
+                        <tr>
+                            <td>{{ record.appointment_name }}</td>
+                            <td>{{ record.appointment_type }}</td>
+                            <td>{{ record.doctor_name }}</td>
+                            <td>{{ record.hospital_name }}</td>
+                            <td>{{ record.hospital_address }}</td>
+                            <td>{{ record.createdAt }}</td>
+                            <td>{{ record.updatedAt }}</td>
+                            <td>
+                                <input type="checkbox" name="record_ids" value="{{ details.id }}">
+                                <input type="hidden" name="doctor_id_{{ details.id }}" value="{{ details.doctorID }}">
+                                <input type="hidden" name="hospital_id_{{ details.id }}"
+                                       value="{{ details.hospitalID }}">
+                                <input type="hidden" name="appointment_id_{{ details.id }}"
+                                       value="{{ details.appointmentId }}">
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+                <button type="submit" class="btn btn-primary">Generate Selected Reports</button>
+            </form>
         </div>
     </div>
 </div>
@@ -158,13 +187,13 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-function openNav() {
-    document.getElementById("mySidebar").style.width = "250px";
-}
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
 
-function closeNav() {
-    document.getElementById("mySidebar").style.width = "0";
-}
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
 </script>
 </body>
 </html>

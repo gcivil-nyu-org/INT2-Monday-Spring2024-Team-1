@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="24759740-a1af-4bb3-9963-79a75f6ac932" name="Changes" comment="rebase cindy_dev onto develop branch">
+      <change afterPath="$PROJECT_DIR$/healthScore/templates/view_reports.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/healthConfig/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/healthConfig/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/healthScore/forms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/healthScore/templates/view_history.html" beforeDir="false" afterPath="$PROJECT_DIR$/healthScore/templates/view_history.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/healthScore/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/healthScore/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/healthScore/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/healthScore/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -203,7 +205,15 @@
       <option name="project" value="LOCAL" />
       <updated>1709326727974</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="rebase cindy_dev onto develop branch">
+      <option name="closed" value="true" />
+      <created>1709328166032</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1709328166032</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

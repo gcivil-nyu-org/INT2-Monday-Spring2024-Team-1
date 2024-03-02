@@ -7,4 +7,5 @@ urlpatterns = [
     path("addMockData", views.add_mock_data, name="mock_data"),
     path("registration", views.register, name="register"),
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
+    path("viewReports", views.view_report, name="view_reports"),
 ]
