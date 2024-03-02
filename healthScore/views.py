@@ -16,8 +16,10 @@ from .models import (
     appointment,
 )
 
+
 def homepage(request):
     return render(request, "homepage.html")
+
 
 def test_default_values(request):
     # To get all records from the  healthRecord table
