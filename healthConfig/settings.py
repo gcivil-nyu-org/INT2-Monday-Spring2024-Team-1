@@ -88,8 +88,9 @@ DATABASES = {
         "HOST": os.environ["DB_HOST"],
         "PORT": "3306",
         "TEST": {
-            "NAME": "test_healthScore" + os.getenv('TRAVIS_BUILD_NUMBER', random.randInt(0, 1000000))
-        }
+            "NAME": "test_healthScore"
+            + os.getenv("TRAVIS_BUILD_NUMBER", random.randInt(0, 1000000))
+        },
     }
 }
 
