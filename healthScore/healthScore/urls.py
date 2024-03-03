@@ -7,5 +7,5 @@ urlpatterns = [
     path("addMockData", views.add_mock_data, name="mock_data"),
     path("registration", views.register, name="register"),
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
-    path('login/', views.login_view, name='login'),
+    path("login/", views.login_view, name="login"),
 ]
