@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
 import json
+from django.contrib.auth import authenticate, login
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
@@ -164,3 +165,17 @@ def register(request):
             # when an email has registered already
             pass
     return render(request, "registration.html")
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        if not user.objects.filter(userName=username).exists():
+            return render(request, 'login.html', {'error_message': "Username does not exist. Please retype."})
+        else:
+            if user.objects.filter(userName=username, password=password).exists():
+                return redirect('index')
+            else:
+                return render(request, 'login.html', {'error_message': "Incorrect password. Please try again."})
+    return render(request, 'login.html')
