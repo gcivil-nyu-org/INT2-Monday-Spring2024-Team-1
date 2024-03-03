@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>View Health History</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+
+        .navbar-custom {
+            background-color: #e3f2fd;
+        }
+
+        .navbar-brand {
+            position: relative;
+            background: url();
+            width: 170px;
+            left: 15px;
+            background-size: contain;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        .propertiesNoDisplay {
+            visibility: hidden;
+            display: none;
+        }
+
+        .addPropertiesValues {
+            padding: 0.75rem;
+            vertical-align: top;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .modalHeight {
+            max-height: 25rem;
+            overflow-y: auto;
+        }
+
+        .appointmentName{
+            text-decoration: underline; 
+            color: blue;
+        }
+
+        @media screen and (max-height: 450px) {
+            .sidebar {
+                padding-top: 15px;
+            }
+
+            .sidebar a {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+        <a href="#">Home</a>
+        <a href="#">Health History</a>
+        <a href="#">Raising a Request</a>
+    </div>
+
+    <div class="container my-4">
+        <nav class="navbar navbar-light navbar-custom">
+            <a class="navbar-brand" href="#">Health Score</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link disabled" href="#">View Health History <span
+                                class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Health Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Community</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <h2 class="text-center">Your Health History</h2>
+
+        <!-- Filter Section -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h4>Filter Your Health History</h4>
+                <form method="GET" action="{% url 'view_health_history' %}" class="form-inline">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="appointment_name" class="sr-only">Reason for Visit:</label>
+                        <input type="text" class="form-control" id="appointment_name" name="appointment_name"
+                            placeholder="Reason for Visit" value="{{ request.GET.appointment_name }}">
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="healthcare_worker" class="sr-only">User Name:</label>
+                        <input type="text" class="form-control" id="healthcare_worker" name="healthcare_worker"
+                            placeholder="Healthcare Worker" value="{{ request.GET.healthcare_worker }}">
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="healthcare_facility" class="sr-only">Healthcare Facility:</label>
+                        <input type="text" class="form-control" id="healthcare_facility" name="healthcare_facility"
+                            placeholder="Healthcare Facility" value="{{ request.GET.healthcare_facility }}">
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="date" class="sr-only">Date:</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ request.GET.date }}">
+                    </div>
+
+                    <div class="form-group mx-sm-3 mb-2">
+                        <button type="submit" class="btn btn-secondary">Filter</button>
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <a href="{% url 'view_health_history' %}" class="btn btn-outline-secondary ml-2">Clear</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Display Section -->
+        <div class="row">
+            <div class="col-lg-12">
+                <table class="table table-striped my-4">
+                    <thead class="thead-dark">
+                        <tr>
+                            <!-- <th scope="col">+</th> -->
+                            <th scope="col">Reason for Visit</th>
+                            <th scope="col">Visit Details</th>
+                            <th scope="col">Healthcare Worker</th>
+                            <th scope="col">Healthcare Facility</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Created Date</th>
+                            <th scope="col">Updated Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history_list %}
+                        <tr onclick="getProperties(`{{ forloop.counter }}|{{ record.appointment_properties }}|{{record.appointment_name}}`)" data-toggle="modal" data-target="#myModal">
+                            <td class="appointmentName">{{ record.appointment_name }}</td>
+                            <td>{{ record.appointment_type }}</td>
+                            <td>{{ record.doctor_name }}</td>
+                            <td>{{ record.hospital_name }}</td>
+                            <td>{{ record.hospital_address}}</td>
+                            <td>{{ record.createdAt }}</td>
+                            <td>{{ record.updatedAt }}</td>
+                             </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="modal-title" class="modal-title">Modal Header</h4>
+                    <button type="button" class="close" data-dismiss="modal"></button>
+
+                </div>
+                <div class="modal-body modalHeight" id="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function openNav() {
+            document.getElementById("mySidebar").style.width = "250px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidebar").style.width = "0";
+        }
+
+
+        function formattedDate(date) {
+            var dateObject = new Date(date);
+            var month = dateObject.getMonth() + 1;
+            var day = dateObject.getDate();
+            var year = dateObject.getFullYear();
+
+            if (month < 10) {
+                month = '0' + month;
+            }
+            if (day < 10) {
+                day = '0' + day;
+            }
+
+            var formattedDate = month + '/' + day + '/' + year;
+            return formattedDate
+        }
+
+
+        function capitalizeLetter(key) {
+            return key.charAt(0).toUpperCase() + key.slice(1);
+        }
+
+        function getProperties(appointment) {
+            appointment_details = appointment.split("|")
+            if (appointment_details[1]) {
+                appointment_name = appointment_details[2]
+
+                appointment_properties = JSON.parse(appointment_details[1])
+
+                document.getElementById('modal-title').innerHTML = appointment_name
+
+                var props = `<table class="table table-striped my-4 addPropertiesKeys">
+                            <thead class="thead-dark">`
+                for (var [key, value] of Object.entries(appointment_properties)) {
+                    if (key == 'date') {
+                        value = formattedDate(value)
+                    }
+                    props += `
+                    <tr>
+                        <th class="addPropertiesKeys">${capitalizeLetter(key)}</th>
+                        <td class="addPropertiesValues">${value}</td>
+                    </tr>
+                `
+                }
+
+                props += `    </thead>
+                    </table>`
+
+                document.getElementById('modal-body').innerHTML = props
+            }
+            else {
+                document.getElementById('modal-body').innerHTML = `<div class='alert alert-danger' role='alert'>
+                                    No Properties!
+                                    </div>`
+            }
+        }
+
+    </script>
+</body>
+
+</html>
