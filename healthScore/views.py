@@ -141,7 +141,7 @@ def add_mock_data(request):
 
 
 @csrf_exempt
-def register(request):
+def registration(request):
     context = {
         "email": "",
         "username": "",
@@ -193,7 +193,7 @@ def register(request):
                 contactInfo=phone_number,
             )
 
-            return redirect("index")
+            return redirect("homepage")
 
     return render(request, "registration.html")
 
