@@ -169,3 +169,26 @@ def register(request):
             # when an email has registered already
             pass
     return render(request, "registration.html")
+
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        if not user.objects.filter(userName=username).exists():
+            return render(
+                request,
+                "login.html",
+                {"error_message": "Username does not exist. Please retype."},
+            )
+        else:
+            if user.objects.filter(userName=username, password=password).exists():
+                return redirect("index")
+            else:
+                return render(
+                    request,
+                    "login.html",
+                    {"error_message": "Incorrect password. Please try again."},
+                )
+    return render(request, "login.html")
