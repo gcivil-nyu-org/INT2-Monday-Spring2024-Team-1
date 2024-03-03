@@ -130,10 +130,10 @@ def view_report(request):
     logo_and_date = [[logo_img, Paragraph("Date: "+current_date, right_aligned_style)]]
     logo_and_date = Table(logo_and_date)
     logo_and_date.setStyle(TableStyle([
-    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-    ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-    ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-]))
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+    ]))
     story.append(logo_and_date)
 
     user_id = 5
@@ -149,7 +149,7 @@ def view_report(request):
     table_data = [
         [Paragraph('Reason for Visit'), Paragraph('Visit Details'),
          Paragraph('Healthcare Worker'), Paragraph('Healthcare Facility'),
-         Paragraph('Address'), Paragraph('Date'),Paragraph('Properties')],
+         Paragraph('Address'), Paragraph('Date'), Paragraph('Properties')],
     ]
 
     selected_record_ids = request.POST.getlist('record_ids')
@@ -216,6 +216,7 @@ def view_report(request):
 
     doc.build(story)
     return response
+
 
 @csrf_exempt
 def register(request):
