@@ -6,12 +6,19 @@ import json
 from django.forms.models import model_to_dict
 
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import (SimpleDocTemplate, Paragraph,
-                                Spacer, Table, TableStyle, Image)
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    Image,
+)
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT
 from reportlab.lib.styles import ParagraphStyle
+
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
 
@@ -110,49 +117,65 @@ def view_health_history(request):
 
 def view_report(request):
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Report.pdf"'
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="Report.pdf"'
 
     doc = SimpleDocTemplate(response, pagesize=letter)
     styles = getSampleStyleSheet()
     story = []
 
-    title_style = styles['Title']
+    title_style = styles["Title"]
     title = "Health Records Report"
     story.append(Paragraph(title, title_style))
     story.append(Spacer(1, 18))
 
-    right_aligned_style = ParagraphStyle('RightAligned', parent=styles['Normal'], alignment=TA_RIGHT)
-    current_date = datetime.now().strftime('%Y-%m-%d')
+    right_aligned_style = ParagraphStyle(
+        "RightAligned", parent=styles["Normal"], alignment=TA_RIGHT
+    )
+    current_date = datetime.now().strftime("%Y-%m-%d")
 
     logo = "healthScore/static/HSlogo.jpg"
     logo_img = Image(logo, width=128, height=40)
-    logo_and_date = [[logo_img, Paragraph("Date: "+current_date, right_aligned_style)]]
+    logo_and_date = [
+        [logo_img, Paragraph("Date: " + current_date, right_aligned_style)]
+    ]
     logo_and_date = Table(logo_and_date)
-    logo_and_date.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
-    ]))
+    logo_and_date.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+            ]
+        )
+    )
     story.append(logo_and_date)
 
     user_id = 5
     user_info = user.objects.get(id=user_id)
-    story.append(Paragraph("Name: " + user_info.name, styles['Normal']))
-    story.append(Paragraph("DOB: " + user_info.dob.strftime('%Y-%m-%d'), styles['Normal']))
-    story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles['Normal']))
-    story.append(Paragraph("Email: " + user_info.email, styles['Normal']))
-    story.append(Paragraph("Contact: " + user_info.contactInfo, styles['Normal']))
-    story.append(Paragraph("Address: " + user_info.address, styles['Normal']))
+    story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
+    story.append(
+        Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
+    )
+    story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
+    story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
+    story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
+    story.append(Paragraph("Address: " + user_info.address, styles["Normal"]))
     story.append(Spacer(1, 12))
 
     table_data = [
-        [Paragraph('Reason for Visit'), Paragraph('Visit Details'),
-         Paragraph('Healthcare Worker'), Paragraph('Healthcare Facility'),
-         Paragraph('Address'), Paragraph('Date'), Paragraph('Properties')],
+        [
+            Paragraph("Reason for Visit"),
+            Paragraph("Visit Details"),
+            Paragraph("Healthcare Worker"),
+            Paragraph("Healthcare Facility"),
+            Paragraph("Address"),
+            Paragraph("Date"),
+            Paragraph("Properties"),
+        ],
     ]
 
-    selected_record_ids = request.POST.getlist('record_ids')
+    selected_record_ids = request.POST.getlist("record_ids")
     for record_id in selected_record_ids:
         row = []
         record = healthRecord.objects.get(id=record_id)
@@ -178,7 +201,7 @@ def view_report(request):
         hospital_addr_para = Paragraph(hospital_addr)
         row.append(hospital_addr_para)
 
-        updated = record.updatedAt.strftime('%Y-%m-%d %H:%M')
+        updated = record.updatedAt.strftime("%Y-%m-%d %H:%M")
         updated_para = Paragraph(updated)
         row.append(updated_para)
         table_data.append(row)
@@ -198,18 +221,20 @@ def view_report(request):
     ]
     table = Table(table_data, colWidths=col_widths)
 
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('WORDWRAP', (0, 0), (-1, -1), 'CJK'),
-    ])
+    table_style = TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+            ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("WORDWRAP", (0, 0), (-1, -1), "CJK"),
+        ]
+    )
 
     table.setStyle(table_style)
     story.append(table)
