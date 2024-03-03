@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 import pymysql
+import random
 
 pymysql.install_as_MySQLdb()
 
@@ -86,6 +87,10 @@ DATABASES = {
         "PASSWORD": os.environ["DB_PASSWORD"],
         "HOST": os.environ["DB_HOST"],
         "PORT": "3306",
+        "TEST": {
+            "NAME": "test_healthScore"
+            + os.getenv("TRAVIS_BUILD_NUMBER", random.randint(0, 1000000))
+        },
     }
 }
 

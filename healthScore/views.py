@@ -33,7 +33,7 @@ def test_default_values(request):
 def view_health_history(request):
     if request.method == "GET":
         # Filtering to just userID=5 to simulate it being a users view.
-        history_list = healthRecord.objects.filter(userID=5)
+        history_list = healthRecord.objects.filter(userID=2)
 
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
@@ -95,6 +95,7 @@ def view_health_history(request):
                     "updatedAt": datetime.date(h.updatedAt),
                     "appointment_name": appointment_name,
                     "appointment_type": appointment_type,
+                    "appointment_properties": json.dumps(appointment_properties),
                 }
             )
 
