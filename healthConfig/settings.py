@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 import pymysql
+import random
 
 pymysql.install_as_MySQLdb()
 
@@ -81,10 +83,14 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "HealthScore",
-        "USER": "root",
-        "PASSWORD": "",  # change it with your sql server password for local testing
-        "HOST": "localhost",
+        "USER": os.environ["DB_USER"],
+        "PASSWORD": os.environ["DB_PASSWORD"],
+        "HOST": os.environ["DB_HOST"],
         "PORT": "3306",
+        "TEST": {
+            "NAME": "test_healthScore"
+            + str(os.getenv("TRAVIS_BUILD_NUMBER", random.randint(0, 1000000)))
+        },
     }
 }
 

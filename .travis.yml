@@ -4,15 +4,17 @@ python:
 - 3.9
 
 install:
-- pip install -r healthScore/requirements.txt
+- pip install -r requirements.txt
 
 script:
 - black --check .
 - flake8 --max-line-length=300 .
-- coverage run healthScore/manage.py test
+- coverage run manage.py test
+- env
 
 after_script:
 - coveralls
+- coverage report
 
 deploy:
   provider: elasticbeanstalk

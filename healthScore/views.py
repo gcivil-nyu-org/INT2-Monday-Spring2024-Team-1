@@ -20,6 +20,10 @@ from .models import (
 )
 
 
+def homepage(request):
+    return render(request, "homepage.html")
+
+
 def test_default_values(request):
     # To get all records from the  healthRecord table
     # healthRecordObjects = healthRecord.objects.all().values()
@@ -32,7 +36,7 @@ def test_default_values(request):
 def view_health_history(request):
     if request.method == "GET":
         # Filtering to just userID=5 to simulate it being a users view.
-        history_list = healthRecord.objects.filter(userID=5)
+        history_list = healthRecord.objects.filter(userID=2)
 
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
@@ -94,6 +98,7 @@ def view_health_history(request):
                     "updatedAt": datetime.date(h.updatedAt),
                     "appointment_name": appointment_name,
                     "appointment_type": appointment_type,
+                    "appointment_properties": json.dumps(appointment_properties),
                 }
             )
 
@@ -191,3 +196,26 @@ def register(request):
             return redirect("index")
 
     return render(request, "registration.html")
+
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        if not user.objects.filter(userName=username).exists():
+            return render(
+                request,
+                "login.html",
+                {"error_message": "Username does not exist. Please retype."},
+            )
+        else:
+            if user.objects.filter(userName=username, password=password).exists():
+                return redirect("index")
+            else:
+                return render(
+                    request,
+                    "login.html",
+                    {"error_message": "Incorrect password. Please try again."},
+                )
+    return render(request, "login.html")
