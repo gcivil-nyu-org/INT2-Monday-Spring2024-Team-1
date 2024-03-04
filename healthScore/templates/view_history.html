@@ -178,8 +178,8 @@
                     </thead>
                     <tbody>
                     {% for record, details in zipped_details %}
-                        <tr>
-                            <td>{{ record.appointment_name }}</td>
+                        <tr onclick="getProperties(`{{ forloop.counter }}|{{ record.appointment_properties }}|{{record.appointment_name}}`)" data-toggle="modal" data-target="#myModal">
+                            <td class="appointmentName">{{ record.appointment_name }}</td>
                             <td>{{ record.appointment_type }}</td>
                             <td>{{ record.doctor_name }}</td>
                             <td>{{ record.hospital_name }}</td>
