@@ -70,7 +70,7 @@
         }
 
         .appointmentName{
-            text-decoration: underline; 
+            text-decoration: underline;
             color: blue;
         }
 
@@ -158,39 +158,52 @@
             </div>
         </div>
 
-        <!-- Data Display Section -->
-        <div class="row">
-            <div class="col-lg-12">
+    <!-- Data Display Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <form action="{% url 'view_reports' %}" method="post">
+                {% csrf_token %}
                 <table class="table table-striped my-4">
                     <thead class="thead-dark">
-                        <tr>
-                            <!-- <th scope="col">+</th> -->
-                            <th scope="col">Reason for Visit</th>
-                            <th scope="col">Visit Details</th>
-                            <th scope="col">Healthcare Worker</th>
-                            <th scope="col">Healthcare Facility</th>
-                            <th scope="col">Address</th>
-                            <th scope="col">Created Date</th>
-                            <th scope="col">Updated Date</th>
-                        </tr>
+                    <tr>
+                        <th scope="col">Reason for Visit</th>
+                        <th scope="col">Visit Details</th>
+                        <th scope="col">Healthcare Worker</th>
+                        <th scope="col">Healthcare Facility</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Created Date</th>
+                        <th scope="col">Updated Date</th>
+                        <th scope="col">Reports</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for record in history_list %}
-                        <tr onclick="getProperties(`{{ forloop.counter }}|{{ record.appointment_properties }}|{{record.appointment_name}}`)" data-toggle="modal" data-target="#myModal">
-                            <td class="appointmentName">{{ record.appointment_name }}</td>
+                    {% for record, details in zipped_details %}
+                        <tr>
+                            <td>{{ record.appointment_name }}</td>
                             <td>{{ record.appointment_type }}</td>
                             <td>{{ record.doctor_name }}</td>
                             <td>{{ record.hospital_name }}</td>
-                            <td>{{ record.hospital_address}}</td>
+                            <td>{{ record.hospital_address }}</td>
                             <td>{{ record.createdAt }}</td>
                             <td>{{ record.updatedAt }}</td>
-                             </tr>
-                        {% endfor %}
+                            <td>
+                                <input type="checkbox" name="record_ids" value="{{ details.id }}">
+                                <input type="hidden" name="doctor_id_{{ details.id }}" value="{{ details.doctorID }}">
+                                <input type="hidden" name="hospital_id_{{ details.id }}"
+                                       value="{{ details.hospitalID }}">
+                                <input type="hidden" name="appointment_id_{{ details.id }}"
+                                       value="{{ details.appointmentId }}">
+                            </td>
+                        </tr>
+                    {% endfor %}
+
                     </tbody>
                 </table>
-            </div>
+                <button type="submit" class="btn btn-primary">Generate Selected Reports</button>
+            </form>
         </div>
     </div>
+</div>
 
 
     <div id="myModal" class="modal fade" role="dialog">

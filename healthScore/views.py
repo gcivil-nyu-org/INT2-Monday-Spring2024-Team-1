@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.contrib.auth.hashers import make_password
 import json
 from django.forms.models import model_to_dict
 
@@ -48,7 +49,7 @@ def test_default_values(request):
 def view_health_history(request):
     if request.method == "GET":
         # Filtering to just userID=5 to simulate it being a users view.
-        history_list = healthRecord.objects.filter(userID=2)
+        history_list = healthRecord.objects.filter(userID=5)
 
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
@@ -112,7 +113,6 @@ def view_health_history(request):
                     "updatedAt": datetime.date(h.updatedAt),
                     "appointment_name": appointment_name,
                     "appointment_type": appointment_type,
-                    "appointment_properties": json.dumps(appointment_properties),
                 }
             )
 
@@ -249,36 +249,60 @@ def view_report(request):
 
 
 @csrf_exempt
-def register(request):
+def registration(request):
+    context = {
+        "email": "",
+        "username": "",
+        "fullname": "",
+        "dob": "",
+        "gender": "",
+        "street_address": "",
+        "city": "",
+        "state": "",
+        "phone_number": "",
+        "error_message": "",
+    }
+
     if request.method == "POST":  # when the form is submitted
-        email = request.POST.get("email")
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        fullname = request.POST.get("fullname")
-        dob = request.POST.get("dob")
-        gender = request.POST.get("gender")
-        street_address = request.POST.get("street_address")
-        city = request.POST.get("city")
-        state = request.POST.get("state")
-        phone_number = request.POST.get("phone_number")
+        context["email"] = email = request.POST.get("email")
+        context["username"] = username = request.POST.get("username")
+        context["fullname"] = fullname = request.POST.get("fullname")
+        context["dob"] = dob = request.POST.get("dob")
+        context["gender"] = gender = request.POST.get("gender")
+        context["street_address"] = street_address = request.POST.get("street_address")
+        context["city"] = city = request.POST.get("city")
+        context["state"] = state = request.POST.get("state")
+        context["phone_number"] = phone_number = request.POST.get("phone_number")
         # identity_proof = request.POST.get("identity_proof")
 
-        if not user.objects.filter(email=email).exists():
+        if user.objects.filter(email=email).exists():
+            context["error_message"] = (
+                "An account already exists for this email address. Please log in."
+            )
+            return render(request, "registration.html", context)
+
+        elif user.objects.filter(userName=username).exists():
+            context["error_message"] = (
+                "Username already exists. Please choose a different one."
+            )
+            return render(request, "registration.html", context)
+
+        else:
+            hashed_password = make_password(request.POST.get("password"))
+
             user.objects.create(
                 email=email,
                 userName=username,
-                password=password,
+                password=hashed_password,
                 name=fullname,
                 dob=dob,
                 gender=gender,
-                address=street_address + ", " + city + ", " + state,
+                address=f"{street_address}, {city}, {state}",
                 contactInfo=phone_number,
             )
-            # when successfully created an account
-            return redirect("index")
-        else:
-            # when an email has registered already
-            pass
+
+            return redirect("homepage")
+
     return render(request, "registration.html")
 
 
