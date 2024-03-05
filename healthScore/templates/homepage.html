@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Score</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+    }
+    footer{
+      background-color: #FFFFFF;
+      padding: 20px;
+      text-align: center;
+    }
+    .logo {
+      width: 350px;
+      height: 100px;
+    }
+    .buttons {
+      display: flex;
+      gap: 15px;
+      padding-right: 10px;
+    }
+    .register-button{
+      background-color: #6466A8;
+      font-size: 15px;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #7801a1;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #6466A8;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #7801a1;
+    }
+    .welcome-text {
+      font-family: Arial;
+      font-weight: bold;
+      text-align: center;
+      font-size: 48px;
+      margin-top: 50px;
+      color: #080A45;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 120px;
+      margin-bottom: 100px;
+      padding: 0 100px;
+    }
+    .stat-item {
+      text-align: center;
+      flex-grow: 5;
+    }
+    .stat-number {
+      font-size: 45px; 
+      font-weight: bold; 
+      color: #4A33E2;
+    }
+    .feature-page-container {
+      background-color: #C9B8F9;
+      padding: 70px;
+    }
+    .feature-title {
+      font-size: 35px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+    .feature-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .feature-item {
+      flex: 1 0 calc(50% - 20px);
+      padding: 15px;
+      box-sizing: border-box;
+      background-color: #E5D2CE;
+    }
+  </style>
+</head>
+  
+  
+<body>
+  <header>
+    <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+    
+    
+    
+    <div class="buttons">
+      <button class="login-button">Login</button>
+      <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+    </div>
+  </header>
+
+
+
+  <div class="welcome-text">
+    <p>Your Health Records, Simplified</p>
+  </div>
+  
+  
+  
+  <div class="stats">
+    <div class="stat-item">
+      <p><span class="stat-number">1M+</span></p>
+      <p>Secured Records</p>
+    </div>
+    <div class="stat-item">
+      <p><span class="stat-number">300</span></p>
+      <p>Partnering Institutions</p>
+    </div>
+    <div class="stat-item">
+      <p><span class="stat-number">1000+</span></p>
+      <p>Happy Clients</p>
+    </div>
+    <div class="stat-item">
+      <p><span class="stat-number">24/7</span></p>
+      <p>Support</p>
+    </div>
+  </div>
+  
+  
+  
+  
+  
+  <div class="feature-page-container">
+    <div class="feature-title">Why choose us?</div>
+    <div class="feature-container">
+      <div class="feature-item">
+        <h3>Secure Health Record Storage</h3>
+        <p>Safely store all your health records and vaccination information in one place.</p>
+      </div>
+      <div class="feature-item">
+        <h3>Easy Record Sharing</h3>
+        <p>Effortlessly send health records to work or school with just a few clicks</p>
+      </div>
+      <div class="feature-item">
+        <h3>Comprehensive Health Score</h3>
+        <p>Receive a health score based on your health history of tests and vaccines</p>
+      </div>
+      <div class="feature-item">
+        <h3>Instant Communication</h3>
+        <p>Easily communicate with health institutions for appointments or inquiries</p>
+      </div>
+    </div>
+  </div>
+  
+  
+  
+  <footer>
+    <p>&copy; 2024 Software Engineering HealthScore Team</p>
+  </footer>
+</body>
+</html>

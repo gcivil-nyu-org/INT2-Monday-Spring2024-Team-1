@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('healthScore', '0001_initial'),
+        ("healthScore", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='healthrecord',
-            name='doctorID',
+            model_name="healthrecord",
+            name="doctorID",
             field=models.IntegerField(),
         ),
         migrations.AlterField(
-            model_name='healthrecord',
-            name='hospitalID',
+            model_name="healthrecord",
+            name="hospitalID",
             field=models.IntegerField(),
         ),
     ]
