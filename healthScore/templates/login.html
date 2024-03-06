@@ -10,6 +10,13 @@
       body {
         font-family: Arial, sans-serif;
       }
+      header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+        }
       form {
         max-width: 400px;
         margin: 20px auto;
@@ -19,13 +26,17 @@
       }
       input[type="text"],
       input[type="password"] {
-        width: calc(100% - 2px); /* Adjusting for border width */
+        width: calc(100% - 2px);
         padding: 10px;
         margin: 5px 0 20px 0;
         border: 1px solid #ccc;
         border-radius: 4px;
         box-sizing: border-box;
       }
+      .logo {
+      width: 350px;
+      height: 100px;
+        }
       .btn-primary {
         background-color: #800080;
         border-color: #800080;
@@ -41,9 +52,42 @@
       h2 {
         text-align: center;
       }
+      .register-button{
+      background-color: #6466A8;
+      font-size: 15px;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #7801a1;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #6466A8;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #7801a1;
+    }
     </style>
 </head>
-<body>
+<div>
+    <header>
+    <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+    
+    <div class="buttons">
+        <a href="{% url 'login' %}"><button class="login-button">Login</button>
+            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+    </div>
+  </header>
     <div class="container">
     <br>
         <h2>Sign in to Your Health Score Account</h2>
@@ -62,11 +106,16 @@
                 <label for="password">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password">
             </div>
+            <div style="text-align:left; margin-top:20px;">
+                <a href="{% url 'index' %}">Forgot password?</a>
+            </div>
+            <br>
             <button type="submit" class="btn btn-primary">Login</button>
+            <div class="text-center" style="margin-top: 10px;">
+                New to Health Score? <a href="{% url 'registration' %}">Join now</a>
+            </div>
         </form>
-        <div style="text-align:center; margin-top:20px;">
-            <a href="{% url 'index' %}">Forgot your password?</a>
-        </div>
     </div>
+</div>
 </body>
 </html>
