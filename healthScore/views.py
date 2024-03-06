@@ -212,7 +212,7 @@ def registration(request):
             )
             return render(request, "registration.html", context)
 
-        elif user.objects.filter(userName=username).exists():
+        elif user.objects.filter(username=username).exists():
             context["error_message"] = (
                 "Username already exists. Please choose a different one."
             )
@@ -223,7 +223,7 @@ def registration(request):
 
             user.objects.create(
                 email=email,
-                userName=username,
+                username=username,
                 password=hashed_password,
                 name=fullname,
                 dob=dob,
@@ -242,14 +242,14 @@ def login_view(request):
         username = request.POST["username"]
         password = request.POST["password"]
 
-        if not user.objects.filter(userName=username).exists():
+        if not user.objects.filter(username=username).exists():
             return render(
                 request,
                 "login.html",
                 {"error_message": "Username does not exist. Please retype."},
             )
         else:
-            if user.objects.filter(userName=username, password=password).exists():
+            if user.objects.filter(username=username, password=password).exists():
                 return redirect("index")
             else:
                 return render(
@@ -277,7 +277,7 @@ def add_mock_data(request):
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Jannik Sinner", email="jsinner@sinai.com", password="pass1234", specialization="Psychiatry", contactInfo="1234567890")
 
         # Adding user data
-        # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", userName="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
+        # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", username="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
 
         # Adding appointment Data
         # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Fluzone Sanofi", "dose_2": False, "date":datetime.datetime.now()}, default=str))
