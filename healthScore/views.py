@@ -30,7 +30,7 @@ from .models import (
     hospitalStaff,
 )
 
-from .utils import get_health_history_details
+from .user_utils import get_health_history_details
 
 
 def homepage(request):
