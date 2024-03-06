@@ -10,4 +10,5 @@ urlpatterns = [
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
     path("viewReports", views.view_report, name="view_reports"),
     path("login", views.login_view, name="login"),
+    path('userInfo', views.view_user_info, name="user_info"),
 ]

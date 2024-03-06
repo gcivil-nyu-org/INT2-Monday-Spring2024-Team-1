@@ -123,6 +123,35 @@ def view_health_history(request):
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
 
+def view_user_info(request):
+    if request.method == "GET":
+        userData = []
+        try:
+            # userID = request.GET.get("id")
+            userID = 2 
+            userData = user.objects.filter(id=userID).values()
+        except Exception as e:
+            return HttpResponse("User Invalid")
+
+        userData = list(userData)[0]
+        
+        userInfo = {
+            "email": userData['email'],
+            "name": userData['name'],
+            "userName": userData['userName'],
+            'dob': userData['dob'],
+            'contactInfo': userData['contactInfo'],
+            'proofOfIdentity': userData['proofOfIdentity'],  #dummy string for now. Needs to be replaced with the S3 string
+            'address': userData['address'],
+            'gender': userData['gender'],
+            'profilePic': userData['profilePic'],
+            'bloodGroup': userData['bloodGroup'],
+            'requests': json.dumps(userData['requests'])
+        }
+        print(userInfo)
+        return render(request, "userProfile.html", {"userInfo": userInfo})
+
+
 def view_report(request):
 
     response = HttpResponse(content_type="application/pdf")
