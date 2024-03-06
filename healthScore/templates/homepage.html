@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Score</title>
@@ -113,8 +114,13 @@
     
     
     <div class="buttons">
-      <button class="login-button">Login</button>
-      <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+        {%  if user.is_authenticated %}
+            <a href="{% url 'logout' %}"><button class="login-button">Logout</button></a>
+            <i class="fas fa-user"></i>
+        {% else %}
+            <a href="{% url 'login' %}"><button class="login-button">Login</button>
+            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+        {%  endif %}
     </div>
   </header>
 
