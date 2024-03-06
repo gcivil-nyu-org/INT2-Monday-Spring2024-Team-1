@@ -42,7 +42,7 @@ class user(models.Model):  # Viewed by User
     email = models.EmailField(null=False)
     name = models.TextField(null=False)
     password = models.TextField(null=False)
-    userName = models.CharField(null=False, max_length=50, unique=True)
+    username = models.CharField(null=False, max_length=50, unique=True)
     dob = models.DateField(null=False)
     contactInfo = models.TextField(default="", max_length=10)
     proofOfIdentity = models.TextField(
