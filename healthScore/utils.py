@@ -10,6 +10,7 @@ from .models import (
     appointment,
 )
 
+
 def get_health_history_details(request):
     if request.method == "GET":
         # Filtering to just userID=5 to simulate it being a users view.
