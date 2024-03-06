@@ -163,7 +163,9 @@
 </script>
 </head>
 <header>
-    <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+    <a href="{% url "homepage" %}">
+        <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+    </a>
     
     <div class="buttons">
         <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
