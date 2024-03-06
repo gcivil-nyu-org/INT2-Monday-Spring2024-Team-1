@@ -1,12 +1,10 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 import json
-from django.forms.models import model_to_dict
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import (
@@ -30,9 +28,9 @@ from .models import (
     hospital,
     user,
     hospitalStaff,
-    # communityInteraction,
-    appointment,
 )
+
+from .user_utils import get_health_history_details
 
 
 def homepage(request):
@@ -49,77 +47,7 @@ def test_default_values(request):
 
 
 def view_health_history(request):
-    if request.method == "GET":
-        # Filtering to just userID=5 to simulate it being a users view.
-        history_list = healthRecord.objects.filter(userID=2)
-
-        appointment_name = request.GET.get("appointment_name")
-        if appointment_name:
-            history_list = history_list.filter(
-                appointmentId__name__icontains=appointment_name
-            )
-
-        healthcare_worker = request.GET.get("healthcare_worker")
-        if healthcare_worker:
-            doctor_ids = hospitalStaff.objects.filter(
-                name__icontains=healthcare_worker
-            ).values_list("id", flat=True)
-            history_list = history_list.filter(doctorID__in=doctor_ids)
-
-        filter_date = request.GET.get("date")
-        if filter_date:
-            filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
-            current_tz = timezone.get_current_timezone()
-            start_of_day = timezone.make_aware(
-                datetime.combine(filter_date, datetime.min.time()), current_tz
-            )
-            end_of_day = start_of_day + timedelta(days=1)
-            history_list = history_list.filter(
-                createdAt__range=(start_of_day, end_of_day)
-            )
-
-        healthcare_facility = request.GET.get("healthcare_facility")
-        if healthcare_facility:
-            hospital_ids = hospital.objects.filter(
-                name__icontains=healthcare_facility
-            ).values_list("id", flat=True)
-            history_list = history_list.filter(hospitalID__in=hospital_ids)
-
-        detailed_history_list = []
-        each_details = []
-        for h in history_list:
-            h_details = model_to_dict(h)
-            each_details.append(h_details)
-            # Fetch related appointment details
-            appointment_details = appointment.objects.get(id=h.appointmentId_id)
-            appointment_name = appointment_details.name
-            appointment_properties = json.loads(h.appointmentId.properties)
-            appointment_type = appointment_properties.get("type", "Unknown")
-
-            # Fetch healthcare worker details by Dr. ID
-            doctor_details = hospitalStaff.objects.get(id=h.doctorID)
-            doctor_name = doctor_details.name
-
-            # Fetch hospital details by hospitalID
-            hospital_details = hospital.objects.get(id=h.hospitalID)
-            hospital_name = hospital_details.name
-            hospital_address = hospital_details.address
-
-            # Append a dictionary for each record with all the details needed
-            detailed_history_list.append(
-                {
-                    "doctor_name": doctor_name,
-                    "hospital_name": hospital_name,
-                    "hospital_address": hospital_address,
-                    "createdAt": datetime.date(h.createdAt),
-                    "updatedAt": datetime.date(h.updatedAt),
-                    "appointment_name": appointment_name,
-                    "appointment_type": appointment_type,
-                    "appointment_properties": json.dumps(appointment_properties),
-                }
-            )
-
-        zipped_details = zip(detailed_history_list, each_details)
+    zipped_details = get_health_history_details(request=request)
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
 
@@ -284,7 +212,7 @@ def registration(request):
             )
             return render(request, "registration.html", context)
 
-        elif user.objects.filter(userName=username).exists():
+        elif user.objects.filter(username=username).exists():
             context["error_message"] = (
                 "Username already exists. Please choose a different one."
             )
@@ -295,7 +223,7 @@ def registration(request):
 
             user.objects.create(
                 email=email,
-                userName=username,
+                username=username,
                 password=hashed_password,
                 name=fullname,
                 dob=dob,
@@ -314,14 +242,14 @@ def login_view(request):
         username = request.POST["username"]
         password = request.POST["password"]
 
-        if not user.objects.filter(userName=username).exists():
+        if not user.objects.filter(username=username).exists():
             return render(
                 request,
                 "login.html",
                 {"error_message": "Username does not exist. Please retype."},
             )
         else:
-            if user.objects.filter(userName=username, password=password).exists():
+            if user.objects.filter(username=username, password=password).exists():
                 return redirect("index")
             else:
                 return render(
@@ -349,7 +277,7 @@ def add_mock_data(request):
         # hospitalStaff.objects.create(hospitalID=hospital.objects.get(id=6), admin=False, name="Dr. Jannik Sinner", email="jsinner@sinai.com", password="pass1234", specialization="Psychiatry", contactInfo="1234567890")
 
         # Adding user data
-        # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", userName="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
+        # user.objects.create(email="sgeier19@gmail.com", name="Sam Geier", password="userpass1", username="sgeier19", dob="1994-05-14", contactInfo="1234567890", proofOfIdentity="Proof1", address="70 Washington Square S, New York, NY 10012", securityQues="", securityAns="",bloodGroup="A+")
 
         # Adding appointment Data
         # appointment.objects.create(name="Vaccine", properties = json.dumps({"type":"Fluzone Sanofi", "dose_2": False, "date":datetime.datetime.now()}, default=str))
@@ -365,3 +293,10 @@ def add_mock_data(request):
         return HttpResponse("Data Added to the database")
     else:
         return HttpResponse("Please change the request method to POST")
+
+
+def view_health_history_requests(request):
+    zipped_details = get_health_history_details(request=request)
+    return render(
+        request, "view_health_history_requests.html", {"zipped_details": zipped_details}
+    )
