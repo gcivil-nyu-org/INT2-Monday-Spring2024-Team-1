@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forgot Password</title>
+<title>Reset Password</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -18,6 +18,11 @@
   }
   h2 {
     text-align: center;
+  }
+  form {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
   }
   .logo {
       width: 350px;
@@ -48,14 +53,10 @@
     .login-button:hover{
       color: #7801a1;
     }
-    .header_subtext {
-      text-align: center;
-    }
-    input[type="email"] {
+    input[type="password"] {
       width: 100%;
-      max-width: 450px;
       padding: 10px;
-      margin: 10px auto;
+      margin: 10px 0;
       display: block;
       border: 1px solid #ccc;
       border-radius: 5px;
@@ -68,31 +69,15 @@
       background-color: #7801a1;
       color: #FFFFFF;
       cursor: pointer;
-    }
-    #form_fail {
-      color: red;
+      display: block;
+      margin: 5px auto;
     }
 </style>
-
-
 <script>
-function submitForm() {
-    var email = document.getElementById("email").value;
-  
-    if (email=="test@test.com"){
-      document.getElementById("form_fail").style.display = "none"; // hide previous error if any
-      document.getElementById("email-form").style.display = "none"; // hide form
-      document.getElementById("form_success").style.display = "block";
-    }
-    else{
-      document.getElementById("form_fail").style.display = "block";
-    }
-    return false;
-  }
+
 
 </script>
 </head>
-
 
 
 
@@ -112,25 +97,19 @@ function submitForm() {
   </header>
 
 
-
-
-
-
 <body>
-<h2>Forgot Password?</h2>
-<div class="header_subtext">Enter the email address associated with your account and we will send you a link to reset your password</div><br><br><br>
 
-
-<form id="email-form" onsubmit="return submitForm()">
-  <input type="email" id="email" name="email" placeholder="Enter your email" required>
+<h2>Reset Password</h2><br>
+<form id="reset-password-form" onsubmit="return resetPassword()">
+  
+  <label for="new-password">Create New Password</label><br>
+  <input type="password" id="new-password" name="new-password" required><br>
+  
+  <label for="confirm-password">Confirm Password</label><br>
+  <input type="password" id="confirm-password" name="confirm-password" required><br>
+  
   <input type="submit" value="Submit">
 </form>
-<div id="form_success" style="display: none;">
-  <p> A password reset link has been sent to your email!</p>
-</div>
-<div id="form_fail" style="display: none;">
-  <p> This email does not have an associated account, please try again.</p>
-</div>
 
 </body>
 </html>
