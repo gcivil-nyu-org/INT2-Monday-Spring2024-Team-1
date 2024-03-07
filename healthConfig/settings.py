@@ -83,14 +83,17 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "HealthScore",
-        "USER": os.environ["DB_USER"],
-        "PASSWORD": os.environ["DB_PASSWORD"],
-        "HOST": os.environ["DB_HOST"],
+        "USER": "root",
+        "PASSWORD": "",  # change it with your sql server password for local testing
+        "HOST": "localhost",
+        # "USER": os.environ["DB_USER"],
+        # "PASSWORD": os.environ["DB_PASSWORD"],
+        # "HOST": os.environ["DB_HOST"],
         "PORT": "3306",
-        "TEST": {
-            "NAME": "test_healthScore"
-            + str(os.getenv("TRAVIS_BUILD_NUMBER", random.randint(0, 1000000)))
-        },
+        # "TEST": {
+            # "NAME": "test_healthScore"
+            # + str(os.getenv("TRAVIS_BUILD_NUMBER", random.randint(0, 1000000)))
+        # },
     }
 }
 
@@ -112,6 +115,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
+AUTH_USER_MODEL = "healthScore.user"
+
+LOGOUT_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
