@@ -245,9 +245,13 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect('homepage')
+            return redirect("homepage")
         else:
-            return render(request, "login.html", {"error_message": "Invalid username or password. Please try again."})
+            return render(
+                request,
+                "login.html",
+                {"error_message": "Invalid username or password. Please try again."},
+            )
     return render(request, "login.html")
 
 
