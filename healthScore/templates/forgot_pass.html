@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Registration</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+  }
+  h2 {
+    text-align: center;
+  }
+  .logo {
+      width: 350px;
+      height: 100px;
+  }
+  .register-button{
+      background-color: #6466A8;
+      font-size: 15px;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #7801a1;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #6466A8;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #7801a1;
+    }
+    .header_subtext {
+    text-align: center;
+    }
+</style>
+
+</head>
+<header>
+    <a href="{% url "homepage" %}">
+        <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+    </a>
+    
+    <div class="buttons">
+        <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
+        <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+    </div>
+  </header>
+
+
+<body>
+
+<h2>Forgot Password?</h2>
+<div class="header_subtext">Enter the email address associated with your account and we will send you a link to reset your password</div>
+
+  
+  
+
+</body>
+</html>
