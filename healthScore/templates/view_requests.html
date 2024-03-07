@@ -151,11 +151,11 @@
                     <input type="date" class="form-control mb-2" id="date" name="date" value="{{ request.GET.date }}">
                 </div>
                 <div class="col-auto">
-                    <label for="request_status" class="sr-only">Request Status:</label>
-                    <select class="form-control mb-2" id="request_status" name="request_status"
+                    <label for="record_status" class="sr-only">Request Status:</label>
+                    <select class="form-control mb-2" id="record_status" name="record_status"
                             aria-label="Request Status">
-                        <option selected>Request Status</option>
-                        <option value="accepted">Accepted</option>
+                        <option value="">Request Status</option>
+                        <option value="approved">Approved</option>
                         <option value="rejected">Rejected</option>
                         <option value="pending">Pending</option>
                     </select>
