@@ -3,17 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Registration</title>
+<title>Forgot Password</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-  }
-  form {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    text-align: center;
   }
   header {
       display: flex;
@@ -55,11 +49,57 @@
       color: #7801a1;
     }
     .header_subtext {
-    text-align: center;
+      text-align: center;
+    }
+    input[type="email"] {
+      width: 100%;
+      max-width: 450px;
+      padding: 10px;
+      margin: 10px auto;
+      display: block;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    input[type="submit"] {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #7801a1;
+      color: #fff;
+      cursor: pointer;
+    }
+    #form_fail {
+      color: red;
     }
 </style>
 
+
+<script>
+function submitForm() {
+    var email = document.getElementById("email").value;
+  
+    if (email=="test@test.com"){
+      document.getElementById("form_fail").style.display = "none"; // hide previous error if any
+      document.getElementById("email-form").style.display = "none"; // hide form
+      document.getElementById("form_success").style.display = "block";
+    }
+    else{
+      document.getElementById("form_fail").style.display = "block";
+    }
+    return false;
+  }
+
+</script>
 </head>
+
+
+
+
+
+
+
+
 <header>
     <a href="{% url "homepage" %}">
         <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
@@ -72,13 +112,25 @@
   </header>
 
 
+
+
+
+
 <body>
-
 <h2>Forgot Password?</h2>
-<div class="header_subtext">Enter the email address associated with your account and we will send you a link to reset your password</div>
+<div class="header_subtext">Enter the email address associated with your account and we will send you a link to reset your password</div><br><br><br>
 
-  
-  
+
+<form id="email-form" onsubmit="return submitForm()">
+  <input type="email" id="email" name="email" placeholder="Enter your email" required>
+  <input type="submit" value="Submit">
+</form>
+<div id="form_success" style="display: none;">
+  <p> A password reset link has been sent to your email!</p>
+</div>
+<div id="form_fail" style="display: none;">
+  <p> This email does not have an associated account, please try again.</p>
+</div>
 
 </body>
 </html>
