@@ -47,7 +47,7 @@ def test_default_values(request):
 
 
 def view_health_history(request):
-    # Create a new QueryDict object with the desired parameters
+    # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
     updated_params = request.GET.copy()
     updated_params["record_status"] = "approved"
 
