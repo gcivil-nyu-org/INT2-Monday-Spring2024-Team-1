@@ -48,6 +48,11 @@ def get_health_history_details(request):
             ).values_list("id", flat=True)
             history_list = history_list.filter(hospitalID__in=hospital_ids)
 
+        # Filter records by status
+        record_status = request.GET.get("record_status")
+        if record_status:
+            history_list = history_list.filter(status=record_status)
+
         detailed_history_list = []
         each_details = []
         for h in history_list:
