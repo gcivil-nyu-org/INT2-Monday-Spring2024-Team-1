@@ -77,6 +77,14 @@
     .login-button:hover{
       color: #7801a1;
     }
+    .forgot-pass{
+        text-align: left; 
+        margin-top:20px;"
+    }
+    .new-to-HS{
+        text-align: center;
+        margin-top: 10px;
+    }
     </style>
 </head>
 <div>
@@ -108,12 +116,12 @@
                 <label for="password">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password">
             </div>
-            <div style="text-align:left; margin-top:20px;">
+            <div class="forgot-pass">
                 <a href="{% url 'index' %}">Forgot password?</a>
             </div>
             <br>
             <button type="submit" class="btn btn-primary">Login</button>
-            <div class="text-center" style="margin-top: 10px;">
+            <div class="new-to-HS">
                 New to Health Score? <a href="{% url 'registration' %}">Join now</a>
             </div>
         </form>
