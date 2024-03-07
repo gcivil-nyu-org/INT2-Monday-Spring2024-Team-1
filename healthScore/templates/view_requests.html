@@ -202,7 +202,7 @@
                         <td class="{% if request.record_status == 'approved' %}text-success
                             {% elif request.record_status == 'rejected' %}text-danger
                             {% else %}text-dark{% endif %}">
-                            {{ request.record_status }}
+                            {{ request.record_status|capfirst }}
                         </td>
                     </tr>
                 {% endfor %}
