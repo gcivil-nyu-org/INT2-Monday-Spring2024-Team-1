@@ -1,4 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import (
+    BaseUserManager,
+    PermissionsMixin,
+    AbstractBaseUser,
+)
 
 
 STATUS_CHOICES = [
@@ -37,7 +42,25 @@ class hospitalStaff(models.Model):  # Viewed by hospitalAdmin
     )  # If we not doing email resetting password
 
 
-class user(models.Model):  # Viewed by User
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, username, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Users must have an email address")
+        user = self.model(
+            email=self.normalize_email(email), username=username, **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, username, password=None, **extra_fields):
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_staff", True)
+
+        return self.create_user(email, username, password, **extra_fields)
+
+
+class user(AbstractBaseUser, PermissionsMixin):  # Viewed by User
     id = models.AutoField(primary_key=True)
     email = models.EmailField(null=False)
     name = models.TextField(null=False)
@@ -66,6 +89,11 @@ class user(models.Model):  # Viewed by User
         null=True
     )  # Will store data in this form: [{ requestedBy: '', dateTime:'', status:''}]. Will have
     # the data of all the requests that have been done to view the user's records
+
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
+
+    objects = CustomUserManager()
 
 
 class healthRecord(models.Model):  # Viewed by User and hospitalStaff who are doctors

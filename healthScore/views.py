@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from datetime import datetime
-
-# from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
 import json
 
@@ -239,24 +238,20 @@ def registration(request):
 
 def login_view(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
-        if not user.objects.filter(username=username).exists():
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect("homepage")
+        else:
             return render(
                 request,
                 "login.html",
-                {"error_message": "Username does not exist. Please retype."},
+                {"error_message": "Invalid username or password. Please try again."},
             )
-        else:
-            if user.objects.filter(username=username, password=password).exists():
-                return redirect("index")
-            else:
-                return render(
-                    request,
-                    "login.html",
-                    {"error_message": "Incorrect password. Please try again."},
-                )
     return render(request, "login.html")
 
 def reset_password(request):
