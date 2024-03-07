@@ -254,9 +254,9 @@ def login_view(request):
             )
     return render(request, "login.html")
 
-def reset_password(request):
+def send_email_view(request):
     if request.method == "POST":
-        # send an email to verfiy reset password action
+        # send a reset-password link email
         pass
     
 
