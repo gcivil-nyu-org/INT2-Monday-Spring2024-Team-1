@@ -259,6 +259,11 @@ def login_view(request):
                 )
     return render(request, "login.html")
 
+def reset_password(request):
+    if request.method == "POST":
+        # send an email to verfiy reset password action
+        pass
+    
 
 @csrf_exempt
 def add_mock_data(request):

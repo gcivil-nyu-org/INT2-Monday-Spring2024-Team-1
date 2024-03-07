@@ -271,3 +271,10 @@ class viewHealthHistoryTestCase(TestCase):
 
 
 # Create your tests here.
+class loginTestCase(TestCase):
+    def setUp(self):
+        pass
+    def test_login_success(self):
+        pass
+    def test_login_error(self):
+        pass
