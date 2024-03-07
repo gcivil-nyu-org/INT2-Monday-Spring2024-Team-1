@@ -47,6 +47,13 @@ def test_default_values(request):
 
 
 def view_health_history(request):
+    # Create a new QueryDict object with the desired parameters
+    updated_params = request.GET.copy()
+    updated_params["record_status"] = "approved"
+
+    # Update request.GET with the modified QueryDict
+    request.GET = updated_params
+
     zipped_details = get_health_history_details(request=request)
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
