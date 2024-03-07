@@ -14,7 +14,7 @@ from .models import (
 def get_health_history_details(request):
     if request.method == "GET":
         # Filtering to just userID=5 to simulate it being a users view.
-        history_list = healthRecord.objects.filter(userID=5)
+        history_list = healthRecord.objects.filter(userID=2)
 
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
@@ -48,6 +48,11 @@ def get_health_history_details(request):
             ).values_list("id", flat=True)
             history_list = history_list.filter(hospitalID__in=hospital_ids)
 
+        # Filter records by status
+        record_status = request.GET.get("record_status")
+        if record_status:
+            history_list = history_list.filter(status=record_status)
+
         detailed_history_list = []
         each_details = []
         for h in history_list:
@@ -56,7 +61,8 @@ def get_health_history_details(request):
             # Fetch related appointment details
             appointment_details = appointment.objects.get(id=h.appointmentId_id)
             appointment_name = appointment_details.name
-            appointment_properties = json.loads(h.appointmentId.properties)
+            # appointment_properties = json.loads(h.appointmentId.properties)
+            appointment_properties = h.appointmentId.properties
             appointment_type = appointment_properties.get("type", "Unknown")
 
             # Fetch healthcare worker details by Dr. ID
