@@ -6,17 +6,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+      }
+      form {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      input[type="text"],
+      input[type="password"] {
+        width: calc(100% - 2px);
+        padding: 10px;
+        margin: 5px 0 20px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .logo {
+      width: 350px;
+      height: 100px;
+        }
+      .btn-primary {
+        background-color: #800080;
+        border-color: #800080;
+        width: 100%;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border-radius: 4px;
+      }
+      .btn-primary:hover {
+        background-color: #000000;
+        border-color: #000000;
+      }
+      h2 {
+        text-align: center;
+      }
+      .register-button{
+      background-color: #6466A8;
+      font-size: 15px;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #7801a1;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #6466A8;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #7801a1;
+    }
+    .forgot-pass{
+        text-align: left; 
+        margin-top:20px;"
+    }
+    .new-to-HS{
+        text-align: center;
+        margin-top: 10px;
+    }
+    </style>
 </head>
-<body>
-    <div class="container mt-5">
-        <h2>Login</h2>
-        {% if error_message %}
-        <div class="alert alert-danger" role="alert">
-            {{ error_message }}
-        </div>
-        {% endif %}
+<div>
+    <header>
+    <a href="{% url "homepage" %}">
+        <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+    </a>
+    
+    <div class="buttons">
+        <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
+        <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+    </div>
+  </header>
+    <div class="container">
+    <br>
+        <h2>Sign in to Your Health Score Account</h2>
         <form method="post">
             {% csrf_token %}
+            {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ error_message }}
+            </div>
+            {% endif %}
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" class="form-control" id="username" name="username" placeholder="Username">
@@ -25,8 +116,16 @@
                 <label for="password">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password">
             </div>
+            <div class="forgot-pass">
+                <a href="{% url 'index' %}">Forgot password?</a>
+            </div>
+            <br>
             <button type="submit" class="btn btn-primary">Login</button>
+            <div class="new-to-HS">
+                New to Health Score? <a href="{% url 'registration' %}">Join now</a>
+            </div>
         </form>
     </div>
+</div>
 </body>
 </html>
