@@ -53,7 +53,7 @@ class viewHealthHistoryTestCase(TestCase):
         )
 
         # Adding hospitalStaff data
-        hs1 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h1,
             admin=True,
             name="Admin A",
@@ -62,7 +62,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs2 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h1,
             admin=False,
             name="Doctor A",
@@ -71,7 +71,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Anesthesiology",
             contactInfo="1234567890",
         )
-        hs3 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h2,
             admin=True,
             name="Admin B",
@@ -80,7 +80,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs4 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h2,
             admin=False,
             name="Doctor B",
@@ -89,7 +89,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Cardiology",
             contactInfo="1234567890",
         )
-        hs5 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h3,
             admin=True,
             name="Admin C",
@@ -98,7 +98,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs6 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h3,
             admin=False,
             name="Doctor C",
@@ -107,7 +107,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Dermatology",
             contactInfo="1234567890",
         )
-        hs7 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h4,
             admin=True,
             name="Admin D",
@@ -116,7 +116,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs8 = hospitalStaff.objects.create(
+        hospitalStaff.objects.create(
             hospitalID=h4,
             admin=False,
             name="Doctor D",
