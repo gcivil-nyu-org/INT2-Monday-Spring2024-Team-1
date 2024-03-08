@@ -61,8 +61,7 @@ def get_health_history_details(request):
             # Fetch related appointment details
             appointment_details = appointment.objects.get(id=h.appointmentId_id)
             appointment_name = appointment_details.name
-            # appointment_properties = json.loads(h.appointmentId.properties)
-            appointment_properties = h.appointmentId.properties
+            appointment_properties = json.loads(h.appointmentId.properties)
             appointment_type = appointment_properties.get("type", "Unknown")
 
             # Fetch healthcare worker details by Dr. ID
