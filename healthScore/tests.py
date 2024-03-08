@@ -264,16 +264,16 @@ class viewHealthHistoryTestCase(TestCase):
         url = reverse("view_health_history")
 
         # Update below request with user ID/user info
-        # request = self.factory.get(
-        #     url,
-        #     {
-        #         "appointment_name": "test",
-        #         "healthcare_worker": "test",
-        #         "date": datetime.now(),
-        #         "healthcare_facility": "test",
-        #     },
-        # )
-        request = self.factory.get(url)
+        request = self.factory.get(
+            url,
+            {
+                "appointment_name": "Vaccine",
+                "healthcare_worker": "Doctor A",
+                "date":"2024-03-07",
+                "healthcare_facility": "Hospital A",
+            },
+        )
+        # request = self.factory.get(url)
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
@@ -289,6 +289,8 @@ class viewHealthHistoryTestCase(TestCase):
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
 
+    
+    
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
         request = self.factory.put(
