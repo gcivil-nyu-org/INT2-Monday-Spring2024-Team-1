@@ -58,38 +58,24 @@ def view_health_history(request):
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
 
-# @login_required
+@login_required
 def view_user_info(request):
-    if request.method == "GET":
-        userData = []
-        userID = ""
-        try:
-            # userID = request.GET.get("id")
-            # print(request.GET.get("userId"))
-            userID = request.GET.get("userId")
-            # print(userID, "\n\n\n")
-            # print(user.objects.all().values())
-            userData = user.objects.get(id=userID)
-        except Exception as e:
-            return HttpResponse("Invalid User", status=500)
+    current_user = request.user
 
-        # print(userData.address)
-
-        userInfo = {
-            "email": userData.email,
-            "name": userData.name,
-            "username": userData.username,
-            "dob": userData.dob,
-            "contactInfo": userData.contactInfo,
-            "proofOfIdentity": userData.proofOfIdentity,  # dummy string for now. Needs to be replaced with the S3 string
-            "address": userData.address,
-            "gender": userData.gender,
-            "profilePic": userData.profilePic,
-            "bloodGroup": userData.bloodGroup,
-            "requests": json.dumps(userData.requests),
-        }
-        # print(userInfo)
-        return render(request, "user_profile.html", {"userInfo": userInfo})
+    userInfo = {
+        "email": current_user.email,
+        "name": current_user.name,
+        "userName": current_user.username,
+        'dob': current_user.dob,
+        'contactInfo': current_user.contactInfo,
+        'proofOfIdentity': current_user.proofOfIdentity,
+        'address': current_user.address,
+        'gender': current_user.gender,
+        'profilePic': current_user.profilePic,
+        'bloodGroup': current_user.bloodGroup,
+        'requests': json.dumps(list(current_user.requests)) if current_user.requests else '[]'
+    }
+    return render(request, "user_profile.html", {"userInfo": userInfo})
 
 
 @csrf_exempt
