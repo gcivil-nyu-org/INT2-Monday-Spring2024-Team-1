@@ -57,6 +57,7 @@ def view_health_history(request):
     zipped_details = get_health_history_details(request=request)
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
+
 # @login_required
 def view_user_info(request):
     if request.method == "GET":
@@ -72,24 +73,24 @@ def view_user_info(request):
         except Exception as e:
             return HttpResponse("Invalid User", status=500)
 
-
         # print(userData.address)
 
         userInfo = {
             "email": userData.email,
             "name": userData.name,
             "username": userData.username,
-            'dob': userData.dob,
-            'contactInfo': userData.contactInfo,
-            'proofOfIdentity': userData.proofOfIdentity,  #dummy string for now. Needs to be replaced with the S3 string
-            'address': userData.address,
-            'gender': userData.gender,
-            'profilePic': userData.profilePic,
-            'bloodGroup': userData.bloodGroup,
-            'requests': json.dumps(userData.requests)
+            "dob": userData.dob,
+            "contactInfo": userData.contactInfo,
+            "proofOfIdentity": userData.proofOfIdentity,  # dummy string for now. Needs to be replaced with the S3 string
+            "address": userData.address,
+            "gender": userData.gender,
+            "profilePic": userData.profilePic,
+            "bloodGroup": userData.bloodGroup,
+            "requests": json.dumps(userData.requests),
         }
         # print(userInfo)
         return render(request, "user_profile.html", {"userInfo": userInfo})
+
 
 @csrf_exempt
 def edit_user_info(request):
@@ -97,21 +98,22 @@ def edit_user_info(request):
         updatedData = json.loads(request.body)
         userID = int(updatedData.get("userId"))
         userData = ""
-        try: 
+        try:
             userData = user.objects.filter(id=userID)
-            if(len(userData)==0):
-                raise Exception 
+            if len(userData) == 0:
+                raise Exception
         except Exception as e:
             return HttpResponse("User Invalid", status=500)
-        
+
         userInformation = list(userData.values())[0]
 
         # print(userInformation['address'])
-        userData.update(address=updatedData.get("address", userInformation['address']),
-                                                contactInfo=updatedData.get("contactInfo", userInformation['contactInfo']),
-                                                profilePic=updatedData.get("profilePic", userInformation['profilePic']))
+        userData.update(
+            address=updatedData.get("address", userInformation["address"]),
+            contactInfo=updatedData.get("contactInfo", userInformation["contactInfo"]),
+            profilePic=updatedData.get("profilePic", userInformation["profilePic"]),
+        )
 
-    
         userData = user.objects.get(id=userID)
         return render(request, "user_profile.html", {"userUpdatedInfo": userData})
 

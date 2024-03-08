@@ -254,7 +254,7 @@ class viewHealthHistoryTestCase(TestCase):
 
     def test_view_history(self):
         url = reverse("view_health_history")
-        
+
         # Update below request with user ID/user info
         # request = self.factory.get(
         #     url,
@@ -269,43 +269,33 @@ class viewHealthHistoryTestCase(TestCase):
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
-
-
     def test_view_user_info_exception(self):
         url = reverse("user_info")
         # Update below request with user ID/user info
         request = self.factory.get(
-            url,
-            data={"userId":"1"},
-            content_type='application/json'
+            url, data={"userId": "1"}, content_type="application/json"
         )
         # request = self.factory.get(url)
         response = view_user_info(request)
         # print(response)
         self.assertEqual(response.status_code, 500)
 
-
     def test_view_user_info_pass(self):
         url = reverse("user_info")
         request = self.factory.get(
-            url,
-            data={"userId":"5"},
-            content_type='application/json'
+            url, data={"userId": "5"}, content_type="application/json"
         )
         response = view_user_info(request)
-        
 
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 500)
-
-
 
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
         request = self.factory.put(
             url,
-            data = {"userId":"6", "update":{"address":"test", "city":"test"}},
-            content_type='application/json'
+            data={"userId": "6", "update": {"address": "test", "city": "test"}},
+            content_type="application/json",
         )
 
         response = edit_user_info(request)
@@ -313,13 +303,12 @@ class viewHealthHistoryTestCase(TestCase):
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 500)
 
-
     def test_edit_user_info_pass(self):
         url = reverse("edit_user_info")
         request = self.factory.put(
             url,
-            data = {"userId":"6", "update":{"address":"test", "city":"test"}},
-            content_type='application/json'
+            data={"userId": "6", "update": {"address": "test", "city": "test"}},
+            content_type="application/json",
         )
 
         response = edit_user_info(request)
