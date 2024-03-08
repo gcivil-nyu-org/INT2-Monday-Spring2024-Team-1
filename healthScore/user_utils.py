@@ -8,6 +8,7 @@ from .models import (
     hospital,
     hospitalStaff,
     appointment,
+    user
 )
 
 
@@ -85,3 +86,4 @@ def get_health_history_details(request):
 
         zipped_details = zip(detailed_history_list, each_details)
         return zipped_details
+    

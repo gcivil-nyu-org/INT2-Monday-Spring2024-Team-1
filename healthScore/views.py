@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
@@ -29,8 +29,9 @@ from .models import (
     hospitalStaff,
 )
 
-from .user_utils import get_health_history_details
-
+from .user_utils import (
+    get_health_history_details
+)
 
 def homepage(request):
     return render(request, "homepage.html")
@@ -253,12 +254,6 @@ def login_view(request):
                 {"error_message": "Invalid username or password. Please try again."},
             )
     return render(request, "login.html")
-
-def send_email_view(request):
-    if request.method == "POST":
-        # send a reset-password link email
-        pass
-    
 
 @csrf_exempt
 def add_mock_data(request):

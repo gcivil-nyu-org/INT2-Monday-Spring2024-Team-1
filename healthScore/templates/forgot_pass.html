@@ -73,64 +73,42 @@
       color: red;
     }
 </style>
-
-
-<script>
-function submitForm() {
-    var email = document.getElementById("email").value;
-  
-    if (email=="test@test.com"){
-      document.getElementById("form_fail").style.display = "none"; // hide previous error if any
-      document.getElementById("email-form").style.display = "none"; // hide form
-      document.getElementById("form_success").style.display = "block";
-    }
-    else{
-      document.getElementById("form_fail").style.display = "block";
-    }
-    return false;
-  }
-
-</script>
 </head>
 
-
-
-
-
-
-
-
 <header>
-    <a href="{% url "homepage" %}">
-        <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
-    </a>
-    
-    <div class="buttons">
-        <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
-        <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
-    </div>
-  </header>
-
-
-
-
+  <a href="{% url "homepage" %}">
+      <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+  </a>
+  
+  <div class="buttons">
+      <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
+      <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+  </div>
+</header>
 
 
 <body>
-<h2>Forgot Password?</h2>
-<div class="header_subtext">Enter the email address associated with your account and we will send you a link to reset your password</div><br><br><br>
+  <h2>Forgot Password?</h2>
+  <div class="header_subtext">Enter the email address associated with your account and we will send you a link to reset your password</div><br><br><br>
 
 
-<form id="email-form" onsubmit="return submitForm()">
-  <input type="email" id="email" name="email" placeholder="Enter your email" required>
-  <input type="submit" value="Submit">
-</form>
-<div id="form_success" style="display: none;">
-  <p> A password reset link has been sent to your email!</p>
-</div>
-<div id="form_fail" style="display: none;">
-  <p> This email does not have an associated account, please try again.</p>
-</div>
+  <form id="email-form" method="post" action="{% url 'forgot_password' %}">
+    {% csrf_token %}
+    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+    <input type="submit" value="Submit">
+  </form>
 
+  {% if form_submitted %}
+  {% if email_exists %}
+  <div id="form_success">
+    <p> A password reset link has been sent to your email!</p>
+  </div>
+  {% else %}
+  <div id="form_fail">
+    <p> This email does not have an associated account, please try again.</p>
+  </div>
+  {% endif %}
+  {% endif %}
+  
 </body>
 </html>
