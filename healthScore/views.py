@@ -64,17 +64,15 @@ def view_user_info(request):
         userID = ""
         try:
             # userID = request.GET.get("id")
-            print(request.GET.get("userId"))
+            # print(request.GET.get("userId"))
             userID = request.GET.get("userId")
-            print(userID, "\n\n\n")
-            print(user.objects.all().values())
+            # print(userID, "\n\n\n")
+            # print(user.objects.all().values())
             userData = user.objects.get(id=userID)
         except Exception as e:
             return HttpResponse("Invalid User", status=500)
 
-        print(userData, "userData")
-        userData = userData
-        
+
         # print(userData.address)
 
         userInfo = {
@@ -90,22 +88,32 @@ def view_user_info(request):
             'bloodGroup': userData.bloodGroup,
             'requests': json.dumps(userData.requests)
         }
-        print(userInfo)
-        return render(request, "userProfile.html", {"userInfo": userInfo})
+        # print(userInfo)
+        return render(request, "user_profile.html", {"userInfo": userInfo})
 
 @csrf_exempt
 def edit_user_info(request):
     if request.method == "PUT":
-        userID = 2
+        updatedData = json.loads(request.body)
+        userID = int(updatedData.get("userId"))
         userData = ""
         try: 
             userData = user.objects.filter(id=userID)
+            if(len(userData)==0):
+                raise Exception 
         except Exception as e:
-            return HttpResponse("User Invalid")
-        updatedInfo = json.loads(request.body)
-        userData.update(address=updatedInfo["street_address"] + ', '+updatedInfo["city"]+ ', ' + updatedInfo["state"])
+            return HttpResponse("User Invalid", status=500)
+        
+        userInformation = list(userData.values())[0]
+
+        # print(userInformation['address'])
+        userData.update(address=updatedData.get("address", userInformation['address']),
+                                                contactInfo=updatedData.get("contactInfo", userInformation['contactInfo']),
+                                                profilePic=updatedData.get("profilePic", userInformation['profilePic']))
+
+    
         userData = user.objects.get(id=userID)
-        return render(request, "userProfile.html", {"userUpdatedInfo": userData})
+        return render(request, "user_profile.html", {"userUpdatedInfo": userData})
 
 
 def view_report(request):
