@@ -252,6 +252,8 @@ class viewHealthHistoryTestCase(TestCase):
             healthDocuments="",
         )
 
+        print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
+
     def test_view_history(self):
         url = reverse("view_health_history")
 

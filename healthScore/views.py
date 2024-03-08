@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -70,7 +70,7 @@ def view_user_info(request):
             # print(userID, "\n\n\n")
             # print(user.objects.all().values())
             userData = user.objects.get(id=userID)
-        except Exception as e:
+        except Exception:
             return HttpResponse("Invalid User", status=500)
 
         # print(userData.address)
@@ -102,7 +102,7 @@ def edit_user_info(request):
             userData = user.objects.filter(id=userID)
             if len(userData) == 0:
                 raise Exception
-        except Exception as e:
+        except Exception:
             return HttpResponse("User Invalid", status=500)
 
         userInformation = list(userData.values())[0]
