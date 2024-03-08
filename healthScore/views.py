@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.decorators import login_required
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -56,31 +57,38 @@ def view_health_history(request):
     zipped_details = get_health_history_details(request=request)
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
-
+# @login_required
 def view_user_info(request):
     if request.method == "GET":
         userData = []
+        userID = ""
         try:
             # userID = request.GET.get("id")
-            userID = 2 
-            userData = user.objects.filter(id=userID).values()
+            print(request.GET.get("userId"))
+            userID = request.GET.get("userId")
+            print(userID, "\n\n\n")
+            print(user.objects.all().values())
+            userData = user.objects.get(id=userID)
         except Exception as e:
-            return HttpResponse("User Invalid")
+            return HttpResponse("Invalid User", status=500)
 
-        userData = list(userData)[0]
+        print(userData, "userData")
+        userData = userData
         
+        # print(userData.address)
+
         userInfo = {
-            "email": userData['email'],
-            "name": userData['name'],
-            "userName": userData['userName'],
-            'dob': userData['dob'],
-            'contactInfo': userData['contactInfo'],
-            'proofOfIdentity': userData['proofOfIdentity'],  #dummy string for now. Needs to be replaced with the S3 string
-            'address': userData['address'],
-            'gender': userData['gender'],
-            'profilePic': userData['profilePic'],
-            'bloodGroup': userData['bloodGroup'],
-            'requests': json.dumps(userData['requests'])
+            "email": userData.email,
+            "name": userData.name,
+            "username": userData.username,
+            'dob': userData.dob,
+            'contactInfo': userData.contactInfo,
+            'proofOfIdentity': userData.proofOfIdentity,  #dummy string for now. Needs to be replaced with the S3 string
+            'address': userData.address,
+            'gender': userData.gender,
+            'profilePic': userData.profilePic,
+            'bloodGroup': userData.bloodGroup,
+            'requests': json.dumps(userData.requests)
         }
         print(userInfo)
         return render(request, "userProfile.html", {"userInfo": userInfo})
