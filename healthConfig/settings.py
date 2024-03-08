@@ -83,9 +83,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "HealthScore",
-        "USER": "root",
-        "PASSWORD": "LGsoft123@",
-        "HOST": "localhost",
+        "USER": os.environ["DB_USER"],
+        "PASSWORD": os.environ["DB_PASSWORD"],
+        "HOST": os.environ["DB_HOST"],
         "PORT": "3306",
         "TEST": {
             "NAME": "test_healthScore"
