@@ -1,14 +1,148 @@
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Information</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Settings</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        display: flex;
+        padding: 20px;
+    }
+    .sidebar {
+        width: 200px;
+        background-color: transparent;
+        padding: 0px;
+        border-radius: 2px;
+        margin-right: 20px;
+        margin-left: 20px;
+        border: 1px solid darkgray;
+        height: 120px;
+    }
+    .sidebar a {
+        text-decoration: none;
+        color: #333;
+        display: block;
+        padding: 10px;
+        border-radius: 0px;
+        margin-bottom: 1px;
+        transition: background-color 0.3s;
+        border-bottom: 1px solid darkgray;
+    }
+    .sidebar a.active {
+        background-color: #9D76C1;
+        color: #fff;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+    .sidebar a:last-child {
+        border-bottom: none;
+    }
+    .content {
+        background-color: #fff;
+        flex-grow: 1;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .content h2 {
+        margin-top: 0;
+    }
+    .info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    .info span {
+        display: block;
+        margin-bottom: 5px;
+    }
+    .edit-icon {
+        cursor: pointer;
+        color: #333;
+        transition: color 0.3s;
+    }
+    .edit-icon:hover {
+        color: #000;
+    }
+    .hidden-input {
+        display: none;
+        width: 100%;
+    }
+</style>
 </head>
 <body>
-    <h1>User Information</h1>
-    <p><strong>Name:</strong> {{ userInfo.name }}</p>
-    <p><strong>Email:</strong> {{ userInfo.email }}</p>
-    <p><strong>Address:</strong> {{ userInfo.address }}</p>
-    <p><strong>Contact Info:</strong> {{ userInfo.contactInfo }}</p>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="#" class="active">Account Details</a>
+        <a href="#">Change Password</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+    <div class="content">
+        <h2>Account Details</h2>
+
+        <div class="info">
+            <span>Name: <span id="nameText"> {{ userInfo.name }}</span></span>
+            <i class="fas fa-pencil-alt edit-icon" onclick="editField('name')"></i>
+            <input class="hidden-input" id="nameInput" type="text" value={{ userInfo.name }} onblur="saveField('name')" />
+        </div>
+        
+        <div class="info">
+            <span>Email Address: <span id="emailText">{{ userInfo.email }}</span></span>
+            <i class="fas fa-pencil-alt edit-icon" onclick="editField('dob')"></i>
+            <input class="hidden-input" id="emailInput" type="text" value={{ userInfo.email }} onblur="saveField('email')" />
+        </div>
+        
+        <div class="info">
+            <span>Date of Birth: <span id="dobText">{{ userInfo.dob }}</span></span>
+            <i class="fas fa-pencil-alt edit-icon" onclick="editField('dob')"></i>
+            <input class="hidden-input" id="dobInput" type="text" value={{ userInfo.dob }} onblur="saveField('dob')" />
+        </div>
+        
+        <div class="info">
+            <span>Phone Number: <span id="phoneText">{{ userInfo.contactInfo }}</span></span>
+            <i class="fas fa-pencil-alt edit-icon" onclick="editField('contactInfo')"></i>
+            <input class="hidden-input" id="phoneInput" type="text" value={{ userInfo.contactInfo }} onblur="saveField('contactInfo')" />
+        </div>
+        
+        <div class="info">
+            <span>Gender: <span id="genderText">{{ userInfo.gender }}</span></span>
+            <i class="fas fa-pencil-alt edit-icon" onclick="editField('gender')"></i>
+            <input class="hidden-input" id="genderInput" type="text" value={{ userInfo.gender }} onblur="saveField('gender')" />
+        </div>
+        
+        <div class="info">
+            <span>Blood Type: <span id="bloodText">{{ userInfo.bloodGroup }}</span></span>
+            <i class="fas fa-pencil-alt edit-icon" onclick="editField('bloodGroup')"></i>
+            <input class="hidden-input" id="bloodInput" type="text" value={{ userInfo.bloodGroup }} onblur="saveField('bloodGroup')" />
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function editField(field) {
+        var textSpan = document.getElementById(field + 'Text');
+        var inputField = document.getElementById(field + 'Input');
+        textSpan.style.display = 'none';
+        inputField.style.display = 'inline';
+        inputField.focus();
+    }
+
+    function saveField(field) {
+        var textSpan = document.getElementById(field + 'Text');
+        var inputField = document.getElementById(field + 'Input');
+        textSpan.textContent = inputField.value;
+        textSpan.style.display = 'inline';
+        inputField.style.display = 'none';
+    }
+</script>
+
 </body>
 </html>
