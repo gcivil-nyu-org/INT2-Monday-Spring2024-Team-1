@@ -106,9 +106,56 @@
     .login-button:hover{
       color: #7801a1;
     }
+    .input-row{
+      display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+    }
 </style>
 <script>
+
+
+  let base64String = "";
+ 
+    function something(){
+      console.log("sadasd")
+    }
+        function imageUploaded(string) {
+          
+          console.log(string, "File uploaded")
+            let file = document.querySelector(
+                'input[type=file]')['files'][0];
+ 
+            let reader = new FileReader();
+            console.log("next");
+ 
+            reader.onload = function () {
+                base64String = reader.result.replace("data:", "")
+                    .replace(/^.+,/, "");
+ 
+                imageBase64Stringsep = base64String;
+ 
+                // alert(imageBase64Stringsep);
+                console.log(base64String);
+                document.getElementById('identity_proof_name').value = base64String
+            }
+            reader.readAsDataURL(file);
+        }
+ 
+        function displayString() {
+            console.log("Base64String about to be printed");
+            alert(base64String);
+        }
+
   function validateForm() {
+    imageUploaded()
+
+    console.log("validateForm")
+    return true
     var password = document.getElementById("password").value;
     var retypePassword = document.getElementById("retype_password").value;
     var hasCapitalLetter = /[A-Z]/.test(password);
@@ -121,6 +168,7 @@
     } else {
       document.getElementById("retype_password_error").innerHTML = "";
     }
+    
 
     // Ensure password meets all requirements
     if (password.length < 8 || !hasCapitalLetter || !hasSpecialCharacter) {
@@ -189,30 +237,30 @@
   </div><br>
 
   <label for="email">Email<span style="color: red;">*</span></label>
-  <input type="email" id="email" name="email" required value="{{ email }}"><br>
+  <input type="email" id="email" name="email"  value="{{ email }}"><br>
 
   <label for="username">Username<span style="color: red;">*</span></label>
-  <input type="text" id="username" name="username" required value="{{ username }}"><br>
+  <input type="text" id="username" name="username"  value="{{ username }}"><br>
 
   <label for="password">Password<span style="color: red;">*</span></label>
-  <input type="password" id="password" name="password" required onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
+  <input type="password" id="password" name="password"  onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
   <div id="password_requirements" class="password-requirements" style="display: none;">
     Password must be at least 8 characters long, contain a capital letter, and a special character.
   </div>
   <span id="password_error" class="error-message"></span><br>
 
   <label for="retype_password">Confirm Password<span style="color: red;">*</span></label>
-  <input type="password" id="retype_password" name="retype_password" required>
+  <input type="password" id="retype_password" name="retype_password" >
   <span id="retype_password_error" class="error-message"></span><br><br>
 
   <label for="fullname">Full Name<span style="color: red;">*</span></label>
-  <input type="text" id="fullname" name="fullname" required value="{{ fullname }}"><br>
+  <input type="text" id="fullname" name="fullname"  value="{{ fullname }}"><br>
 
   <label for="dob">Date of Birth<span style="color: red;">*</span></label>
-  <input type="date" id="dob" name="dob" required value="{{ dob }}"><br>
+  <input type="date" id="dob" name="dob"  value="{{ dob }}"><br>
   
   <label for="gender">Gender<span style="color: red;">*</span></label>
-  <select id="gender" name="gender" required>
+  <select id="gender" name="gender" >
     <option value="">Select Gender</option>
     <option value="male" {% if gender == "male" %}selected{% endif %}>Male</option>
     <option value="female" {% if gender == "female" %}selected{% endif %}>Female</option>
@@ -220,13 +268,13 @@
   </select><br><br>
 
   <label for="street_address">Street Address<span style="color: red;">*</span></label>
-  <input type="text" id="street_address" name="street_address" required value="{{ street_address }}"><br>
+  <input type="text" id="street_address" name="street_address"  value="{{ street_address }}"><br>
 
   <label for="city">City<span style="color: red;">*</span></label>
-  <input type="text" id="city" name="city" required value="{{ city }}"><br>
+  <input type="text" id="city" name="city"  value="{{ city }}"><br>
 
   <label for="state">State<span style="color: red;">*</span></label>
-<select id="state" name="state" required>
+<select id="state" name="state" >
   <option value="" disabled selected>Select State</option>
   <option value="AL" {% if state == "AL" %}selected{% endif %}>Alabama</option>
   <option value="AK" {% if state == "AK" %}selected{% endif %}>Alaska</option>
@@ -282,20 +330,31 @@
 
 
   <label for="phone_number">Phone Number<span style="color: red;">*</span></label>
-  <input type="text" id="phone_number" name="phone_number" maxlength="10" pattern="[0-9]+" required value="{{ phone_number }}"><br><br><br>
+  <input onchange="something()" type="text" id="phone_number" name="phone_number" maxlength="10" pattern="[0-9]+"  value="{{ phone_number }}"><br><br><br>
 
-  
   <label for="identity_proof">Proof of Identity<span style="color: red;">*</span></label>
-  <input type="file" id="identity_proof" name="identity_proof" accept=".jpg, .jpeg, .png, .pdf" required><br>
+  <div>
+    <div>
+      <input style="width:60%; display: inline;height: 4vh;" type="file" id="identity_proof" name="identity_proof" accept=".jpg, .jpeg, .png, .pdf" >
+      <!-- <p style="width:20%; display: inline; height: 4vh;">Upload</p> -->
   <div id="identity_proof_info" class="small-text">
     Acceptable submissions: Government-issued photo identification card (e.g., driver's license, passport, national ID card), student ID card with photo
+    <label >asdad</label>
   </div><br>
-
-  <input type="submit" value="Register">
+    </div>
+  </div>
+  
+  <label for="identity_proof_name">File</label>
+  <input type="text" name="identity_proof_name" id="identity_proof_name" >
+  
+  <input type="submit" value="Upload & Register">
 </form>
 <div style="text-align:center; margin-top:20px;">
   Already have an account? <a href="{% url 'login' %}">Login</a>
 </div>
+
+
+
 
 </body>
 </html>
