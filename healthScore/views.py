@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
-# from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -58,38 +58,55 @@ def view_health_history(request):
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
 
-# @login_required
+@login_required
 def view_user_info(request):
     if request.method == "GET":
-        userData = []
-        userID = ""
-        try:
-            # userID = request.GET.get("id")
-            # print(request.GET.get("userId"))
-            userID = request.GET.get("userId")
-            # print(userID, "\n\n\n")
-            # print(user.objects.all().values())
-            userData = user.objects.get(id=userID)
-        except Exception:
-            return HttpResponse("Invalid User", status=500)
-
-        # print(userData.address)
-
+        current_user = request.user
         userInfo = {
-            "email": userData.email,
-            "name": userData.name,
-            "username": userData.username,
-            "dob": userData.dob,
-            "contactInfo": userData.contactInfo,
-            "proofOfIdentity": userData.proofOfIdentity,  # dummy string for now. Needs to be replaced with the S3 string
-            "address": userData.address,
-            "gender": userData.gender,
-            "profilePic": userData.profilePic,
-            "bloodGroup": userData.bloodGroup,
-            "requests": json.dumps(userData.requests),
+            "email": current_user.email,
+            "name": current_user.name,
+            "username": current_user.username,
+            "dob": current_user.dob,
+            "contactInfo": current_user.contactInfo,
+            # dummy string for now. Needs to be replaced with the S3 string
+            "proofOfIdentity": current_user.proofOfIdentity,
+            "address": current_user.address,
+            "gender": current_user.gender,
+            "profilePic": current_user.profilePic,
+            "bloodGroup": current_user.bloodGroup,
+            "requests": json.dumps(current_user.requests),
         }
-        # print(userInfo)
         return render(request, "user_profile.html", {"userInfo": userInfo})
+    # if request.method == "GET":
+    #     userData = []
+    #     userID = ""
+    #     try:
+    #         # userID = request.GET.get("id")
+    #         # print(request.GET.get("userId"))
+    #         userID = request.GET.get("userId")
+    #         # print(userID, "\n\n\n")
+    #         # print(user.objects.all().values())
+    #         userData = user.objects.get(id=userID)
+    #     except Exception:
+    #         return HttpResponse("Invalid User", status=500)
+
+    #     # print(userData.address)
+
+    #     userInfo = {
+    #         "email": userData.email,
+    #         "name": userData.name,
+    #         "username": userData.username,
+    #         "dob": userData.dob,
+    #         "contactInfo": userData.contactInfo,
+    #         "proofOfIdentity": userData.proofOfIdentity,  # dummy string for now. Needs to be replaced with the S3 string
+    #         "address": userData.address,
+    #         "gender": userData.gender,
+    #         "profilePic": userData.profilePic,
+    #         "bloodGroup": userData.bloodGroup,
+    #         "requests": json.dumps(userData.requests),
+    #     }
+    #     # print(userInfo)
+    #     return render(request, "user_profile.html", {"userInfo": userInfo})
 
 
 @csrf_exempt
@@ -110,8 +127,10 @@ def edit_user_info(request):
         # print(userInformation['address'])
         userData.update(
             address=updatedData.get("address", userInformation["address"]),
-            contactInfo=updatedData.get("contactInfo", userInformation["contactInfo"]),
-            profilePic=updatedData.get("profilePic", userInformation["profilePic"]),
+            contactInfo=updatedData.get(
+                "contactInfo", userInformation["contactInfo"]),
+            profilePic=updatedData.get(
+                "profilePic", userInformation["profilePic"]),
         )
 
         userData = user.objects.get(id=userID)
@@ -157,11 +176,14 @@ def view_report(request):
     user_info = user.objects.get(id=user_id)
     story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
     story.append(
-        Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
+        Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"),
+                  styles["Normal"])
     )
-    story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
+    story.append(Paragraph("BloodGroup: " +
+                 user_info.bloodGroup, styles["Normal"]))
     story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
-    story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
+    story.append(
+        Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
     story.append(Paragraph("Address: " + user_info.address, styles["Normal"]))
     story.append(Spacer(1, 12))
 
@@ -267,10 +289,12 @@ def registration(request):
         context["fullname"] = fullname = request.POST.get("fullname")
         context["dob"] = dob = request.POST.get("dob")
         context["gender"] = gender = request.POST.get("gender")
-        context["street_address"] = street_address = request.POST.get("street_address")
+        context["street_address"] = street_address = request.POST.get(
+            "street_address")
         context["city"] = city = request.POST.get("city")
         context["state"] = state = request.POST.get("state")
-        context["phone_number"] = phone_number = request.POST.get("phone_number")
+        context["phone_number"] = phone_number = request.POST.get(
+            "phone_number")
         # identity_proof = request.POST.get("identity_proof")
 
         if user.objects.filter(email=email).exists():
