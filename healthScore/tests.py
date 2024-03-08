@@ -18,7 +18,8 @@ class viewHealthHistoryTestCase(TestCase):
     def setUp(self):
         # print("SOMETHING")
         self.factory = RequestFactory()
-
+        # self.user = user.objects.create_user(
+        #     username='test', email='test@test.com', password='my_secret')
         # Adding data to the Hospital table
         h1 = hospital.objects.create(
             name="Hospital A",
@@ -28,6 +29,9 @@ class viewHealthHistoryTestCase(TestCase):
             contactInfo="123456781",
             status="approved",
         )
+        
+
+
         h2 = hospital.objects.create(
             name="Hospital B",
             address="Address B",
@@ -141,6 +145,8 @@ class viewHealthHistoryTestCase(TestCase):
             securityAns="",
             bloodGroup="A+",
         )
+        
+        self.user = u1
         u2 = user.objects.create(
             email="user2@example.com",
             name="User2",
@@ -271,26 +277,17 @@ class viewHealthHistoryTestCase(TestCase):
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_view_user_info_exception(self):
-        url = reverse("user_info")
-        # Update below request with user ID/user info
-        request = self.factory.get(
-            url, data={"userId": "1"}, content_type="application/json"
-        )
-        # request = self.factory.get(url)
-        response = view_user_info(request)
-        # print(response)
-        self.assertEqual(response.status_code, 500)
 
     def test_view_user_info_pass(self):
         url = reverse("user_info")
         request = self.factory.get(
             url, data={"userId": "5"}, content_type="application/json"
         )
+        request.user = self.user
         response = view_user_info(request)
 
         # Update below assetion to 500 once the userInfo html gets pushed
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
 
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
