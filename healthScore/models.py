@@ -4,7 +4,6 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     AbstractBaseUser,
 )
-from django.utils import timezone
 
 
 STATUS_CHOICES = [
@@ -72,7 +71,6 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
-    date_joined = models.DateTimeField(default=timezone.now())
     last_login = models.DateTimeField(blank=True, null=True)
 
     username = models.CharField(max_length=50, unique=True)
