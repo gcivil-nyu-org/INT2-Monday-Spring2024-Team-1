@@ -172,7 +172,8 @@ def view_report(request):
         row = []
         record = healthRecord.objects.get(id=record_id)
         appointment_pro = record.appointmentId.properties
-        appointment_properties = json.loads(appointment_pro)
+        # appointment_properties = json.loads(appointment_pro)
+        appointment_properties = appointment_pro
         appointment_name = record.appointmentId.name
         appointment_name_para = Paragraph(appointment_name)
         row.append(appointment_name_para)
@@ -349,6 +350,5 @@ def add_mock_data(request):
 
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
-    return render(
-        request, "view_health_history_requests.html", {"zipped_details": zipped_details}
-    )
+
+    return render(request, "view_requests.html", {"zipped_details": zipped_details})
