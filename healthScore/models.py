@@ -50,10 +50,10 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    
+
     def create_user(self, email=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', False)
-        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email=None, password=None, **extra_fields):
@@ -74,16 +74,26 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
     last_login = models.DateTimeField(blank=True, null=True)
 
     username = models.CharField(max_length=50, unique=True)
-    name = models.TextField(blank=True, max_length=255, default='')
+    name = models.TextField(blank=True, max_length=255, default="")
     dob = models.DateField()
     contactInfo = models.TextField(default="", max_length=10)
     address = models.TextField(null=False)
-    proofOfIdentity = models.TextField(null=False)  # Convert image to base64 string and store it here
-    
-    securityQues = models.TextField(default="")  # If we not doing email resetting password
-    securityAns = models.TextField(default="")  # If we not doing email resetting password
-    gender = models.TextField(blank=True, default="")  # Can be updated to a choice field later on, if needed
-    profilePic = models.TextField(null=True)  # Convert image to base64 string and store it here
+    proofOfIdentity = models.TextField(
+        null=False
+    )  # Convert image to base64 string and store it here
+
+    securityQues = models.TextField(
+        default=""
+    )  # If we not doing email resetting password
+    securityAns = models.TextField(
+        default=""
+    )  # If we not doing email resetting password
+    gender = models.TextField(
+        blank=True, default=""
+    )  # Can be updated to a choice field later on, if needed
+    profilePic = models.TextField(
+        null=True
+    )  # Convert image to base64 string and store it here
     bloodGroup = models.TextField(null=False)
     requests = models.JSONField(
         null=True
@@ -97,12 +107,12 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
     objects = CustomUserManager()
 
     class Meta:
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
+        verbose_name = "User"
+        verbose_name_plural = "Users"
 
     def get_full_name(self):
         return self.name
-    
+
     def get_short_name(self):
         return self.username
 

@@ -80,8 +80,8 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hospitalStaff.objects.create(
-            hospitalID=hospital.objects.get(id=2),
+        HospitalStaff.objects.create(
+            hospitalID=Hospital.objects.get(id=2),
             admin=False,
             name="Doctor B",
             email="doctor_b@hospitalb.com",
@@ -89,8 +89,8 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Cardiology",
             contactInfo="1234567890",
         )
-        hospitalStaff.objects.create(
-            hospitalID=hospital.objects.get(id=3),
+        HospitalStaff.objects.create(
+            hospitalID=Hospital.objects.get(id=3),
             admin=True,
             name="Admin C",
             email="admin_c@hospitalc.com",
@@ -98,8 +98,8 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hospitalStaff.objects.create(
-            hospitalID=hospital.objects.get(id=3),
+        HospitalStaff.objects.create(
+            hospitalID=Hospital.objects.get(id=3),
             admin=False,
             name="Doctor C",
             email="doctor_c@hospitalc.com",
@@ -107,8 +107,8 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Dermatology",
             contactInfo="1234567890",
         )
-        hospitalStaff.objects.create(
-            hospitalID=hospital.objects.get(id=4),
+        HospitalStaff.objects.create(
+            hospitalID=Hospital.objects.get(id=4),
             admin=True,
             name="Admin D",
             email="admin_d@hospitald.com",
@@ -116,8 +116,8 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hospitalStaff.objects.create(
-            hospitalID=hospital.objects.get(id=4),
+        HospitalStaff.objects.create(
+            hospitalID=Hospital.objects.get(id=4),
             admin=False,
             name="Doctor D",
             email="doctor_d@hospitald.com",

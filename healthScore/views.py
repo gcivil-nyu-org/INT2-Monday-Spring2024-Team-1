@@ -235,6 +235,7 @@ def registration(request):
 
     return render(request, "registration.html")
 
+
 def login_view(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -252,6 +253,7 @@ def login_view(request):
                 {"error_message": "Invalid email or password. Please try again."},
             )
     return render(request, "login.html")
+
 
 @csrf_exempt
 def add_mock_data(request):
