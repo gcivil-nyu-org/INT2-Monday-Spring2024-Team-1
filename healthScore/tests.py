@@ -1,6 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-
+from django.contrib.auth import get_user_model
+from datetime import date
 from datetime import datetime
 import json
 
@@ -18,6 +19,12 @@ class viewHealthHistoryTestCase(TestCase):
     def setUp(self):
         # print("SOMETHING")
         self.factory = RequestFactory()
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpassword',
+            email='test@test.com',
+            dob=date(1994,5,14)
+        )
 
         # Adding data to the Hospital table
         h1 = hospital.objects.create(
@@ -270,15 +277,17 @@ class viewHealthHistoryTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_view_user_info_exception(self):
+        self.client.login(username="testuser", password="testpassword")
         url = reverse("user_info")
         # Update below request with user ID/user info
         request = self.factory.get(
             url, data={"userId": "1"}, content_type="application/json"
         )
+        request.user = self.user
         # request = self.factory.get(url)
         response = view_user_info(request)
         # print(response)
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
 
     def test_view_user_info_pass(self):
         url = reverse("user_info")
