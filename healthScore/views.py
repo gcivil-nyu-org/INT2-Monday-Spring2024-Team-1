@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
+
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -23,10 +24,10 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    healthRecord,
-    hospital,
-    user,
-    hospitalStaff,
+    HealthRecord,
+    Hospital,
+    User,
+    HospitalStaff,
 )
 
 from .user_utils import (
@@ -41,12 +42,19 @@ def test_default_values(request):
     # To get all records from the  healthRecord table
     # healthRecordObjects = healthRecord.objects.all().values()
     # To create new records and save them
-    # h = hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
+    # h = Hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
 
     return HttpResponse("<h1>Finally Workingggggggg. Welcome to HealthScore</h1>")
 
 
 def view_health_history(request):
+    # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
+    updated_params = request.GET.copy()
+    updated_params["record_status"] = "approved"
+
+    # Update request.GET with the modified QueryDict
+    request.GET = updated_params
+
     zipped_details = get_health_history_details(request=request)
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
@@ -88,7 +96,7 @@ def view_report(request):
     story.append(logo_and_date)
 
     user_id = 5
-    user_info = user.objects.get(id=user_id)
+    user_info = User.objects.get(id=user_id)
     story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
     story.append(
         Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
@@ -114,7 +122,7 @@ def view_report(request):
     selected_record_ids = request.POST.getlist("record_ids")
     for record_id in selected_record_ids:
         row = []
-        record = healthRecord.objects.get(id=record_id)
+        record = HealthRecord.objects.get(id=record_id)
         appointment_pro = record.appointmentId.properties
         appointment_properties = json.loads(appointment_pro)
         appointment_name = record.appointmentId.name
@@ -125,15 +133,15 @@ def view_report(request):
         appointment_type_para = Paragraph(appointment_type)
         row.append(appointment_type_para)
 
-        doctor_name = hospitalStaff.objects.get(id=record.doctorID).name
+        doctor_name = HospitalStaff.objects.get(id=record.doctorID).name
         doctor_name_para = Paragraph(doctor_name)
         row.append(doctor_name_para)
 
-        hospital_name = hospital.objects.get(id=record.hospitalID).name
+        hospital_name = Hospital.objects.get(id=record.hospitalID).name
         hospital_name_para = Paragraph(hospital_name)
         row.append(hospital_name_para)
 
-        hospital_addr = hospital.objects.get(id=record.hospitalID).address
+        hospital_addr = Hospital.objects.get(id=record.hospitalID).address
         hospital_addr_para = Paragraph(hospital_addr)
         row.append(hospital_addr_para)
 
@@ -206,13 +214,13 @@ def registration(request):
         context["phone_number"] = phone_number = request.POST.get("phone_number")
         # identity_proof = request.POST.get("identity_proof")
 
-        if user.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             context["error_message"] = (
                 "An account already exists for this email address. Please log in."
             )
             return render(request, "registration.html", context)
 
-        elif user.objects.filter(username=username).exists():
+        elif User.objects.filter(username=username).exists():
             context["error_message"] = (
                 "Username already exists. Please choose a different one."
             )
@@ -221,7 +229,7 @@ def registration(request):
         else:
             hashed_password = make_password(request.POST.get("password"))
 
-            user.objects.create(
+            User.objects.create(
                 email=email,
                 username=username,
                 password=hashed_password,
@@ -239,10 +247,10 @@ def registration(request):
 
 def login_view(request):
     if request.method == "POST":
-        username = request.POST.get("username")
+        email = request.POST.get("email")
         password = request.POST.get("password")
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             login(request, user)
@@ -251,7 +259,7 @@ def login_view(request):
             return render(
                 request,
                 "login.html",
-                {"error_message": "Invalid username or password. Please try again."},
+                {"error_message": "Invalid email or password. Please try again."},
             )
     return render(request, "login.html")
 
@@ -292,6 +300,5 @@ def add_mock_data(request):
 
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
-    return render(
-        request, "view_health_history_requests.html", {"zipped_details": zipped_details}
-    )
+
+    return render(request, "view_requests.html", {"zipped_details": zipped_details})
