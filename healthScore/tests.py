@@ -11,7 +11,7 @@ from healthScore.models import (
     hospitalStaff,
     appointment,
 )
-from healthScore.views import view_health_history, view_user_info
+from healthScore.views import edit_user_info, view_health_history, view_user_info
 
 
 class viewHealthHistoryTestCase(TestCase):
@@ -299,6 +299,33 @@ class viewHealthHistoryTestCase(TestCase):
         self.assertEqual(response.status_code, 500)
 
 
-    
+
+    def test_edit_user_info_exception(self):
+        url = reverse("edit_user_info")
+        request = self.factory.put(
+            url,
+            data = {"userId":"6", "update":{"address":"test", "city":"test"}},
+            content_type='application/json'
+        )
+
+        response = edit_user_info(request)
+
+        # Update below assetion to 500 once the userInfo html gets pushed
+        self.assertEqual(response.status_code, 500)
+
+
+    def test_edit_user_info_pass(self):
+        url = reverse("edit_user_info")
+        request = self.factory.put(
+            url,
+            data = {"userId":"6", "update":{"address":"test", "city":"test"}},
+            content_type='application/json'
+        )
+
+        response = edit_user_info(request)
+
+        # Update below assetion to 500 once the userInfo html gets pushed
+        self.assertEqual(response.status_code, 200)
+
 
 # Create your tests here.
