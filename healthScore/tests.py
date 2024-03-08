@@ -305,7 +305,7 @@ class viewHealthHistoryTestCase(TestCase):
             "record_status": "approved",
         }
         request = self.factory.get(url, request_struct)
-        response = view_health_history(request)
+        response = view_health_history_requests(request)
 
         self.assertEqual(response.status_code, 200)
 
