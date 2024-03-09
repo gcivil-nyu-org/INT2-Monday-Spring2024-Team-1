@@ -66,14 +66,16 @@ def view_user_info(request):
         "email": current_user.email,
         "name": current_user.name,
         "userName": current_user.username,
-        'dob': current_user.dob,
-        'contactInfo': current_user.contactInfo,
-        'proofOfIdentity': current_user.proofOfIdentity,
-        'address': current_user.address,
-        'gender': current_user.gender,
-        'profilePic': current_user.profilePic,
-        'bloodGroup': current_user.bloodGroup,
-        'requests': json.dumps(list(current_user.requests)) if current_user.requests else '[]'
+        "dob": current_user.dob,
+        "contactInfo": current_user.contactInfo,
+        "proofOfIdentity": current_user.proofOfIdentity,
+        "address": current_user.address,
+        "gender": current_user.gender,
+        "profilePic": current_user.profilePic,
+        "bloodGroup": current_user.bloodGroup,
+        "requests": (
+            json.dumps(list(current_user.requests)) if current_user.requests else "[]"
+        ),
     }
     return render(request, "user_profile.html", {"userInfo": userInfo})
 

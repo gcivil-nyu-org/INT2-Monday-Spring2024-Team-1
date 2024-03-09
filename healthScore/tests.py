@@ -20,10 +20,10 @@ class viewHealthHistoryTestCase(TestCase):
         # print("SOMETHING")
         self.factory = RequestFactory()
         self.user = get_user_model().objects.create_user(
-            username='testuser',
-            password='testpassword',
-            email='test@test.com',
-            dob=date(1994,5,14)
+            username="testuser",
+            password="testpassword",
+            email="test@test.com",
+            dob=date(1994, 5, 14),
         )
 
         # Adding data to the Hospital table
