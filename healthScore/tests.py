@@ -201,7 +201,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
                 {
                     "type": "vaccine A",
                     "dose_2": False,
-                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "date": datetime.now(),
                 },
                 default=str,
             ),
@@ -212,7 +212,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
                 {
                     "type": "vaccine A",
                     "dose_2": True,
-                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "date": datetime.now(),
                 },
                 default=str,
             ),
@@ -223,7 +223,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
                 {
                     "type": "Iron check",
                     "dose_2": False,
-                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "date": datetime.now(),
                 },
                 default=str,
             ),
@@ -234,7 +234,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
                 {
                     "type": "N/A",
                     "dose_2": False,
-                    "date": datetime.now().strftime("%Y-%m-%d"),
+                    "date": datetime.now(),
                 },
                 default=str,
             ),

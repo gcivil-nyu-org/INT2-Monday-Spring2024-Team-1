@@ -34,6 +34,9 @@ from .models import (
 from .user_utils import get_health_history_details
 
 
+DATE_FORMAT = "%Y-%m-%d"
+
+
 def homepage(request):
     return render(request, "homepage.html")
 
@@ -114,7 +117,7 @@ def view_report(request):
         right_aligned_style = ParagraphStyle(
             "RightAligned", parent=styles["Normal"], alignment=TA_RIGHT
         )
-        current_date = datetime.now().strftime("%Y-%m-%d")
+        current_date = datetime.now().strftime(DATE_FORMAT)
 
         logo = "healthScore/static/HSlogo.jpg"
         logo_img = Image(logo, width=128, height=40)
@@ -136,7 +139,7 @@ def view_report(request):
         user_info = User.objects.get(id=user_id)
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
         story.append(
-            Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
+            Paragraph("DOB: " + user_info.dob.strftime(DATE_FORMAT), styles["Normal"])
         )
         story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
         story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
@@ -182,9 +185,18 @@ def view_report(request):
             hospital_addr_para = Paragraph(hospital_addr)
             row.append(hospital_addr_para)
 
-            updated = record.updatedAt.strftime("%Y-%m-%d %H:%M")
+            updated = record.updatedAt.strftime(DATE_FORMAT)
             updated_para = Paragraph(updated)
             row.append(updated_para)
+
+            temp_row = []
+            for rec, val in appointment_properties.items():
+                if rec=="date":
+                    val = datetime.strptime(val, '%Y-%m-%d %H:%M:%S.%f').strftime(DATE_FORMAT)
+                
+                temp_row.append(Paragraph(str(rec).capitalize()+" :   "+str(val)))
+            row.append(temp_row)
+
             table_data.append(row)
 
         page_width, page_height = letter
@@ -193,12 +205,12 @@ def view_report(request):
 
         col_widths = [
             effective_page_width * 0.1,  # Reason for Visit
-            effective_page_width * 0.2,  # Visit Details
+            effective_page_width * 0.15,  # Visit Details
             effective_page_width * 0.15,  # Healthcare Worker
             effective_page_width * 0.15,  # Healthcare Facility
             effective_page_width * 0.15,  # Address
             effective_page_width * 0.15,  # Date
-            effective_page_width * 0.2,  # Properties
+            effective_page_width * 0.25,  # Properties
         ]
         table = Table(table_data, colWidths=col_widths)
 
