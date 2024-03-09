@@ -117,8 +117,7 @@
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password">
             </div>
             <div class="forgot-pass">
-                <!-- Below href will have to be updated once Forgot Password is added  -->
-              <a href="#">Forgot password?</a>
+                <a href="{% url 'password_reset' %}">Forgot password?</a>
             </div>
             <br>
             <button type="submit" class="btn btn-primary">Login</button>

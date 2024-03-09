@@ -1,6 +1,6 @@
-from django.test import RequestFactory, TransactionTestCase
+from django.test import RequestFactory, TransactionTestCase, TestCase
 from django.urls import reverse
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth import get_user_model
 
 from datetime import datetime
 import json
@@ -15,8 +15,6 @@ from healthScore.models import (
 
 from healthScore.views import (
     edit_user_info,
-    homepage,
-    registration,
     view_health_history,
     view_report,
     view_user_info,
@@ -27,6 +25,7 @@ from healthScore.views import (
 DATE_FORMAT = "%Y-%m-%d"
 
 
+# views.py
 class viewHealthHistoryTestCase(TransactionTestCase):
     reset_sequences = True
 
@@ -142,10 +141,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
 
         # Adding user data
-        u1 = User.objects.create(
+        u1 = User.objects.create_user(
             email="user1@example.com",
             name="User1",
-            password=make_password("userpass1"),
+            password="userpass1",
             username="user1",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -157,10 +156,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
 
         self.user = u1
-        u2 = User.objects.create(
+        u2 = User.objects.create_user(
             email="user2@example.com",
             name="User2",
-            password=make_password("userpass2"),
+            password="userpass2",
             username="user2",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -170,10 +169,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             securityAns="",
             bloodGroup="B+",
         )
-        u3 = User.objects.create(
+        u3 = User.objects.create_user(
             email="user3@example.com",
             name="User3",
-            password=make_password("userpass3"),
+            password="userpass3",
             username="user3",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -183,10 +182,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             securityAns="",
             bloodGroup="O+",
         )
-        u4 = User.objects.create(
+        u4 = User.objects.create_user(
             email="user4@example.com",
             name="User4",
-            password=make_password("userpass4"),
+            password="userpass4",
             username="user4",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -333,13 +332,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = edit_user_info(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_homepage(self):
-        url = reverse("homepage")
-        request = self.factory.get(url)
-        response = homepage(request)
-
-        self.assertEqual(response.status_code, 200)
-
     def test_view_history_requests(self):
         url = reverse("view_requests")
         # appointment name healthcare_worker, healthcare_facility date and record_status are passed
@@ -354,24 +346,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_login_fail(self):
-        url = reverse("login")
-        data = {"email": "user1@example.com", "password": "wrong password"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 500)
-
-    def test_login_fail_wrong_method(self):
-        url = reverse("login")
-        data = {"email": "user1@example.com", "password": "userpass1"}
-        response = self.client.put(url, data)
-        self.assertEqual(response.status_code, 404)
-
-    def test_login_success(self):
-        url = reverse("login")
-        data = {"email": "user1@example.com", "password": "userpass1"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302)
-
     def test_view_report(self):
         url = reverse("view_reports")
         request_struct = {"record_ids": [1, 2]}
@@ -379,75 +353,144 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = view_report(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_registration_pass(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "test@test.com",
-            "username": "testUser",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.post(url, request_struct)
-        response = registration(request)
-        self.assertEqual(
-            response.status_code, 302
-        )  # Since it's a redirect, status by default is 302 for sucesss
 
-    def test_registration_not_post_method(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "test@test.com",
-            "username": "testUser",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.put(url, request_struct)
-        response = registration(request)
-        self.assertEqual(response.status_code, 404)
-
-    def test_registration_user_email_exists_error(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "user1@example.com",
-            "username": "testUser",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.post(url, request_struct)
-        response = registration(request)
-        self.assertEqual(response.status_code, 500)
-
-    def test_registration_user_username_exists_error(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "test2@test2.com",
-            "username": "user1",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.post(url, request_struct)
-        response = registration(request)
-        self.assertEqual(response.status_code, 500)
+class HomepageViewTest(TestCase):
+    def test_homepage_view(self):
+        response = self.client.get(reverse("homepage"))  # test the view
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "homepage.html")
 
 
-# Create your tests here.
+class LoginViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="test@example.com", password="testpassword"
+        )
+
+    def test_login_view(self):
+        response = self.client.get(reverse("login"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "login.html")
+
+    def test_post_request_valid_credentials(self):
+        response = self.client.post(
+            reverse("login"), {"email": "test@example.com", "password": "testpassword"}
+        )
+        self.assertRedirects(response, reverse("homepage"))
+
+    def test_post_request_invalid_credentials(self):
+        response = self.client.post(
+            reverse("login"), {"email": "test@example.com", "password": "wrongpassword"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Invalid email or password. Please try again.", response.content.decode()
+        )
+
+
+class RegistrationViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="test@example.com",
+            password="testpassword",
+            username="testuser",
+            name="Test User",
+        )
+
+    def test_registration_view(self):
+        response = self.client.get(reverse("registration"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "registration.html")
+
+    def test_post_request_email_exist(self):
+        response = self.client.post(
+            reverse("registration"),
+            {"email": "test@example.com", "password": "testpassword"},
+        )
+        user = User.objects.get(email="test@example.com")
+        self.assertEqual(user.email, "test@example.com")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "An account already exists for this email address. Please log in.",
+            response.content.decode(),
+        )
+
+    def test_post_request_username_exist(self):
+        response = self.client.post(
+            reverse("registration"),
+            {"username": "testuser", "password": "testpassword"},
+        )
+        user = User.objects.get(username="testuser")
+        self.assertEqual(user.username, "testuser")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Username already exists. Please choose a different one.",
+            response.content.decode(),
+        )
+
+    def test_post_request_new_user_registered(self):
+        response = self.client.post(
+            reverse("registration"),
+            {
+                "email": "newuser@example.com",
+                "password": "newpassword",
+                "username": "newuser",
+                "fullname": "New User",
+                "gender": "female",
+                "phone_number": "0000000000",
+                "street_address:": "1 High St",
+                "city": "Jersey City",
+                "state": "NJ",
+            },
+        )
+        user = User.objects.get(email="newuser@example.com")
+        self.assertEqual(user.email, "newuser@example.com")
+        self.assertRedirects(response, reverse("homepage"))
+
+
+# models.py
+class CustomUserManagerTest(TestCase):
+    def test_create_user(self):
+        User = get_user_model()
+        email = "test@example.com"
+        password = "testpassword"
+        user = User.objects.create_user(email=email, password=password)
+
+        self.assertEqual(user.email, email)
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertTrue(user.check_password(password))
+
+    def test_create_superuser(self):
+        User = get_user_model()
+        email = "admin@example.com"
+        password = "adminexample"
+        user = User.objects.create_superuser(email=email, password=password)
+
+        self.assertEqual(user.email, email)
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.check_password(password))
+
+    def test_create_user_missing_email(self):
+        User = get_user_model()
+        with self.assertRaises(ValueError):
+            User.objects.create_user(email=None, password="testpassword")
+
+
+class UserTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            email="test@exmaple.com",
+            username="testuser",
+            password="password",
+            name="Test User",
+        )
+
+    def test_get_full_name(self):
+        full_name = self.user.get_full_name()
+        self.assertEqual(full_name, "Test User")
+
+    def test_get_short_name(self):
+        short_name = self.user.get_short_name()
+        self.assertEqual(short_name, "testuser")

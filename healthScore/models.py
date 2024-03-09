@@ -59,7 +59,7 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        return self.create_user(email, password, **extra_fields)
+        return self._create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
@@ -75,7 +75,7 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
 
     username = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, max_length=255, default="")
-    dob = models.DateField()
+    dob = models.DateField(blank=True, null=True)
     contactInfo = models.TextField(default="", max_length=10)
     address = models.TextField(null=False)
     proofOfIdentity = models.TextField(
