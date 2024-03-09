@@ -1,33 +1,40 @@
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TransactionTestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from datetime import date
+from django.contrib.auth.hashers import make_password
+
 from datetime import datetime
 import json
 
 from healthScore.models import (
-    healthRecord,
-    hospital,
-    user,
-    hospitalStaff,
-    appointment,
+    HealthRecord,
+    Hospital,
+    User,
+    HospitalStaff,
+    Appointment,
 )
-from healthScore.views import edit_user_info, view_health_history, view_user_info
+
+from healthScore.views import (
+    edit_user_info,
+    homepage,
+    registration,
+    view_health_history,
+    view_report,
+    view_user_info,
+    view_health_history_requests,
+)
 
 
-class viewHealthHistoryTestCase(TestCase):
+DATE_FORMAT = "%Y-%m-%d"
+
+
+class viewHealthHistoryTestCase(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
-        # print("SOMETHING")
         self.factory = RequestFactory()
-        self.user = get_user_model().objects.create_user(
-            username="testuser",
-            password="testpassword",
-            email="test@test.com",
-            dob=date(1994, 5, 14),
-        )
 
         # Adding data to the Hospital table
-        h1 = hospital.objects.create(
+        h1 = Hospital.objects.create(
             name="Hospital A",
             address="Address A",
             email="hospital_a@example.com",
@@ -35,7 +42,7 @@ class viewHealthHistoryTestCase(TestCase):
             contactInfo="123456781",
             status="approved",
         )
-        h2 = hospital.objects.create(
+        h2 = Hospital.objects.create(
             name="Hospital B",
             address="Address B",
             email="hospital_b@example.com",
@@ -43,7 +50,7 @@ class viewHealthHistoryTestCase(TestCase):
             contactInfo="123456781",
             status="pending",
         )
-        h3 = hospital.objects.create(
+        h3 = Hospital.objects.create(
             name="Hospital C",
             address="Address C",
             email="hospital_c@example.com",
@@ -51,7 +58,7 @@ class viewHealthHistoryTestCase(TestCase):
             contactInfo="123456781",
             status="rejected",
         )
-        h4 = hospital.objects.create(
+        h4 = Hospital.objects.create(
             name="Hospital D",
             address="Address D",
             email="hospital_d@example.com",
@@ -61,7 +68,7 @@ class viewHealthHistoryTestCase(TestCase):
         )
 
         # Adding hospitalStaff data
-        hs1 = hospitalStaff.objects.create(
+        hs1 = HospitalStaff.objects.create(
             hospitalID=h1,
             admin=True,
             name="Admin A",
@@ -70,7 +77,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs2 = hospitalStaff.objects.create(
+        hs2 = HospitalStaff.objects.create(
             hospitalID=h1,
             admin=False,
             name="Doctor A",
@@ -79,7 +86,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Anesthesiology",
             contactInfo="1234567890",
         )
-        hs3 = hospitalStaff.objects.create(
+        hs3 = HospitalStaff.objects.create(
             hospitalID=h2,
             admin=True,
             name="Admin B",
@@ -88,7 +95,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs4 = hospitalStaff.objects.create(
+        hs4 = HospitalStaff.objects.create(
             hospitalID=h2,
             admin=False,
             name="Doctor B",
@@ -97,7 +104,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Cardiology",
             contactInfo="1234567890",
         )
-        hs5 = hospitalStaff.objects.create(
+        hs5 = HospitalStaff.objects.create(
             hospitalID=h3,
             admin=True,
             name="Admin C",
@@ -106,7 +113,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs6 = hospitalStaff.objects.create(
+        hs6 = HospitalStaff.objects.create(
             hospitalID=h3,
             admin=False,
             name="Doctor C",
@@ -115,7 +122,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="Dermatology",
             contactInfo="1234567890",
         )
-        hs7 = hospitalStaff.objects.create(
+        hs7 = HospitalStaff.objects.create(
             hospitalID=h4,
             admin=True,
             name="Admin D",
@@ -124,7 +131,7 @@ class viewHealthHistoryTestCase(TestCase):
             specialization="",
             contactInfo="1234567890",
         )
-        hs8 = hospitalStaff.objects.create(
+        hs8 = HospitalStaff.objects.create(
             hospitalID=h4,
             admin=False,
             name="Doctor D",
@@ -135,10 +142,10 @@ class viewHealthHistoryTestCase(TestCase):
         )
 
         # Adding user data
-        u1 = user.objects.create(
+        u1 = User.objects.create(
             email="user1@example.com",
             name="User1",
-            password="userpass1",
+            password=make_password("userpass1"),
             username="user1",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -148,10 +155,12 @@ class viewHealthHistoryTestCase(TestCase):
             securityAns="",
             bloodGroup="A+",
         )
-        u2 = user.objects.create(
+
+        self.user = u1
+        u2 = User.objects.create(
             email="user2@example.com",
             name="User2",
-            password="userpass2",
+            password=make_password("userpass2"),
             username="user2",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -161,10 +170,10 @@ class viewHealthHistoryTestCase(TestCase):
             securityAns="",
             bloodGroup="B+",
         )
-        u3 = user.objects.create(
+        u3 = User.objects.create(
             email="user3@example.com",
             name="User3",
-            password="userpass3",
+            password=make_password("userpass3"),
             username="user3",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -174,10 +183,10 @@ class viewHealthHistoryTestCase(TestCase):
             securityAns="",
             bloodGroup="O+",
         )
-        u4 = user.objects.create(
+        u4 = User.objects.create(
             email="user4@example.com",
             name="User4",
-            password="userpass4",
+            password=make_password("userpass4"),
             username="user4",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -189,104 +198,106 @@ class viewHealthHistoryTestCase(TestCase):
         )
 
         # Adding appointment Data
-        a1 = appointment.objects.create(
+        a1 = Appointment.objects.create(
             name="Vaccine",
             properties=json.dumps(
-                {"type": "vaccine A", "dose_2": False, "date": datetime.now()},
+                {
+                    "type": "vaccine A",
+                    "dose_2": False,
+                    "date": datetime.now(),
+                },
                 default=str,
             ),
         )
-        a2 = appointment.objects.create(
+        a2 = Appointment.objects.create(
             name="Vaccine",
             properties=json.dumps(
-                {"type": "vaccine A", "dose_2": True, "date": datetime.now()},
+                {
+                    "type": "vaccine A",
+                    "dose_2": True,
+                    "date": datetime.now(),
+                },
                 default=str,
             ),
         )
-        a3 = appointment.objects.create(
+        a3 = Appointment.objects.create(
             name="Blood test",
             properties=json.dumps(
-                {"type": "Iron check", "dose_2": False, "date": datetime.now()},
+                {
+                    "type": "Iron check",
+                    "dose_2": False,
+                    "date": datetime.now(),
+                },
                 default=str,
             ),
         )
-        a4 = appointment.objects.create(
+        a4 = Appointment.objects.create(
             name="MRI",
             properties=json.dumps(
-                {"type": "N/A", "dose_2": False, "date": datetime.now()}, default=str
+                {
+                    "type": "N/A",
+                    "dose_2": False,
+                    "date": datetime.now(),
+                },
+                default=str,
             ),
         )
 
         # healthRecord data
-        hr1 = healthRecord.objects.create(
+        hr1 = HealthRecord.objects.create(
             doctorID=1,
             userID=u1,
             hospitalID=1,
             status="approved",
-            createdAt=datetime.now(),
-            updatedAt=datetime.now(),
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a1,
             healthDocuments="",
         )
-        hr2 = healthRecord.objects.create(
+        hr2 = HealthRecord.objects.create(
             doctorID=2,
             userID=u2,
             hospitalID=2,
-            status="rejected",
-            createdAt=datetime.now(),
-            updatedAt=datetime.now(),
+            status="approved",
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a2,
             healthDocuments="",
         )
-        hr3 = healthRecord.objects.create(
+        hr3 = HealthRecord.objects.create(
             doctorID=3,
             userID=u3,
             hospitalID=3,
             status="approved",
-            createdAt=datetime.now(),
-            updatedAt=datetime.now(),
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a3,
             healthDocuments="",
         )
-        hr4 = healthRecord.objects.create(
+        hr4 = HealthRecord.objects.create(
             doctorID=4,
             userID=u4,
             hospitalID=4,
             status="pending",
-            createdAt=datetime.now(),
-            updatedAt=datetime.now(),
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a4,
             healthDocuments="",
         )
 
+        print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
+
     def test_view_history(self):
         url = reverse("view_health_history")
-
-        # Update below request with user ID/user info
-        # request = self.factory.get(
-        #     url,
-        #     {
-        #         "appointment_name": "test",
-        #         "healthcare_worker": "test",
-        #         "date": datetime.now(),
-        #         "healthcare_facility": "test",
-        #     },
-        # )
-        request = self.factory.get(url)
+        # appointment name healthcare_worker, healthcare_facility and date are passed
+        request_struct = {
+            "appointment_name": "Vaccine",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital A",
+            "date": "2024-03-08",
+        }
+        request = self.factory.get(url, request_struct)
         response = view_health_history(request)
-        self.assertEqual(response.status_code, 200)
-
-    def test_view_user_info_exception(self):
-        self.client.login(username="testuser", password="testpassword")
-        url = reverse("user_info")
-        # Update below request with user ID/user info
-        request = self.factory.get(
-            url, data={"userId": "1"}, content_type="application/json"
-        )
-        request.user = self.user
-        # request = self.factory.get(url)
-        response = view_user_info(request)
-        # print(response)
         self.assertEqual(response.status_code, 200)
 
     def test_view_user_info_pass(self):
@@ -294,10 +305,10 @@ class viewHealthHistoryTestCase(TestCase):
         request = self.factory.get(
             url, data={"userId": "5"}, content_type="application/json"
         )
+        request.user = self.user
         response = view_user_info(request)
 
-        # Update below assetion to 500 once the userInfo html gets pushed
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
 
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
@@ -306,24 +317,137 @@ class viewHealthHistoryTestCase(TestCase):
             data={"userId": "6", "update": {"address": "test", "city": "test"}},
             content_type="application/json",
         )
-
+        request.user = self.user
         response = edit_user_info(request)
-
-        # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 500)
 
     def test_edit_user_info_pass(self):
         url = reverse("edit_user_info")
         request = self.factory.put(
             url,
-            data={"userId": "6", "update": {"address": "test", "city": "test"}},
+            data={"userId": "1", "update": {"address": "test", "city": "test"}},
             content_type="application/json",
         )
 
+        request.user = self.user
         response = edit_user_info(request)
-
-        # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
+
+    def test_homepage(self):
+        url = reverse("homepage")
+        request = self.factory.get(url)
+        response = homepage(request)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_history_requests(self):
+        url = reverse("view_requests")
+        # appointment name healthcare_worker, healthcare_facility date and record_status are passed
+        request_struct = {
+            "appointment_name": "Vaccine",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital B",
+            "date": datetime.now().strftime(DATE_FORMAT),
+            "record_status": "approved",
+        }
+        request = self.factory.get(url, request_struct)
+        response = view_health_history_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_fail(self):
+        url = reverse("login")
+        data = {"email": "user1@example.com", "password": "wrong password"}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 500)
+
+    def test_login_fail_wrong_method(self):
+        url = reverse("login")
+        data = {"email": "user1@example.com", "password": "userpass1"}
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, 404)
+
+    def test_login_success(self):
+        url = reverse("login")
+        data = {"email": "user1@example.com", "password": "userpass1"}
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_view_report(self):
+        url = reverse("view_reports")
+        request_struct = {"record_ids": [1, 2]}
+        request = self.factory.post(url, request_struct)
+        response = view_report(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_registration_pass(self):
+        url = reverse("registration")
+        request_struct = {
+            "email": "test@test.com",
+            "username": "testUser",
+            "fullname": "test user",
+            "dob": "1990-02-02",
+            "gender": "male",
+            "street_address": "123 foo bar, foo",
+            "city": "NY",
+            "state": "NY",
+            "phone_number": "1235467890",
+        }
+        request = self.factory.post(url, request_struct)
+        response = registration(request)
+        self.assertEqual(
+            response.status_code, 302
+        )  # Since it's a redirect, status by default is 302 for sucesss
+
+    def test_registration_not_post_method(self):
+        url = reverse("registration")
+        request_struct = {
+            "email": "test@test.com",
+            "username": "testUser",
+            "fullname": "test user",
+            "dob": "1990-02-02",
+            "gender": "male",
+            "street_address": "123 foo bar, foo",
+            "city": "NY",
+            "state": "NY",
+            "phone_number": "1235467890",
+        }
+        request = self.factory.put(url, request_struct)
+        response = registration(request)
+        self.assertEqual(response.status_code, 404)
+
+    def test_registration_user_email_exists_error(self):
+        url = reverse("registration")
+        request_struct = {
+            "email": "user1@example.com",
+            "username": "testUser",
+            "fullname": "test user",
+            "dob": "1990-02-02",
+            "gender": "male",
+            "street_address": "123 foo bar, foo",
+            "city": "NY",
+            "state": "NY",
+            "phone_number": "1235467890",
+        }
+        request = self.factory.post(url, request_struct)
+        response = registration(request)
+        self.assertEqual(response.status_code, 500)
+
+    def test_registration_user_username_exists_error(self):
+        url = reverse("registration")
+        request_struct = {
+            "email": "test2@test2.com",
+            "username": "user1",
+            "fullname": "test user",
+            "dob": "1990-02-02",
+            "gender": "male",
+            "street_address": "123 foo bar, foo",
+            "city": "NY",
+            "state": "NY",
+            "phone_number": "1235467890",
+        }
+        request = self.factory.post(url, request_struct)
+        response = registration(request)
+        self.assertEqual(response.status_code, 500)
 
 
 # Create your tests here.
