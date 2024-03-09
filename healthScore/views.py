@@ -191,10 +191,12 @@ def view_report(request):
 
             temp_row = []
             for rec, val in appointment_properties.items():
-                if rec=="date":
-                    val = datetime.strptime(val, '%Y-%m-%d %H:%M:%S.%f').strftime(DATE_FORMAT)
-                
-                temp_row.append(Paragraph(str(rec).capitalize()+" :   "+str(val)))
+                if rec == "date":
+                    val = datetime.strptime(val, "%Y-%m-%d %H:%M:%S.%f").strftime(
+                        DATE_FORMAT
+                    )
+
+                temp_row.append(Paragraph(str(rec).capitalize() + " :   " + str(val)))
             row.append(temp_row)
 
             table_data.append(row)
