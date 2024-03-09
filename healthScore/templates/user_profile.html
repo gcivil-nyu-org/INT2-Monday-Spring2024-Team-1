@@ -30,6 +30,8 @@
 
 <body>
 
+{%  include 'header.html' %}
+
 <div class="container-fluid">
   <div class="row">
   <div class="col-md-3 col-lg-2 d-md-block bg-white">
@@ -50,6 +52,8 @@
     <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
       <form id="editUserForm">
         <h4>Account Details</h4>
+          
+          <div id="formFeedback" class="mb-3"></div>
         <div class="form-group">
           <label for="userName">Name</label>
           <input type="text" class="form-control custom-width" id="userName" name="name" value="{{ userInfo.name }}">
@@ -74,6 +78,7 @@
           {% csrf_token %}
         
         <button type="button" class="btn custom-save-btn" onclick="submitEditForm()">Save Changes</button>
+          
       </form>
     </div>
   </div>
@@ -97,10 +102,13 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Handle success
+                const feedbackElement = document.getElementById('formFeedback');
+                feedbackElement.innerHTML = ''; // Clear previous messages
+                const message = data.error ? `<div class="alert alert-danger">${data.error}</div>` : `<div class="alert alert-success">${data.message}</div>`;
+                feedbackElement.innerHTML = message;
             })
             .catch((error) => {
-                // Handle errors
+                console.error('Error:', error);
             });
         }
     </script>
