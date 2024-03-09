@@ -18,7 +18,6 @@ def get_health_history_details(request):
 
         print(HealthRecord.objects.all().values())
 
-
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
             history_list = history_list.filter(

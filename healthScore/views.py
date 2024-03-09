@@ -299,7 +299,7 @@ def login_view(request):
                 request,
                 "login.html",
                 {"error_message": "Invalid email or password. Please try again."},
-                status=500
+                status=500,
             )
     return render(request, "login.html", status=404)
 

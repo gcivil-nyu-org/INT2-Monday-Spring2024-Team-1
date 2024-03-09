@@ -12,7 +12,15 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
 )
-from healthScore.views import edit_user_info, homepage, login_view, registration, view_health_history, view_report, view_user_info, view_health_history_requests
+from healthScore.views import (
+    edit_user_info,
+    homepage,
+    registration,
+    view_health_history,
+    view_report,
+    view_user_info,
+    view_health_history_requests,
+)
 
 
 class viewHealthHistoryTestCase(TransactionTestCase):
@@ -24,8 +32,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         # self.user = user.objects.create_user(
         #     username='test', email='test@test.com', password='my_secret')
         # Adding data to the Hospital table
-        
-        
+
         h1 = Hospital.objects.create(
             name="Hospital A",
             address="Address A",
@@ -193,28 +200,45 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         a1 = Appointment.objects.create(
             name="Vaccine",
             properties=json.dumps(
-                {"type": "vaccine A", "dose_2": False, "date": datetime.now().strftime("%Y-%m-%d")},
+                {
+                    "type": "vaccine A",
+                    "dose_2": False,
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                },
                 default=str,
             ),
         )
         a2 = Appointment.objects.create(
             name="Vaccine",
             properties=json.dumps(
-                {"type": "vaccine A", "dose_2": True, "date": datetime.now().strftime("%Y-%m-%d")},
+                {
+                    "type": "vaccine A",
+                    "dose_2": True,
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                },
                 default=str,
             ),
         )
         a3 = Appointment.objects.create(
             name="Blood test",
             properties=json.dumps(
-                {"type": "Iron check", "dose_2": False, "date": datetime.now().strftime("%Y-%m-%d")},
+                {
+                    "type": "Iron check",
+                    "dose_2": False,
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                },
                 default=str,
             ),
         )
         a4 = Appointment.objects.create(
             name="MRI",
             properties=json.dumps(
-                {"type": "N/A", "dose_2": False, "date": datetime.now().strftime("%Y-%m-%d")}, default=str
+                {
+                    "type": "N/A",
+                    "dose_2": False,
+                    "date": datetime.now().strftime("%Y-%m-%d"),
+                },
+                default=str,
             ),
         )
 
@@ -276,7 +300,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
-
     def test_view_user_info_pass(self):
         url = reverse("user_info")
         request = self.factory.get(
@@ -287,7 +310,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
-
 
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
@@ -301,7 +323,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 500)
-
 
     def test_edit_user_info_pass(self):
         url = reverse("edit_user_info")
@@ -317,14 +338,12 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
 
-
     def test_homepage(self):
         url = reverse("homepage")
         request = self.factory.get(url)
         response = homepage(request)
 
         self.assertEqual(response.status_code, 200)
-
 
     def test_view_history_requests(self):
         url = reverse("view_requests")
@@ -342,7 +361,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-
     def test_login_fail(self):
         url = reverse("login")
 
@@ -350,7 +368,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, 500)
-
 
     def test_login_fail_wrong_method(self):
         url = reverse("login")
@@ -360,7 +377,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         self.assertEqual(response.status_code, 404)
 
-
     def test_login_success(self):
         url = reverse("login")
         data = {"email": "user1@example.com", "password": "userpass1"}
@@ -368,17 +384,13 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         self.assertEqual(response.status_code, 302)
 
-
     def test_view_report(self):
         url = reverse("view_reports")
-        request_struct = {
-            "record_ids": [1, 2]
-        }
+        request_struct = {"record_ids": [1, 2]}
         request = self.factory.post(url, request_struct)
         response = view_report(request)
 
         self.assertEqual(response.status_code, 200)
-
 
     def test_registration_pass(self):
         url = reverse("registration")
@@ -392,14 +404,13 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "street_address": "123 foo bar, foo",
             "city": "NY",
             "state": "NY",
-            "phone_number": "1235467890"
+            "phone_number": "1235467890",
         }
         request = self.factory.post(url, request_struct)
         response = registration(request)
 
         # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 302)
-
 
     def test_registration_not_post_method(self):
         url = reverse("registration")
@@ -413,14 +424,13 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "street_address": "123 foo bar, foo",
             "city": "NY",
             "state": "NY",
-            "phone_number": "1235467890"
+            "phone_number": "1235467890",
         }
         request = self.factory.put(url, request_struct)
         response = registration(request)
 
         # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 404)
-
 
     def test_registration_user_email_exists_error(self):
         url = reverse("registration")
@@ -434,14 +444,13 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "street_address": "123 foo bar, foo",
             "city": "NY",
             "state": "NY",
-            "phone_number": "1235467890"
+            "phone_number": "1235467890",
         }
         request = self.factory.post(url, request_struct)
         response = registration(request)
 
         # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 500)
-
 
     def test_registration_user_username_exists_error(self):
         url = reverse("registration")
@@ -455,14 +464,13 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "street_address": "123 foo bar, foo",
             "city": "NY",
             "state": "NY",
-            "phone_number": "1235467890"
+            "phone_number": "1235467890",
         }
         request = self.factory.post(url, request_struct)
         response = registration(request)
 
         # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 500)
-
 
 
 # Create your tests here.
