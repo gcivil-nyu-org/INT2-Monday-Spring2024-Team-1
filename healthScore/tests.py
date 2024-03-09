@@ -1,4 +1,4 @@
-from django.test import RequestFactory, TransactionTestCase
+from django.test import RequestFactory, TransactionTestCase, TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
@@ -11,11 +11,6 @@ from healthScore.models import (
     User,
     HospitalStaff,
     Appointment,
-)
-
-from healthScore.views import (
-    view_health_history,
-    view_health_history_requests
 )
 
 from healthScore.views import (
@@ -32,12 +27,10 @@ from healthScore.views import (
 DATE_FORMAT = "%Y-%m-%d"
 
 
+# views.py
 class viewHealthHistoryTestCase(TransactionTestCase):
     reset_sequences = True
 
-
-# views.py
-class viewHealthHistoryTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -150,10 +143,10 @@ class viewHealthHistoryTestCase(TestCase):
         )
 
         # Adding user data
-        u1 = User.objects.create(
+        u1 = User.objects.create_user(
             email="user1@example.com",
             name="User1",
-            password=make_password("userpass1"),
+            password="userpass1",
             username="user1",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -165,10 +158,10 @@ class viewHealthHistoryTestCase(TestCase):
         )
 
         self.user = u1
-        u2 = User.objects.create(
+        u2 = User.objects.create_user(
             email="user2@example.com",
             name="User2",
-            password=make_password("userpass2"),
+            password="userpass2",
             username="user2",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -178,10 +171,10 @@ class viewHealthHistoryTestCase(TestCase):
             securityAns="",
             bloodGroup="B+",
         )
-        u3 = User.objects.create(
+        u3 = User.objects.create_user(
             email="user3@example.com",
             name="User3",
-            password=make_password("userpass3"),
+            password="userpass3",
             username="user3",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -191,10 +184,10 @@ class viewHealthHistoryTestCase(TestCase):
             securityAns="",
             bloodGroup="O+",
         )
-        u4 = User.objects.create(
+        u4 = User.objects.create_user(
             email="user4@example.com",
             name="User4",
-            password=make_password("userpass4"),
+            password="userpass4",
             username="user4",
             dob="1990-01-01",
             contactInfo="1234567890",
