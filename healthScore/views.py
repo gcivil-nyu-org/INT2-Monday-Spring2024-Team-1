@@ -311,7 +311,7 @@ def login_view(request):
             return render(
                 request,
                 "login.html",
-                {"error_message": "Invalid email or password. Please try again."}
+                {"error_message": "Invalid email or password. Please try again."},
             )
     return render(request, "login.html")
 

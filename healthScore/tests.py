@@ -15,8 +15,6 @@ from healthScore.models import (
 
 from healthScore.views import (
     edit_user_info,
-    homepage,
-    registration,
     view_health_history,
     view_report,
     view_user_info,
