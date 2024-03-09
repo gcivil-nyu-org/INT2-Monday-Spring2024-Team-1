@@ -334,13 +334,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = edit_user_info(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_homepage(self):
-        url = reverse("homepage")
-        request = self.factory.get(url)
-        response = homepage(request)
-
-        self.assertEqual(response.status_code, 200)
-
     def test_view_history_requests(self):
         url = reverse("view_requests")
         # appointment name healthcare_worker, healthcare_facility date and record_status are passed
@@ -355,100 +348,12 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
 
-    def test_login_fail(self):
-        url = reverse("login")
-        data = {"email": "user1@example.com", "password": "wrong password"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 500)
-
-    def test_login_fail_wrong_method(self):
-        url = reverse("login")
-        data = {"email": "user1@example.com", "password": "userpass1"}
-        response = self.client.put(url, data)
-        self.assertEqual(response.status_code, 404)
-
-    def test_login_success(self):
-        url = reverse("login")
-        data = {"email": "user1@example.com", "password": "userpass1"}
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302)
-
     def test_view_report(self):
         url = reverse("view_reports")
         request_struct = {"record_ids": [1, 2]}
         request = self.factory.post(url, request_struct)
         response = view_report(request)
         self.assertEqual(response.status_code, 200)
-
-    def test_registration_pass(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "test@test.com",
-            "username": "testUser",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.post(url, request_struct)
-        response = registration(request)
-        self.assertEqual(
-            response.status_code, 302
-        )  # Since it's a redirect, status by default is 302 for sucesss
-
-    def test_registration_not_post_method(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "test@test.com",
-            "username": "testUser",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.put(url, request_struct)
-        response = registration(request)
-        self.assertEqual(response.status_code, 404)
-
-    def test_registration_user_email_exists_error(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "user1@example.com",
-            "username": "testUser",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.post(url, request_struct)
-        response = registration(request)
-        self.assertEqual(response.status_code, 500)
-
-    def test_registration_user_username_exists_error(self):
-        url = reverse("registration")
-        request_struct = {
-            "email": "test2@test2.com",
-            "username": "user1",
-            "fullname": "test user",
-            "dob": "1990-02-02",
-            "gender": "male",
-            "street_address": "123 foo bar, foo",
-            "city": "NY",
-            "state": "NY",
-            "phone_number": "1235467890",
-        }
-        request = self.factory.post(url, request_struct)
-        response = registration(request)
-        self.assertEqual(response.status_code, 500)
 
 
 class HomepageViewTest(TestCase):

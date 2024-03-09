@@ -270,13 +270,13 @@ def registration(request):
             context["error_message"] = (
                 "An account already exists for this email address. Please log in."
             )
-            return render(request, "registration.html", context, status=500)
+            return render(request, "registration.html", context)
 
         elif User.objects.filter(username=username).exists():
             context["error_message"] = (
                 "Username already exists. Please choose a different one."
             )
-            return render(request, "registration.html", context, status=500)
+            return render(request, "registration.html", context)
 
         else:
             # hashed_password = make_password(request.POST.get("password"))
@@ -294,7 +294,7 @@ def registration(request):
 
             return redirect("homepage")
 
-    return render(request, "registration.html", status=404)
+    return render(request, "registration.html")
 
 
 def login_view(request):
@@ -311,10 +311,9 @@ def login_view(request):
             return render(
                 request,
                 "login.html",
-                {"error_message": "Invalid email or password. Please try again."},
-                status=500,
+                {"error_message": "Invalid email or password. Please try again."}
             )
-    return render(request, "login.html", status=404)
+    return render(request, "login.html")
 
 
 def view_health_history_requests(request):
