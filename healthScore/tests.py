@@ -24,6 +24,9 @@ from healthScore.views import (
 )
 
 
+DATE_FORMAT = "%Y-%m-%d"
+
+
 class viewHealthHistoryTestCase(TransactionTestCase):
     reset_sequences = True
 
@@ -246,8 +249,8 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             userID=u1,
             hospitalID=1,
             status="approved",
-            createdAt=datetime.now().strftime("%Y-%m-%d"),
-            updatedAt=datetime.now().strftime("%Y-%m-%d"),
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a1,
             healthDocuments="",
         )
@@ -256,8 +259,8 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             userID=u2,
             hospitalID=2,
             status="approved",
-            createdAt=datetime.now().strftime("%Y-%m-%d"),
-            updatedAt=datetime.now().strftime("%Y-%m-%d"),
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a2,
             healthDocuments="",
         )
@@ -266,8 +269,8 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             userID=u3,
             hospitalID=3,
             status="approved",
-            createdAt=datetime.now().strftime("%Y-%m-%d"),
-            updatedAt=datetime.now().strftime("%Y-%m-%d"),
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a3,
             healthDocuments="",
         )
@@ -276,8 +279,8 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             userID=u4,
             hospitalID=4,
             status="pending",
-            createdAt=datetime.now().strftime("%Y-%m-%d"),
-            updatedAt=datetime.now().strftime("%Y-%m-%d"),
+            createdAt=datetime.now().strftime(DATE_FORMAT),
+            updatedAt=datetime.now().strftime(DATE_FORMAT),
             appointmentId=a4,
             healthDocuments="",
         )
@@ -344,7 +347,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "appointment_name": "Vaccine",
             "healthcare_worker": "Doctor A",
             "healthcare_facility": "Hospital B",
-            "date": datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now().strftime(DATE_FORMAT),
             "record_status": "approved",
         }
         request = self.factory.get(url, request_struct)
