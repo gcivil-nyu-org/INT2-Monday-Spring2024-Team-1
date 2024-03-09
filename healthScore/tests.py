@@ -394,7 +394,9 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         }
         request = self.factory.post(url, request_struct)
         response = registration(request)
-        self.assertEqual(response.status_code, 302)     # Since it's a redirect, status by default is 302 for sucesss
+        self.assertEqual(
+            response.status_code, 302
+        )  # Since it's a redirect, status by default is 302 for sucesss
 
     def test_registration_not_post_method(self):
         url = reverse("registration")
