@@ -1,5 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 
 from datetime import datetime
 import json
@@ -11,9 +13,14 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
 )
-from healthScore.views import view_health_history, view_health_history_requests
+from healthScore.views import (
+    view_health_history, 
+    view_health_history_requests,
+    login_view,
+    registration
+)
 
-
+### views.py
 class viewHealthHistoryTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -282,14 +289,128 @@ class viewHealthHistoryTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+class HomepageViewTest(TestCase):
+    def test_homepage_view(self):
+        response = self.client.get(reverse('homepage')) # test the view
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'homepage.html')
 
-# Create your tests here.
-class loginTestCase(TestCase):
+class LoginViewTest(TestCase):
     def setUp(self):
-        pass
+        self.user = User.objects.create_user(
+            email='test@example.com',
+            password='testpassword'
+        )
 
-    def test_login_success(self):
-        pass
+    def test_login_view(self):
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'login.html')
 
-    def test_login_error(self):
-        pass
+    def test_post_request_valid_credentials(self):
+        response = self.client.post(reverse('login'), {
+            'email': 'test@example.com', 
+            'password': 'testpassword'})
+        self.assertRedirects(response, reverse('homepage'))
+
+    def test_post_request_invalid_credentials(self):
+        response = self.client.post(reverse('login'), {
+            'email': 'test@example.com', 
+            'password': 'wrongpassword'})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Invalid email or password. Please try again.', response.content.decode())
+
+class RegistrationViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email='test@example.com',
+            password='testpassword',
+            username='testuser',
+            name='Test User'
+        )
+    
+    def test_registration_view(self):
+        response = self.client.get(reverse('registration'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'registration.html')
+
+    def test_post_request_email_exist(self):
+        response = self.client.post(reverse('registration'), {
+            'email': 'test@example.com', 
+            'password': 'testpassword'})
+        user = User.objects.get(email='test@example.com')
+        self.assertEqual(user.email, 'test@example.com')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("An account already exists for this email address. Please log in.",response.content.decode())
+
+    def test_post_request_username_exist(self):
+        response = self.client.post(reverse('registration'), {
+            'username': 'testuser', 
+            'password': 'testpassword'})
+        user = User.objects.get(username='testuser')
+        self.assertEqual(user.username, 'testuser')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Username already exists. Please choose a different one.", response.content.decode())
+    
+    def test_post_request_new_user_registered(self):
+        response = self.client.post(reverse('registration'), {
+            'email': 'newuser@example.com', 
+            'password': 'newpassword', 
+            'username': 'newuser',
+            'fullname': 'New User',
+            'gender': 'female',
+            'phone_number': '0000000000',
+            'street_address:': '1 High St',
+            'city': 'Jersey City',
+            'state': 'NJ'
+            })
+        user = User.objects.get(email='newuser@example.com')
+        self.assertEqual(user.email, 'newuser@example.com')
+        self.assertRedirects(response, reverse('homepage'))
+
+### models.py
+class CustomUserManagerTest(TestCase):
+    def test_create_user(self):
+        User = get_user_model()
+        email = "test@example.com"
+        password = "testpassword"
+        user = User.objects.create_user(email=email, password=password)
+
+        self.assertEqual(user.email, email)
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertTrue(user.check_password(password))
+
+    def test_create_superuser(self):
+        User = get_user_model()
+        email = "admin@example.com"
+        password = "adminexample"
+        user = User.objects.create_superuser(email=email, password=password)
+
+        self.assertEqual(user.email, email)
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.check_password(password))
+
+    def test_create_user_missing_email(self):
+        User = get_user_model()
+        with self.assertRaises(ValueError):
+            User.objects.create_user(email=None, password="testpassword")
+
+
+class UserTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            email='test@exmaple.com',
+            username='testuser',
+            password='password',
+            name='Test User'
+        )
+
+    def test_get_full_name(self):
+        full_name = self.user.get_full_name()
+        self.assertEqual(full_name, 'Test User')
+    
+    def test_get_short_name(self):
+        short_name = self.user.get_short_name()
+        self.assertEqual(short_name, 'testuser')
