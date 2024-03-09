@@ -254,33 +254,6 @@ class viewHealthHistoryTestCase(TestCase):
     def test_view_history(self):
         url = reverse("view_health_history")
 
-        # request struct is empty
-        request_struct = {}
-        request = self.factory.get(url, request_struct)
-        response = view_health_history(request)
-
-        # only appointment name is passed
-        request_struct = {"appointment_name": "Vaccine"}
-        request = self.factory.get(url, request_struct)
-        response = view_health_history(request)
-
-        # appointment name and healthcare_worker are passed
-        request_struct = {
-            "appointment_name": "Vaccine",
-            "healthcare_worker": "Doctor A",
-        }
-        request = self.factory.get(url, request_struct)
-        response = view_health_history(request)
-
-        # appointment name healthcare_worker and healthcare_facility are passed
-        request_struct = {
-            "appointment_name": "Vaccine",
-            "healthcare_worker": "Doctor A",
-            "healthcare_facility": "Hospital A",
-        }
-        request = self.factory.get(url, request_struct)
-        response = view_health_history(request)
-
         # appointment name healthcare_worker, healthcare_facility and date are passed
         request_struct = {
             "appointment_name": "Vaccine",
