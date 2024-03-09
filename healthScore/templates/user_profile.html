@@ -2,147 +2,68 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Account Settings</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #fff;
-        margin: 0;
-        padding: 0;
-    }
-    .container {
-        display: flex;
-        padding: 20px;
-    }
-    .sidebar {
-        width: 200px;
-        background-color: transparent;
-        padding: 0px;
-        border-radius: 2px;
-        margin-right: 20px;
-        margin-left: 20px;
-        border: 1px solid darkgray;
-        height: 120px;
-    }
-    .sidebar a {
-        text-decoration: none;
-        color: #333;
-        display: block;
-        padding: 10px;
-        border-radius: 0px;
-        margin-bottom: 1px;
-        transition: background-color 0.3s;
-        border-bottom: 1px solid darkgray;
-    }
-    .sidebar a.active {
+    .list-group-item-action.active {
         background-color: #9D76C1;
-        color: #fff;
-        border-bottom-left-radius: 0px;
-        border-bottom-right-radius: 0px;
+        border-color: lightgray;
     }
-    .sidebar a:last-child {
-        border-bottom: none;
+    .custom-save-btn {
+        background-color: #9D76C1;
+        color: white;
     }
-    .content {
-        background-color: #fff;
-        flex-grow: 1;
-        padding: 20px;
-        border-radius: 10px;
-    }
-    .content h2 {
-        margin-top: 0;
-    }
-    .info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 20px;
-    }
-    .info span {
-        display: block;
-        margin-bottom: 5px;
-    }
-    .edit-icon {
-        cursor: pointer;
-        color: #333;
-        transition: color 0.3s;
-    }
-    .edit-icon:hover {
-        color: #000;
-    }
-    .hidden-input {
-        display: none;
-        width: 100%;
+    .custom-save-btn:hover {
+        background-color: #7749A2;
     }
 </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="sidebar">
-        <a href="#" class="active">Account Details</a>
-        <a href="#">Change Password</a>
-        <a href="{% url 'logout' %}">Logout</a>
+<div class="container-fluid">
+  <div class="profile-pic-container text-center mt-5">
+        {% if userInfo.profilePic %}
+            <img src="{{ userInfo.profilePic }}" alt="Profile Picture" class="profile-pic">
+        {% else %}
+            <img src="https://imgur.com/a/lzOBX3K" alt="Profile Picture" class="profile-pic">
+        {% endif %}
     </div>
-    <div class="content">
-        <h2>Account Details</h2>
-
-        <div class="info">
-            <span>Name: <span id="nameText"> {{ userInfo.name }}</span></span>
-            <i class="fas fa-pencil-alt edit-icon" onclick="editField('name')"></i>
-            <input class="hidden-input" id="nameInput" type="text" value={{ userInfo.name }} onblur="saveField('name')" />
-        </div>
-        
-        <div class="info">
-            <span>Email Address: <span id="emailText">{{ userInfo.email }}</span></span>
-            <i class="fas fa-pencil-alt edit-icon" onclick="editField('dob')"></i>
-            <input class="hidden-input" id="emailInput" type="text" value={{ userInfo.email }} onblur="saveField('email')" />
-        </div>
-        
-        <div class="info">
-            <span>Date of Birth: <span id="dobText">{{ userInfo.dob }}</span></span>
-            <i class="fas fa-pencil-alt edit-icon" onclick="editField('dob')"></i>
-            <input class="hidden-input" id="dobInput" type="text" value={{ userInfo.dob }} onblur="saveField('dob')" />
-        </div>
-        
-        <div class="info">
-            <span>Phone Number: <span id="phoneText">{{ userInfo.contactInfo }}</span></span>
-            <i class="fas fa-pencil-alt edit-icon" onclick="editField('contactInfo')"></i>
-            <input class="hidden-input" id="phoneInput" type="text" value={{ userInfo.contactInfo }} onblur="saveField('contactInfo')" />
-        </div>
-        
-        <div class="info">
-            <span>Gender: <span id="genderText">{{ userInfo.gender }}</span></span>
-            <i class="fas fa-pencil-alt edit-icon" onclick="editField('gender')"></i>
-            <input class="hidden-input" id="genderInput" type="text" value={{ userInfo.gender }} onblur="saveField('gender')" />
-        </div>
-        
-        <div class="info">
-            <span>Blood Type: <span id="bloodText">{{ userInfo.bloodGroup }}</span></span>
-            <i class="fas fa-pencil-alt edit-icon" onclick="editField('bloodGroup')"></i>
-            <input class="hidden-input" id="bloodInput" type="text" value={{ userInfo.bloodGroup }} onblur="saveField('bloodGroup')" />
-        </div>
-
+  <div class="row">
+    <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse">
+      <div class="list-group mt-4">
+        <a href="#" class="list-group-item list-group-item-action active" aria-current="true">Account Details</a>
+        <a href="#" class="list-group-item list-group-item-action">Change Password</a>
+        <a href="{% url 'logout' %}" class="list-group-item list-group-item-action">Logout</a>
+      </div>
     </div>
+
+    <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
+      <form>
+        <h4>User Profile</h4>
+        <div class="form-group">
+          <label for="userName">Name</label>
+          <input type="text" class="form-control" id="userName" value="{{ userInfo.name }}">
+        </div>
+        <div class="form-group">
+          <label for="userEmail">Email address</label>
+          <input type="email" class="form-control" id="userEmail" value="{{ userInfo.email }}">
+        </div>
+        <div class="form-group">
+          <label for="userAddress">Address</label>
+          <input type="text" class="form-control" id="userAddress" value="{{ userInfo.address }}">
+        </div>
+        <div class="form-group">
+          <label for="userPhone">Phone Number</label>
+          <input type="text" class="form-control" id="userPhone" value="{{ userInfo.contactInfo }}">
+        </div>
+          <div class="form-group">
+            <label for="userProfilePicture">Profile Picture</label>
+            <input type="file" class="form-control-file" id="userProfilePicture" name="profile_picture">
+          </div>
+        
+        <button type="submit" class="btn custom-save-btn">Save Changes</button>
+      </form>
+    </div>
+  </div>
 </div>
-
-<script>
-    function editField(field) {
-        var textSpan = document.getElementById(field + 'Text');
-        var inputField = document.getElementById(field + 'Input');
-        textSpan.style.display = 'none';
-        inputField.style.display = 'inline';
-        inputField.focus();
-    }
-
-    function saveField(field) {
-        var textSpan = document.getElementById(field + 'Text');
-        var inputField = document.getElementById(field + 'Input');
-        textSpan.textContent = inputField.value;
-        textSpan.style.display = 'inline';
-        inputField.style.display = 'none';
-    }
-</script>
-
 </body>
-</html>
