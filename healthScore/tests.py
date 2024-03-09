@@ -11,7 +11,7 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
 )
-from healthScore.views import edit_user_info, view_health_history, view_user_info
+from healthScore.views import edit_user_info, homepage, view_health_history, view_user_info
 
 
 class viewHealthHistoryTestCase(TestCase):
@@ -272,6 +272,7 @@ class viewHealthHistoryTestCase(TestCase):
             },
         )
         # request = self.factory.get(url)
+        request.user = self.user
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
@@ -293,7 +294,7 @@ class viewHealthHistoryTestCase(TestCase):
             data={"userId": "6", "update": {"address": "test", "city": "test"}},
             content_type="application/json",
         )
-
+        request.user = self.user
         response = edit_user_info(request)
 
         # Update below assetion to 500 once the userInfo html gets pushed
@@ -307,9 +308,18 @@ class viewHealthHistoryTestCase(TestCase):
             content_type="application/json",
         )
 
+        request.user = self.user
         response = edit_user_info(request)
 
         # Update below assetion to 500 once the userInfo html gets pushed
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_homepage(self):
+        url = reverse("homepage")
+        request = self.factory.get(url)
+        response = homepage(request)
+
         self.assertEqual(response.status_code, 200)
 
 

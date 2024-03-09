@@ -78,38 +78,9 @@ def view_user_info(request):
             "requests": json.dumps(current_user.requests),
         }
         return render(request, "user_profile.html", {"userInfo": userInfo})
-    # if request.method == "GET":
-    #     userData = []
-    #     userID = ""
-    #     try:
-    #         # userID = request.GET.get("id")
-    #         # print(request.GET.get("userId"))
-    #         userID = request.GET.get("userId")
-    #         # print(userID, "\n\n\n")
-    #         # print(user.objects.all().values())
-    #         userData = user.objects.get(id=userID)
-    #     except Exception:
-    #         return HttpResponse("Invalid User", status=500)
-
-    #     # print(userData.address)
-
-    #     userInfo = {
-    #         "email": userData.email,
-    #         "name": userData.name,
-    #         "username": userData.username,
-    #         "dob": userData.dob,
-    #         "contactInfo": userData.contactInfo,
-    #         "proofOfIdentity": userData.proofOfIdentity,  # dummy string for now. Needs to be replaced with the S3 string
-    #         "address": userData.address,
-    #         "gender": userData.gender,
-    #         "profilePic": userData.profilePic,
-    #         "bloodGroup": userData.bloodGroup,
-    #         "requests": json.dumps(userData.requests),
-    #     }
-    #     # print(userInfo)
-    #     return render(request, "user_profile.html", {"userInfo": userInfo})
 
 
+@login_required
 @csrf_exempt
 def edit_user_info(request):
     if request.method == "PUT":
