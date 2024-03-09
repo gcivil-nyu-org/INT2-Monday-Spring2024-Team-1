@@ -5,7 +5,6 @@ from . import views
 
 urlpatterns = [
     path("homepage", views.homepage, name="homepage"),
-    path("addMockData", views.add_mock_data, name="mock_data"),
     path("registration", views.registration, name="registration"),
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
     path("viewReports", views.view_report, name="view_reports"),

@@ -11,7 +11,7 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
 )
-from healthScore.views import edit_user_info, homepage, view_health_history, view_user_info
+from healthScore.views import edit_user_info, homepage, view_health_history, view_user_info, view_health_history_requests
 
 
 class viewHealthHistoryTestCase(TestCase):
@@ -29,7 +29,6 @@ class viewHealthHistoryTestCase(TestCase):
             contactInfo="123456781",
             status="approved",
         )
-
         h2 = Hospital.objects.create(
             name="Hospital B",
             address="Address B",
@@ -261,18 +260,14 @@ class viewHealthHistoryTestCase(TestCase):
     def test_view_history(self):
         url = reverse("view_health_history")
 
-        # Update below request with user ID/user info
-        request = self.factory.get(
-            url,
-            {
-                "appointment_name": "Vaccine",
-                "healthcare_worker": "Doctor A",
-                "date": "2024-03-07",
-                "healthcare_facility": "Hospital A",
-            },
-        )
-        # request = self.factory.get(url)
-        request.user = self.user
+        # appointment name healthcare_worker, healthcare_facility and date are passed
+        request_struct = {
+            "appointment_name": "Vaccine",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital A",
+            "date": "2024-03-08",
+        }
+        request = self.factory.get(url, request_struct)
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
@@ -319,6 +314,22 @@ class viewHealthHistoryTestCase(TestCase):
         url = reverse("homepage")
         request = self.factory.get(url)
         response = homepage(request)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_history_requests(self):
+        url = reverse("view_requests")
+
+        # appointment name healthcare_worker, healthcare_facility date and record_status are passed
+        request_struct = {
+            "appointment_name": "Vaccine",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital A",
+            "date": "2024-03-08",
+            "record_status": "approved",
+        }
+        request = self.factory.get(url, request_struct)
+        response = view_health_history_requests(request)
 
         self.assertEqual(response.status_code, 200)
 
