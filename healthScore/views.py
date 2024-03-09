@@ -38,15 +38,6 @@ def homepage(request):
     return render(request, "homepage.html")
 
 
-def test_default_values(request):
-    # To get all records from the  healthRecord table
-    # healthRecordObjects = healthRecord.objects.all().values()
-    # To create new records and save them
-    # h = Hospital.objects.create(name="NYU", address="246", email="nyu@nyu.com", password="123435", contactInfo="123456781")
-
-    return HttpResponse("<h1>Finally Workingggggggg. Welcome to HealthScore</h1>")
-
-
 def view_health_history(request):
     # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
     updated_params = request.GET.copy()
