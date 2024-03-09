@@ -133,7 +133,6 @@ def view_report(request):
             )
         )
         story.append(logo_and_date)
-        print(User.objects.all().values())
         user_id = 2
         user_info = User.objects.get(id=user_id)
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
@@ -258,13 +257,13 @@ def registration(request):
             context["error_message"] = (
                 "An account already exists for this email address. Please log in."
             )
-            return render(request, "registration.html", context)
+            return render(request, "registration.html", context, status=500)
 
         elif User.objects.filter(username=username).exists():
             context["error_message"] = (
                 "Username already exists. Please choose a different one."
             )
-            return render(request, "registration.html", context)
+            return render(request, "registration.html", context, status=500)
 
         else:
             hashed_password = make_password(request.POST.get("password"))
