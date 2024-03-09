@@ -79,7 +79,7 @@
     }
     .forgot-pass{
         text-align: left; 
-        margin-top:20px;"
+        margin-top:20px;
     }
     .new-to-HS{
         text-align: center;
@@ -89,7 +89,7 @@
 </head>
 <div>
     <header>
-    <a href="{% url "homepage" %}">
+    <a href="{% url 'homepage' %}">
         <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
     </a>
     
@@ -117,7 +117,8 @@
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password">
             </div>
             <div class="forgot-pass">
-                <a href="{% url 'index' %}">Forgot password?</a>
+                <!-- Below href will have to be updated once Forgot Password is added  -->
+              <a href="#">Forgot password?</a>
             </div>
             <br>
             <button type="submit" class="btn btn-primary">Login</button>

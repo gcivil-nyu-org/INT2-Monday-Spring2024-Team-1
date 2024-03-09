@@ -163,7 +163,7 @@
 </script>
 </head>
 <header>
-    <a href="{% url "homepage" %}">
+    <a href="{% url 'homepage' %}">
         <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
     </a>
     
@@ -178,7 +178,6 @@
 
 <h2>Account Registration</h2>
 <form id="registration_form" action="#" method="post" onsubmit="return validateForm()">
-
     <div class="role-sections">
     <div id="user_role_section" class="role-section active" onclick="selectRole('User')">User</div>
     <div id="admin_role_section" class="role-section" onclick="selectRole('Healthcare Admin')">Healthcare Admin</div>
