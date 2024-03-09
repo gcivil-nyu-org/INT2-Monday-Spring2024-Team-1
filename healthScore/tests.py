@@ -305,7 +305,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         request.user = self.user
         response = view_user_info(request)
 
-        # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
 
     def test_edit_user_info_exception(self):
@@ -317,7 +316,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
         request.user = self.user
         response = edit_user_info(request)
-        # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 500)
 
     def test_edit_user_info_pass(self):
@@ -330,7 +328,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         request.user = self.user
         response = edit_user_info(request)
-        # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
 
     def test_homepage(self):
