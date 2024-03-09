@@ -79,8 +79,8 @@ def view_user_info(request):
 def edit_user_info(request):
     if request.method == "PUT":
         updatedData = json.loads(request.body)
-        userID = int(updatedData.get("userId"))
-        userData = ""
+        current_user = request.user
+        userID = int(current_user.id)
         try:
             userData = User.objects.filter(id=userID)
             if len(userData) == 0:
@@ -91,6 +91,8 @@ def edit_user_info(request):
         userInformation = list(userData.values())[0]
 
         userData.update(
+            name=updatedData.get("name", userInformation["name"]),
+            email=updatedData.get("email", userInformation["email"]),
             address=updatedData.get("address", userInformation["address"]),
             contactInfo=updatedData.get("contactInfo", userInformation["contactInfo"]),
             profilePic=updatedData.get("profilePic", userInformation["profilePic"]),

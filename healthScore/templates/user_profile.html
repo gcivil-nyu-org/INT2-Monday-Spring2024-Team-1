@@ -1,3 +1,4 @@
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
     }
     .custom-save-btn:hover {
         background-color: #7749A2;
+        color: white;
     }
     .profile-pic {
         width: 100px;
@@ -46,32 +48,62 @@
   </div>
 
     <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
-      <form>
-        <h4>User Profile</h4>
+      <form id="editUserForm">
+        <h4>Account Details</h4>
         <div class="form-group">
           <label for="userName">Name</label>
-          <input type="text" class="form-control custom-width" id="userName" value="{{ userInfo.name }}">
+          <input type="text" class="form-control custom-width" id="userName" name="name" value="{{ userInfo.name }}">
         </div>
         <div class="form-group">
           <label for="userEmail">Email address</label>
-          <input type="email" class="form-control custom-width" id="userEmail" value="{{ userInfo.email }}">
+          <input type="email" class="form-control custom-width" id="userEmail" name="email" value="{{ userInfo.email }}">
         </div>
         <div class="form-group">
           <label for="userAddress">Address</label>
-          <input type="text" class="form-control custom-width" id="userAddress" value="{{ userInfo.address }}">
+          <input type="text" class="form-control custom-width" id="userAddress" name="address" value="{{ userInfo.address }}">
         </div>
         <div class="form-group">
           <label for="userPhone">Phone Number</label>
-          <input type="text" class="form-control custom-width" id="userPhone" value="{{ userInfo.contactInfo }}">
+          <input type="text" class="form-control custom-width" id="userPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
         </div>
           <div class="form-group">
             <label for="userProfilePicture">Profile Picture</label>
             <input type="file" class="form-control-file" id="userProfilePicture" name="profile_picture">
           </div>
+          
+          {% csrf_token %}
         
-        <button type="submit" class="btn custom-save-btn">Save Changes</button>
+        <button type="button" class="btn custom-save-btn" onclick="submitEditForm()">Save Changes</button>
       </form>
     </div>
   </div>
 </div>
+
+    <script>
+        function submitEditForm() {
+            const form = document.getElementById('editUserForm');
+            const formData = new FormData(form);
+            const jsonData = {};
+            formData.forEach((value, key) => {jsonData[key] = value;});
+
+            // Proceed with the fetch request as previously described
+            fetch('{% url "edit_user_info" %}', { // Use the Django URL template tag to resolve the endpoint
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify(jsonData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle success
+            })
+            .catch((error) => {
+                // Handle errors
+            });
+        }
+    </script>
+
 </body>
+</html>
