@@ -87,7 +87,6 @@ def edit_user_info(request):
 
         userInformation = list(userData.values())[0]
 
-        # print(userInformation['address'])
         userData.update(
             address=updatedData.get("address", userInformation["address"]),
             contactInfo=updatedData.get("contactInfo", userInformation["contactInfo"]),
@@ -157,7 +156,6 @@ def view_report(request):
             ],
         ]
 
-        # print(HealthRecord.objects.all().values())
         selected_record_ids = request.POST.getlist("record_ids")
         for record_id in selected_record_ids:
             row = []

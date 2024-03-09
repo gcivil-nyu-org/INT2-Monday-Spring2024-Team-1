@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory, TransactionTestCase
+from django.test import RequestFactory, TransactionTestCase
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 
@@ -27,12 +27,9 @@ class viewHealthHistoryTestCase(TransactionTestCase):
     reset_sequences = True
 
     def setUp(self):
-        # print("SOMETHING")
         self.factory = RequestFactory()
-        # self.user = user.objects.create_user(
-        #     username='test', email='test@test.com', password='my_secret')
-        # Adding data to the Hospital table
 
+        # Adding data to the Hospital table
         h1 = Hospital.objects.create(
             name="Hospital A",
             address="Address A",
@@ -284,11 +281,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             healthDocuments="",
         )
 
-        # print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
+        print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
 
     def test_view_history(self):
         url = reverse("view_health_history")
-
         # appointment name healthcare_worker, healthcare_facility and date are passed
         request_struct = {
             "appointment_name": "Vaccine",
@@ -320,7 +316,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
         request.user = self.user
         response = edit_user_info(request)
-
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 500)
 
@@ -334,7 +329,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         request.user = self.user
         response = edit_user_info(request)
-
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
 
@@ -347,7 +341,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_view_history_requests(self):
         url = reverse("view_requests")
-
         # appointment name healthcare_worker, healthcare_facility date and record_status are passed
         request_struct = {
             "appointment_name": "Vaccine",
@@ -358,30 +351,24 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         }
         request = self.factory.get(url, request_struct)
         response = view_health_history_requests(request)
-
         self.assertEqual(response.status_code, 200)
 
     def test_login_fail(self):
         url = reverse("login")
-
         data = {"email": "user1@example.com", "password": "wrong password"}
         response = self.client.post(url, data)
-
         self.assertEqual(response.status_code, 500)
 
     def test_login_fail_wrong_method(self):
         url = reverse("login")
-
         data = {"email": "user1@example.com", "password": "userpass1"}
         response = self.client.put(url, data)
-
         self.assertEqual(response.status_code, 404)
 
     def test_login_success(self):
         url = reverse("login")
         data = {"email": "user1@example.com", "password": "userpass1"}
         response = self.client.post(url, data)
-
         self.assertEqual(response.status_code, 302)
 
     def test_view_report(self):
@@ -389,12 +376,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         request_struct = {"record_ids": [1, 2]}
         request = self.factory.post(url, request_struct)
         response = view_report(request)
-
         self.assertEqual(response.status_code, 200)
 
     def test_registration_pass(self):
         url = reverse("registration")
-
         request_struct = {
             "email": "test@test.com",
             "username": "testUser",
@@ -408,13 +393,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         }
         request = self.factory.post(url, request_struct)
         response = registration(request)
-
-        # Since it's a redirect, status by default is 302 for sucesss
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)     # Since it's a redirect, status by default is 302 for sucesss
 
     def test_registration_not_post_method(self):
         url = reverse("registration")
-
         request_struct = {
             "email": "test@test.com",
             "username": "testUser",
@@ -428,13 +410,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         }
         request = self.factory.put(url, request_struct)
         response = registration(request)
-
-        # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 404)
 
     def test_registration_user_email_exists_error(self):
         url = reverse("registration")
-
         request_struct = {
             "email": "user1@example.com",
             "username": "testUser",
@@ -448,13 +427,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         }
         request = self.factory.post(url, request_struct)
         response = registration(request)
-
-        # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 500)
 
     def test_registration_user_username_exists_error(self):
         url = reverse("registration")
-
         request_struct = {
             "email": "test2@test2.com",
             "username": "user1",
@@ -468,8 +444,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         }
         request = self.factory.post(url, request_struct)
         response = registration(request)
-
-        # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 500)
 
 
