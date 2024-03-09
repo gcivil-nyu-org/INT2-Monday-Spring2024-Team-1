@@ -1,5 +1,6 @@
 from django.test import TestCase, RequestFactory, TransactionTestCase
 from django.urls import reverse
+from django.contrib.auth.hashers import make_password
 
 from datetime import datetime
 import json
@@ -136,7 +137,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         u1 = User.objects.create(
             email="user1@example.com",
             name="User1",
-            password="userpass1",
+            password=make_password("userpass1"),
             username="user1",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -151,7 +152,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         u2 = User.objects.create(
             email="user2@example.com",
             name="User2",
-            password="userpass2",
+            password=make_password("userpass2"),
             username="user2",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -164,7 +165,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         u3 = User.objects.create(
             email="user3@example.com",
             name="User3",
-            password="userpass3",
+            password=make_password("userpass3"),
             username="user3",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -177,7 +178,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         u4 = User.objects.create(
             email="user4@example.com",
             name="User4",
-            password="userpass4",
+            password=make_password("userpass4"),
             username="user4",
             dob="1990-01-01",
             contactInfo="1234567890",
@@ -260,15 +261,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
 
         # print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
-
-    def tearDown(self):
-        # Clean up the database after each test
-        # HealthRecord.objects.all().delete()
-        # Hospital.objects.all().delete()
-        # User.objects.all().delete()
-        # HospitalStaff.objects.all().delete()
-        # Appointment.objects.all().delete()
-        print("Deleted\n\n\n")
 
     def test_view_history(self):
         url = reverse("view_health_history")
@@ -354,13 +346,27 @@ class viewHealthHistoryTestCase(TransactionTestCase):
     def test_login_fail(self):
         url = reverse("login")
 
-        factory = RequestFactory()
-        data = {"email": "user1@example.com", "password": "userpass1"}
-        request = factory.post(url, data)
+        data = {"email": "user1@example.com", "password": "wrong password"}
+        response = self.client.post(url, data)
 
-        request.user = self.user
-        response = login_view(request)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 500)
+
+
+    def test_login_fail_wrong_method(self):
+        url = reverse("login")
+
+        data = {"email": "user1@example.com", "password": "userpass1"}
+        response = self.client.put(url, data)
+
+        self.assertEqual(response.status_code, 404)
+
+
+    def test_login_success(self):
+        url = reverse("login")
+        data = {"email": "user1@example.com", "password": "userpass1"}
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 302)
 
 
     def test_view_report(self):
@@ -393,6 +399,27 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
         # Since it's a redirect, status by default is 302 for sucesss
         self.assertEqual(response.status_code, 302)
+
+
+    def test_registration_not_post_method(self):
+        url = reverse("registration")
+
+        request_struct = {
+            "email": "test@test.com",
+            "username": "testUser",
+            "fullname": "test user",
+            "dob": "1990-02-02",
+            "gender": "male",
+            "street_address": "123 foo bar, foo",
+            "city": "NY",
+            "state": "NY",
+            "phone_number": "1235467890"
+        }
+        request = self.factory.put(url, request_struct)
+        response = registration(request)
+
+        # Since it's a redirect, status by default is 302 for sucesss
+        self.assertEqual(response.status_code, 404)
 
 
     def test_registration_user_email_exists_error(self):

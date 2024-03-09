@@ -281,7 +281,7 @@ def registration(request):
 
             return redirect("homepage")
 
-    return render(request, "registration.html")
+    return render(request, "registration.html", status=404)
 
 
 def login_view(request):
@@ -299,9 +299,9 @@ def login_view(request):
                 request,
                 "login.html",
                 {"error_message": "Invalid email or password. Please try again."},
-                status=401
+                status=500
             )
-    return render(request, "login.html")
+    return render(request, "login.html", status=404)
 
 
 def view_health_history_requests(request):
