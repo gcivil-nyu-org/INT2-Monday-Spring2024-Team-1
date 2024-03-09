@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 
 import json
@@ -247,6 +246,7 @@ def registration(request):
     context = {
         "email": "",
         "username": "",
+        "password": "",
         "fullname": "",
         "dob": "",
         "gender": "",
@@ -260,6 +260,7 @@ def registration(request):
     if request.method == "POST":  # when the form is submitted
         context["email"] = email = request.POST.get("email")
         context["username"] = username = request.POST.get("username")
+        context["password"] = password = request.POST.get("password")
         context["fullname"] = fullname = request.POST.get("fullname")
         context["dob"] = dob = request.POST.get("dob")
         context["gender"] = gender = request.POST.get("gender")
@@ -273,21 +274,21 @@ def registration(request):
             context["error_message"] = (
                 "An account already exists for this email address. Please log in."
             )
-            return render(request, "registration.html", context, status=500)
+            return render(request, "registration.html", context)
 
         elif User.objects.filter(username=username).exists():
             context["error_message"] = (
                 "Username already exists. Please choose a different one."
             )
-            return render(request, "registration.html", context, status=500)
+            return render(request, "registration.html", context)
 
         else:
-            hashed_password = make_password(request.POST.get("password"))
+            # hashed_password = make_password(request.POST.get("password"))
 
-            User.objects.create(
+            User.objects.create_user(
                 email=email,
                 username=username,
-                password=hashed_password,
+                password=password,
                 name=fullname,
                 dob=dob,
                 gender=gender,
@@ -297,7 +298,7 @@ def registration(request):
 
             return redirect("homepage")
 
-    return render(request, "registration.html", status=404)
+    return render(request, "registration.html")
 
 
 def login_view(request):
@@ -315,9 +316,8 @@ def login_view(request):
                 request,
                 "login.html",
                 {"error_message": "Invalid email or password. Please try again."},
-                status=500,
             )
-    return render(request, "login.html", status=404)
+    return render(request, "login.html")
 
 
 def view_health_history_requests(request):
