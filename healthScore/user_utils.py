@@ -16,7 +16,7 @@ def get_health_history_details(request):
         # Filtering to just userID=5 to simulate it being a users view.
         history_list = HealthRecord.objects.filter(userID=9)
 
-        print(HealthRecord.objects.all().values())
+        # print(HealthRecord.objects.all().values())
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
             history_list = history_list.filter(

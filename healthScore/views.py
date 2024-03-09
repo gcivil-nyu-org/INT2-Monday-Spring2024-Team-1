@@ -99,130 +99,132 @@ def edit_user_info(request):
 
 
 def view_report(request):
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = 'attachment; filename="Report.pdf"'
+    if request.method == "POST":
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = 'attachment; filename="Report.pdf"'
 
-    doc = SimpleDocTemplate(response, pagesize=letter)
-    styles = getSampleStyleSheet()
-    story = []
+        doc = SimpleDocTemplate(response, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
 
-    title_style = styles["Title"]
-    title = "Health Records Report"
-    story.append(Paragraph(title, title_style))
-    story.append(Spacer(1, 18))
+        title_style = styles["Title"]
+        title = "Health Records Report"
+        story.append(Paragraph(title, title_style))
+        story.append(Spacer(1, 18))
 
-    right_aligned_style = ParagraphStyle(
-        "RightAligned", parent=styles["Normal"], alignment=TA_RIGHT
-    )
-    current_date = datetime.now().strftime("%Y-%m-%d")
+        right_aligned_style = ParagraphStyle(
+            "RightAligned", parent=styles["Normal"], alignment=TA_RIGHT
+        )
+        current_date = datetime.now().strftime("%Y-%m-%d")
 
-    logo = "healthScore/static/HSlogo.jpg"
-    logo_img = Image(logo, width=128, height=40)
-    logo_and_date = [
-        [logo_img, Paragraph("Date: " + current_date, right_aligned_style)]
-    ]
-    logo_and_date = Table(logo_and_date)
-    logo_and_date.setStyle(
-        TableStyle(
+        logo = "healthScore/static/HSlogo.jpg"
+        logo_img = Image(logo, width=128, height=40)
+        logo_and_date = [
+            [logo_img, Paragraph("Date: " + current_date, right_aligned_style)]
+        ]
+        logo_and_date = Table(logo_and_date)
+        logo_and_date.setStyle(
+            TableStyle(
+                [
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+                ]
+            )
+        )
+        story.append(logo_and_date)
+        print(User.objects.all().values())
+        user_id = 2
+        user_info = User.objects.get(id=user_id)
+        story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
+        story.append(
+            Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
+        )
+        story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
+        story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
+        story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
+        story.append(Paragraph("Address: " + user_info.address, styles["Normal"]))
+        story.append(Spacer(1, 12))
+
+        table_data = [
             [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("ALIGN", (1, 0), (1, 0), "RIGHT"),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+                Paragraph("Reason for Visit"),
+                Paragraph("Visit Details"),
+                Paragraph("Healthcare Worker"),
+                Paragraph("Healthcare Facility"),
+                Paragraph("Address"),
+                Paragraph("Date"),
+                Paragraph("Properties"),
+            ],
+        ]
+
+        # print(HealthRecord.objects.all().values())
+        selected_record_ids = request.POST.getlist("record_ids")
+        for record_id in selected_record_ids:
+            row = []
+            record = HealthRecord.objects.get(id=record_id)
+            appointment_pro = record.appointmentId.properties
+            appointment_properties = json.loads(appointment_pro)
+            appointment_name = record.appointmentId.name
+            appointment_name_para = Paragraph(appointment_name)
+            row.append(appointment_name_para)
+
+            appointment_type = appointment_properties.get("type", "Unknown")
+            appointment_type_para = Paragraph(appointment_type)
+            row.append(appointment_type_para)
+
+            doctor_name = HospitalStaff.objects.get(id=record.doctorID).name
+            doctor_name_para = Paragraph(doctor_name)
+            row.append(doctor_name_para)
+
+            hospital_name = Hospital.objects.get(id=record.hospitalID).name
+            hospital_name_para = Paragraph(hospital_name)
+            row.append(hospital_name_para)
+
+            hospital_addr = Hospital.objects.get(id=record.hospitalID).address
+            hospital_addr_para = Paragraph(hospital_addr)
+            row.append(hospital_addr_para)
+
+            updated = record.updatedAt.strftime("%Y-%m-%d %H:%M")
+            updated_para = Paragraph(updated)
+            row.append(updated_para)
+            table_data.append(row)
+
+        page_width, page_height = letter
+        left_margin = right_margin = 50
+        effective_page_width = page_width - (left_margin + right_margin)
+
+        col_widths = [
+            effective_page_width * 0.1,  # Reason for Visit
+            effective_page_width * 0.2,  # Visit Details
+            effective_page_width * 0.15,  # Healthcare Worker
+            effective_page_width * 0.15,  # Healthcare Facility
+            effective_page_width * 0.15,  # Address
+            effective_page_width * 0.15,  # Date
+            effective_page_width * 0.2,  # Properties
+        ]
+        table = Table(table_data, colWidths=col_widths)
+
+        table_style = TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("WORDWRAP", (0, 0), (-1, -1), "CJK"),
             ]
         )
-    )
-    story.append(logo_and_date)
 
-    user_id = 5
-    user_info = User.objects.get(id=user_id)
-    story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
-    story.append(
-        Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
-    )
-    story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
-    story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
-    story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
-    story.append(Paragraph("Address: " + user_info.address, styles["Normal"]))
-    story.append(Spacer(1, 12))
+        table.setStyle(table_style)
+        story.append(table)
 
-    table_data = [
-        [
-            Paragraph("Reason for Visit"),
-            Paragraph("Visit Details"),
-            Paragraph("Healthcare Worker"),
-            Paragraph("Healthcare Facility"),
-            Paragraph("Address"),
-            Paragraph("Date"),
-            Paragraph("Properties"),
-        ],
-    ]
-
-    selected_record_ids = request.POST.getlist("record_ids")
-    for record_id in selected_record_ids:
-        row = []
-        record = HealthRecord.objects.get(id=record_id)
-        appointment_pro = record.appointmentId.properties
-        appointment_properties = json.loads(appointment_pro)
-        appointment_name = record.appointmentId.name
-        appointment_name_para = Paragraph(appointment_name)
-        row.append(appointment_name_para)
-
-        appointment_type = appointment_properties.get("type", "Unknown")
-        appointment_type_para = Paragraph(appointment_type)
-        row.append(appointment_type_para)
-
-        doctor_name = HospitalStaff.objects.get(id=record.doctorID).name
-        doctor_name_para = Paragraph(doctor_name)
-        row.append(doctor_name_para)
-
-        hospital_name = Hospital.objects.get(id=record.hospitalID).name
-        hospital_name_para = Paragraph(hospital_name)
-        row.append(hospital_name_para)
-
-        hospital_addr = Hospital.objects.get(id=record.hospitalID).address
-        hospital_addr_para = Paragraph(hospital_addr)
-        row.append(hospital_addr_para)
-
-        updated = record.updatedAt.strftime("%Y-%m-%d %H:%M")
-        updated_para = Paragraph(updated)
-        row.append(updated_para)
-        table_data.append(row)
-
-    page_width, page_height = letter
-    left_margin = right_margin = 50
-    effective_page_width = page_width - (left_margin + right_margin)
-
-    col_widths = [
-        effective_page_width * 0.1,  # Reason for Visit
-        effective_page_width * 0.2,  # Visit Details
-        effective_page_width * 0.15,  # Healthcare Worker
-        effective_page_width * 0.15,  # Healthcare Facility
-        effective_page_width * 0.15,  # Address
-        effective_page_width * 0.15,  # Date
-        effective_page_width * 0.2,  # Properties
-    ]
-    table = Table(table_data, colWidths=col_widths)
-
-    table_style = TableStyle(
-        [
-            ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-            ("BACKGROUND", (0, 1), (-1, -1), colors.white),
-            ("GRID", (0, 0), (-1, -1), 1, colors.black),
-            ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("WORDWRAP", (0, 0), (-1, -1), "CJK"),
-        ]
-    )
-
-    table.setStyle(table_style)
-    story.append(table)
-
-    doc.build(story)
-    return response
+        doc.build(story)
+        return response
 
 
 @csrf_exempt
@@ -298,6 +300,7 @@ def login_view(request):
                 request,
                 "login.html",
                 {"error_message": "Invalid email or password. Please try again."},
+                status=401
             )
     return render(request, "login.html")
 
