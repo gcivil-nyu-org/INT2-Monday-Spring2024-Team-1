@@ -117,7 +117,7 @@ def edit_user_info(request):
         userID = int(updatedData.get("userId"))
         userData = ""
         try:
-            userData = user.objects.filter(id=userID)
+            userData = User.objects.filter(id=userID)
             if len(userData) == 0:
                 raise Exception
         except Exception:
@@ -128,13 +128,11 @@ def edit_user_info(request):
         # print(userInformation['address'])
         userData.update(
             address=updatedData.get("address", userInformation["address"]),
-            contactInfo=updatedData.get(
-                "contactInfo", userInformation["contactInfo"]),
-            profilePic=updatedData.get(
-                "profilePic", userInformation["profilePic"]),
+            contactInfo=updatedData.get("contactInfo", userInformation["contactInfo"]),
+            profilePic=updatedData.get("profilePic", userInformation["profilePic"]),
         )
 
-        userData = user.objects.get(id=userID)
+        userData = User.objects.get(id=userID)
         return render(request, "user_profile.html", {"userUpdatedInfo": userData})
 
 
@@ -177,14 +175,11 @@ def view_report(request):
     user_info = User.objects.get(id=user_id)
     story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
     story.append(
-        Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"),
-                  styles["Normal"])
+        Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
     )
-    story.append(Paragraph("BloodGroup: " +
-                 user_info.bloodGroup, styles["Normal"]))
+    story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
     story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
-    story.append(
-        Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
+    story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
     story.append(Paragraph("Address: " + user_info.address, styles["Normal"]))
     story.append(Spacer(1, 12))
 
@@ -289,12 +284,10 @@ def registration(request):
         context["fullname"] = fullname = request.POST.get("fullname")
         context["dob"] = dob = request.POST.get("dob")
         context["gender"] = gender = request.POST.get("gender")
-        context["street_address"] = street_address = request.POST.get(
-            "street_address")
+        context["street_address"] = street_address = request.POST.get("street_address")
         context["city"] = city = request.POST.get("city")
         context["state"] = state = request.POST.get("state")
-        context["phone_number"] = phone_number = request.POST.get(
-            "phone_number")
+        context["phone_number"] = phone_number = request.POST.get("phone_number")
         # identity_proof = request.POST.get("identity_proof")
 
         if User.objects.filter(email=email).exists():

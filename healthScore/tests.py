@@ -29,8 +29,6 @@ class viewHealthHistoryTestCase(TestCase):
             contactInfo="123456781",
             status="approved",
         )
-        
-
 
         h2 = Hospital.objects.create(
             name="Hospital B",
@@ -145,7 +143,7 @@ class viewHealthHistoryTestCase(TestCase):
             securityAns="",
             bloodGroup="A+",
         )
-        
+
         self.user = u1
         u2 = User.objects.create(
             email="user2@example.com",
@@ -269,14 +267,13 @@ class viewHealthHistoryTestCase(TestCase):
             {
                 "appointment_name": "Vaccine",
                 "healthcare_worker": "Doctor A",
-                "date":"2024-03-07",
+                "date": "2024-03-07",
                 "healthcare_facility": "Hospital A",
             },
         )
         # request = self.factory.get(url)
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
-
 
     def test_view_user_info_pass(self):
         url = reverse("user_info")
@@ -289,8 +286,6 @@ class viewHealthHistoryTestCase(TestCase):
         # Update below assetion to 500 once the userInfo html gets pushed
         self.assertEqual(response.status_code, 200)
 
-    
-    
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
         request = self.factory.put(
