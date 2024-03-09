@@ -4,7 +4,6 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     AbstractBaseUser,
 )
-from django.utils import timezone
 
 
 STATUS_CHOICES = [

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 
@@ -29,9 +29,8 @@ from .models import (
     HospitalStaff,
 )
 
-from .user_utils import (
-    get_health_history_details
-)
+from .user_utils import get_health_history_details
+
 
 def homepage(request):
     return render(request, "homepage.html")
@@ -263,6 +262,7 @@ def login_view(request):
                 {"error_message": "Invalid email or password. Please try again."},
             )
     return render(request, "login.html")
+
 
 @csrf_exempt
 def add_mock_data(request):
