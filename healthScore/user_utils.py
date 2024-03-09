@@ -4,19 +4,19 @@ from django.forms.models import model_to_dict
 import json
 
 from .models import (
-    healthRecord,
-    hospital,
-    hospitalStaff,
-    appointment,
+    HealthRecord,
+    Hospital,
+    HospitalStaff,
+    Appointment,
 )
 
 
 def get_health_history_details(request):
     if request.method == "GET":
         # Filtering to just userID=5 to simulate it being a users view.
-        history_list = healthRecord.objects.filter(userID=9)
+        history_list = HealthRecord.objects.filter(userID=9)
 
-        print(healthRecord.objects.all().values())
+        print(HealthRecord.objects.all().values())
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
             history_list = history_list.filter(
@@ -25,7 +25,7 @@ def get_health_history_details(request):
 
         healthcare_worker = request.GET.get("healthcare_worker")
         if healthcare_worker:
-            doctor_ids = hospitalStaff.objects.filter(
+            doctor_ids = HospitalStaff.objects.filter(
                 name__icontains=healthcare_worker
             ).values_list("id", flat=True)
             history_list = history_list.filter(doctorID__in=doctor_ids)
@@ -44,7 +44,7 @@ def get_health_history_details(request):
 
         healthcare_facility = request.GET.get("healthcare_facility")
         if healthcare_facility:
-            hospital_ids = hospital.objects.filter(
+            hospital_ids = Hospital.objects.filter(
                 name__icontains=healthcare_facility
             ).values_list("id", flat=True)
             history_list = history_list.filter(hospitalID__in=hospital_ids)
@@ -60,18 +60,17 @@ def get_health_history_details(request):
             h_details = model_to_dict(h)
             each_details.append(h_details)
             # Fetch related appointment details
-            appointment_details = appointment.objects.get(id=h.appointmentId_id)
+            appointment_details = Appointment.objects.get(id=h.appointmentId_id)
             appointment_name = appointment_details.name
-            # appointment_properties = json.loads(h.appointmentId.properties)
-            appointment_properties = h.appointmentId.properties
+            appointment_properties = json.loads(h.appointmentId.properties)
             appointment_type = appointment_properties.get("type", "Unknown")
 
             # Fetch healthcare worker details by Dr. ID
-            doctor_details = hospitalStaff.objects.get(id=h.doctorID)
+            doctor_details = HospitalStaff.objects.get(id=h.doctorID)
             doctor_name = doctor_details.name
 
             # Fetch hospital details by hospitalID
-            hospital_details = hospital.objects.get(id=h.hospitalID)
+            hospital_details = Hospital.objects.get(id=h.hospitalID)
             hospital_name = hospital_details.name
             hospital_address = hospital_details.address
 
