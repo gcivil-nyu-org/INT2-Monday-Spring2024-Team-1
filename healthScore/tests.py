@@ -12,6 +12,7 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
 )
+
 from healthScore.views import (
     edit_user_info,
     homepage,
