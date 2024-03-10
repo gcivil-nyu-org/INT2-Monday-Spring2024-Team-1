@@ -69,7 +69,7 @@
             overflow-y: auto;
         }
 
-        .appointmentName{
+        .appointmentName {
             text-decoration: underline;
             color: blue;
         }
@@ -100,26 +100,29 @@
             <a class="navbar-brand" href="#">Health Score</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Home</a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link disabled" href="#">View Health History <span
-                                class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Health Score</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Community</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Home</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link disabled" href="#">View Health History <span
+                            class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Your Requests</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Health Score</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Community</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
         <h2 class="text-center">Your Health History</h2>
 
@@ -178,8 +181,8 @@
                     </thead>
                     <tbody>
                     {% for record, details in zipped_details %}
-                        <tr onclick="getProperties(`{{ forloop.counter }}|{{ record.appointment_properties }}|{{record.appointment_name}}`)" data-toggle="modal" data-target="#myModal">
-                            <td class="appointmentName">{{ record.appointment_name }}</td>
+                        <tr>
+                            <td class="appointmentName" onclick="getProperties(`{{ forloop.counter }}|{{ record.appointment_properties }}|{{record.appointment_name}}`)" data-toggle="modal" data-target="#myModal">{{ record.appointment_name }}</td>
                             <td>{{ record.appointment_type }}</td>
                             <td>{{ record.doctor_name }}</td>
                             <td>{{ record.hospital_name }}</td>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Score</title>
@@ -91,6 +92,10 @@
       font-weight: bold;
       margin-bottom: 40px;
     }
+    .user-dropdown {
+    position: relative;
+    display: inline-block;
+    }
     .feature-container {
       display: flex;
       flex-wrap: wrap;
@@ -101,6 +106,34 @@
       padding: 15px;
       box-sizing: border-box;
       background-color: #E5D2CE;
+    }
+    .user-button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .user-dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+    
+    .user-dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .user-dropdown-content a:hover {background-color: #f1f1f1}
+    
+    .user-dropdown:hover .user-dropdown-content {
+        display: block;
     }
   </style>
 </head>
@@ -113,8 +146,18 @@
     
     
     <div class="buttons">
-      <button class="login-button">Login</button>
-      <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+        {%  if user.is_authenticated %}
+            <div class="user-dropdown">
+                <button class="user-button"><i class="fas fa-user fa-2x"></i></button>
+                <div class="user-dropdown-content">
+                    <a class="dropdown-item" href="{% url 'user_info' %}">Account</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+        {% else %}
+            <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
+            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+        {%  endif %}
     </div>
   </header>
 

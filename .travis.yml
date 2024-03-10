@@ -17,14 +17,26 @@ after_script:
 - coverage report
 
 deploy:
-  provider: elasticbeanstalk
-  access_key_id: $ACCESS_KEY_ID
-  secret_access_key: $SECRET_ACCESS_KEY
-  region: $REGION
-  app: health-score
-  env: health-env4
-  bucket_name: $BUCKET_NAME
-  on:
-    repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
-    branch: master
-  skip_cleanup: 'true'
+  - provider: elasticbeanstalk
+    access_key_id: $ACCESS_KEY_ID
+    secret_access_key: $SECRET_ACCESS_KEY
+    region: $REGION
+    app: health-score
+    env: health-env4
+    bucket_name: $BUCKET_NAME
+    on:
+      repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
+      branch: master
+    skip_cleanup: 'true'
+  
+  - provider: elasticbeanstalk
+    access_key_id: $ACCESS_KEY_ID
+    secret_access_key: $SECRET_ACCESS_KEY
+    region: $REGION
+    app: health-score-integration
+    env: Health-score-integration-env
+    bucket_name: $BUCKET_NAME
+    on:
+      repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
+      branch: develop
+    skip_cleanup: 'true'

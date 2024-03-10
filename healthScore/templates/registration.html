@@ -15,6 +15,13 @@
     border: 1px solid #ccc;
     border-radius: 5px;
   }
+  header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+  }
   input[type="text"],
   input[type="email"],
   input[type="password"],
@@ -44,6 +51,10 @@
   h2 {
     text-align: center;
   }
+  .logo {
+      width: 350px;
+      height: 100px;
+  }
   .error-message {
     color: red;
     font-size: 12px;
@@ -66,11 +77,35 @@
     border-radius: 0;
     border: 2px solid transparent;
   }
-
   .role-section.active {
     border-color: #5B0888;
     background-color: #E5CFF7;
   }
+  .register-button{
+      background-color: #6466A8;
+      font-size: 15px;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #7801a1;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #6466A8;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #7801a1;
+    }
 </style>
 <script>
   function validateForm() {
@@ -127,14 +162,22 @@
   }
 </script>
 </head>
-
+<header>
+    <a href="{% url 'homepage' %}">
+        <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+    </a>
+    
+    <div class="buttons">
+        <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
+        <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
+    </div>
+  </header>
 
 
 <body>
 
 <h2>Account Registration</h2>
 <form id="registration_form" action="#" method="post" onsubmit="return validateForm()">
-
     <div class="role-sections">
     <div id="user_role_section" class="role-section active" onclick="selectRole('User')">User</div>
     <div id="admin_role_section" class="role-section" onclick="selectRole('Healthcare Admin')">Healthcare Admin</div>
