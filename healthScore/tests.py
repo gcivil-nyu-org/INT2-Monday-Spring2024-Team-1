@@ -318,7 +318,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
         request.user = self.user
         response = edit_user_info(request)
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
 
     def test_edit_user_info_pass(self):
         url = reverse("edit_user_info")

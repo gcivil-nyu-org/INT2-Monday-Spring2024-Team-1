@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.http import JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -78,25 +79,38 @@ def view_user_info(request):
 def edit_user_info(request):
     if request.method == "PUT":
         updatedData = json.loads(request.body)
-        userID = int(updatedData.get("userId"))
-        userData = ""
-        try:
-            userData = User.objects.filter(id=userID)
-            if len(userData) == 0:
-                raise Exception
-        except Exception:
-            return HttpResponse("User Invalid", status=500)
+        current_user = request.user
 
-        userInformation = list(userData.values())[0]
+        new_email = updatedData.get("email")
+        if new_email and new_email != current_user.email:
+            if (
+                User.objects.exclude(id=current_user.id)
+                .filter(email=new_email)
+                .exists()
+            ):
+                return JsonResponse(
+                    {
+                        "error": "This email address is already being used by another account."
+                    },
+                    status=400,
+                )
 
-        userData.update(
-            address=updatedData.get("address", userInformation["address"]),
-            contactInfo=updatedData.get("contactInfo", userInformation["contactInfo"]),
-            profilePic=updatedData.get("profilePic", userInformation["profilePic"]),
-        )
+        data_updated = False
 
-        userData = User.objects.get(id=userID)
-        return render(request, "user_profile.html", {"userUpdatedInfo": userData})
+        for field in ["name", "email", "address", "contactInfo", "profilePic"]:
+            new_value = updatedData.get(field)
+            current_value = getattr(current_user, field)
+            if new_value and new_value != current_value:
+                setattr(current_user, field, new_value)
+                data_updated = True
+
+        if data_updated:
+            current_user.save()
+            return JsonResponse(
+                {"message": "User information updated successfully"}, status=200
+            )
+        else:
+            return JsonResponse({"message": "No data was changed."}, status=200)
 
 
 def view_report(request):
