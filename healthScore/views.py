@@ -83,13 +83,21 @@ def edit_user_info(request):
 
         new_email = updatedData.get("email")
         if new_email and new_email != current_user.email:
-            if User.objects.exclude(id=current_user.id).filter(email=new_email).exists():
-                return JsonResponse({'error': 'This email address is already being used by another account.'},
-                                    status=400)
+            if (
+                User.objects.exclude(id=current_user.id)
+                .filter(email=new_email)
+                .exists()
+            ):
+                return JsonResponse(
+                    {
+                        "error": "This email address is already being used by another account."
+                    },
+                    status=400,
+                )
 
         data_updated = False
 
-        for field in ['name', 'email', 'address', 'contactInfo', 'profilePic']:
+        for field in ["name", "email", "address", "contactInfo", "profilePic"]:
             new_value = updatedData.get(field)
             current_value = getattr(current_user, field)
             if new_value and new_value != current_value:
@@ -98,9 +106,11 @@ def edit_user_info(request):
 
         if data_updated:
             current_user.save()
-            return JsonResponse({'message': 'User information updated successfully'}, status=200)
+            return JsonResponse(
+                {"message": "User information updated successfully"}, status=200
+            )
         else:
-            return JsonResponse({'message': 'No data was changed.'}, status=200)
+            return JsonResponse({"message": "No data was changed."}, status=200)
 
 
 def view_report(request):
