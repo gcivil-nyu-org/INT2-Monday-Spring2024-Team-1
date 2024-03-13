@@ -22,7 +22,6 @@ from reportlab.lib.styles import ParagraphStyle
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
-import bcrypt
 
 from .models import (
     HealthRecord,
@@ -31,7 +30,7 @@ from .models import (
     HospitalStaff,
 )
 
-from .user_utils import get_health_history_details, hash_password, check_password
+from .user_utils import get_health_history_details, hash_password
 
 
 DATE_FORMAT = "%Y-%m-%d"
