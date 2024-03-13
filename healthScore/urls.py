@@ -39,4 +39,5 @@ urlpatterns = [
     path("viewRequests", views.view_health_history_requests, name="view_requests"),
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
     path("viewReports", views.view_report, name="view_reports"),
+    path("hospitalRegistration", views.hospitalRegistration, name="hospitalRegistration"),
 ]
