@@ -335,6 +335,7 @@ def view_health_history_requests(request):
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
+
 def hospitalRegistration(request):
     context = {
         "hospitalName": "",
@@ -348,7 +349,9 @@ def hospitalRegistration(request):
 
     if request.method == "POST":
         context["hospitalName"] = hospitalName = request.POST.get("hospitalName")
-        context["hospitalAddress"] = hospitalAddress = request.POST.get("hospitalAddress")
+        context["hospitalAddress"] = hospitalAddress = request.POST.get(
+            "hospitalAddress"
+        )
         context["email"] = email = request.POST.get("email")
         context["password"] = password = request.POST.get("password")
         context["contactInfo"] = contactInfo = request.POST.get("contactInfo")
@@ -359,14 +362,11 @@ def hospitalRegistration(request):
                 "An account already exists for this hospital name and address"
             )
             return render(request, "hospitalRegistration.html", context)
-        
+
         if Hospital.objects.filter(email=email).exists():
-            context["error_message"] = (
-                "An account already exists with this email"
-            )
+            context["error_message"] = "An account already exists with this email"
             return render(request, "hospitalRegistration.html", context)
-        
-        
+
         hashed_password = hash_password(password=password)
         Hospital.objects.create(
             name=hospitalName,
@@ -374,7 +374,7 @@ def hospitalRegistration(request):
             email=email,
             password=hashed_password,
             contactInfo=contactInfo,
-            website=website
+            website=website,
         )
 
         return redirect("homepage")

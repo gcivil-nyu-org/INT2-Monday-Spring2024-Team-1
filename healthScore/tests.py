@@ -495,6 +495,7 @@ class UserTest(TestCase):
         short_name = self.user.get_short_name()
         self.assertEqual(short_name, "testuser")
 
+
 class HospitalRegistrationViewTest(TestCase):
     def setUp(self):
         self.hospital = Hospital.objects.create(
@@ -514,7 +515,12 @@ class HospitalRegistrationViewTest(TestCase):
     def test_post_request_name_address_exist(self):
         response = self.client.post(
             reverse("hospitalRegistration"),
-            {"hospitalName": "Hospital A", "hospitalAddress": "Address A", "email": "test@example.com", "password": "testpassword"},
+            {
+                "hospitalName": "Hospital A",
+                "hospitalAddress": "Address A",
+                "email": "test@example.com",
+                "password": "testpassword",
+            },
         )
         hospital = Hospital.objects.get(name="Hospital A", address="Address A")
         self.assertEqual(hospital.name, "Hospital A")
@@ -524,11 +530,15 @@ class HospitalRegistrationViewTest(TestCase):
             "An account already exists for this hospital name and address",
             response.content.decode(),
         )
-    
+
     def test_post_request_email_exist(self):
         response = self.client.post(
             reverse("hospitalRegistration"),
-            {"hospitalName": "Hospital B", "email": "hospital_a@example.com", "password": "testpassword"},
+            {
+                "hospitalName": "Hospital B",
+                "email": "hospital_a@example.com",
+                "password": "testpassword",
+            },
         )
         hospital = Hospital.objects.get(email="hospital_a@example.com")
         self.assertEqual(hospital.email, "hospital_a@example.com")
@@ -550,7 +560,7 @@ class HospitalRegistrationViewTest(TestCase):
                 "website": "helloworld@hospital_b.com",
             },
         )
-        
+
         # hospital name and address check
         hospital = Hospital.objects.get(name="Hospital B", address="Address B")
         self.assertEqual(hospital.name, "Hospital B")
