@@ -1,0 +1,178 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthScore</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* The container must be positioned relative: */
+        .custom-select {
+            position: relative;
+            font-family: Arial;
+        }
+
+        .custom-select select {
+            display: none;
+            /*hide original SELECT element: */
+        }
+
+        .select-selected {
+            background-color: DodgerBlue;
+        }
+
+        /* Style the arrow inside the select element: */
+        .select-selected:after {
+            position: absolute;
+            content: "";
+            top: 14px;
+            right: 10px;
+            width: 0;
+            height: 0;
+            border: 6px solid transparent;
+            border-color: #fff transparent transparent transparent;
+        }
+
+        /* Point the arrow upwards when the select box is open (active): */
+        .select-selected.select-arrow-active:after {
+            border-color: transparent transparent #fff transparent;
+            top: 7px;
+        }
+
+        /* style the items (options), including the selected item: */
+        .select-items div,
+        .select-selected {
+            color: #ffffff;
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+            cursor: pointer;
+        }
+
+        /* Style items (options): */
+        .select-items {
+            position: absolute;
+            background-color: DodgerBlue;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 99;
+        }
+
+        /* Hide the items when the select box is closed: */
+        .select-hide {
+            display: none;
+        }
+
+        .select-items div:hover,
+        .same-as-selected {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'header.html' %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2">
+
+            </div>
+            <div class="col-md-8">
+                <div class="card" style="width: 100%; border-radius:15px; box-shadow: 2px 7px #FFE6E6;">
+                    <div class="card-body">
+                        <h4 class="card-title">Submit a Health Request{{data.docs}}</h4>
+                        <hr />
+                    </div>
+                    <form id="submitRecord">
+
+
+                        <div class="mb-3 ml-3 mr-3">
+                            <div class="dropdown">
+
+                                <select id="hospitalSelect" class="custom-select form-select">
+                                    <option value="N/A" selected disabled>Please select the Hospital</option>
+                                    {% for hos in data.hospitals %}
+                                    <option value="{{hos.name}}">{{hos.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="mb-3 ml-3 mr-3">
+                            <div class="dropdown">
+                                <select class="custom-select form-select">
+                                    <option value="N/A" selected disabled>Please select the Doctor</option>
+                                    {% for docs in data.docs %}
+                                    <option value="{{docs.name}}">{{docs.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 ml-3 mr-3">
+                            <label for="exampleFormControlInput1" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="exampleFormControlInput1"
+                                placeholder="name@example.com">
+                        </div>
+
+
+                        <div class="mb-3 ml-3 mr-3">
+                            <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        </div>
+                    </form>
+
+                </div>
+
+
+            </div>
+            <div class="col-md-2">
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function something(docs) {
+            console.log(docs, "dasdasdasd")
+
+            fetch('{% url "get_doctors" hos_name=0 %}'.replace('0', docs)
+                , {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data, "resposne from getDoctors")
+
+                    // const feedbackElement = document.getElementById('formFeedback');
+                    // feedbackElement.innerHTML = '';
+                    // const message = data.error ? `<div class="alert alert-danger">${data.error}</div>` : `<div class="alert alert-success">${data.message}</div>`;
+                    // feedbackElement.innerHTML = message;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+
+        }
+
+        document.getElementById("hospitalSelect").addEventListener("change", function () {
+            var selectedValue = this.value;
+            something(selectedValue);
+        });
+
+    </script>
+
+</body>
+
+</html>
