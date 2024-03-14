@@ -68,6 +68,10 @@
         .same-as-selected {
             background-color: rgba(0, 0, 0, 0.1);
         }
+
+        input[type=date]:invalid::-webkit-datetime-edit {
+            color: #999;
+        }
     </style>
 </head>
 
@@ -83,7 +87,7 @@
             <div class="col-md-8">
                 <div class="card" style="width: 100%; border-radius:15px; box-shadow: 2px 7px #FFE6E6;">
                     <div class="card-body">
-                        <h4 class="card-title">Submit a Health Request{{data.appointmentType}}</h4>
+                        <h4 class="card-title">Submit a Health Request</h4>
                         <hr />
                     </div>
                     <form id="submitRecord">
@@ -122,38 +126,33 @@
                             </div>
                         </div>
 
-
-                        <div class="mb-3 ml-3 mr-3">
-                            <label for="exampleFormControlInput1" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="exampleFormControlInput1"
-                                placeholder="name@example.com">
+                        <div id="apppointmentProps">
+                            <!-- Data filled dynamically -->
                         </div>
 
-
-                        <div class="mb-3 ml-3 mr-3">
-                            <label for="exampleFormControlTextarea1" class="form-label">Example textarea</label>
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                        </div>
-                    </form>
 
                 </div>
 
 
-            </div>
-            <div class="col-md-2">
+
+                </form>
 
             </div>
+
+
         </div>
+        <div class="col-md-2">
+
+        </div>
+    </div>
 
     </div>
 
 
     <script>
 
-        function something(docs) {
-            console.log(docs, "dasdasdasd")
-
-            fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', docs)
+        function getDoctors(hospital_id) {
+            fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospital_id)
                 , {
                     method: 'GET',
                     headers: {
@@ -163,7 +162,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data, "resposne from getDoctors")
 
                     var selectElement = document.getElementById("doctorSelect");
 
@@ -182,8 +180,126 @@
 
         document.getElementById("hospitalSelect").addEventListener("change", function () {
             var selectedValue = this.value;
-            something(selectedValue);
+            getDoctors(selectedValue);
         });
+
+
+        function inputType(keyName) {
+            switch (keyName) {
+                case "date":
+                    return "date"
+                    break;
+                case "cylindrical_power_right":
+                case "cylindrical_power_left":
+                case "spherical_power_left":
+                case "spherical_power_right":
+                case "hemoglobin_count":
+                case "platelet_count":
+                case "pulse_rate":
+                case "fasting_sugar_level":
+                case "random_sugar_level":
+                    return "number"
+                    break;
+
+                default:
+                    return "text"
+            }
+        }
+
+        function stepSize(keyName){
+            switch (keyName) {
+                case "cylindrical_power_right":
+                case "cylindrical_power_left":
+                case "spherical_power_left":
+                case "spherical_power_right":
+                    return "0.01"
+                    break;
+                case "hemoglobin_count":
+                case "platelet_count":
+                case "pulse_rate":
+                case "fasting_sugar_level":
+                case "random_sugar_level":
+                    return "1"
+                    break;
+
+                default:
+                    return "null"
+            }
+        }
+
+
+        function setPlaceholder(keyName, value){
+            switch (keyName) {
+                case "cylindrical_power_right":
+                case "cylindrical_power_left":
+                case "spherical_power_left":
+                case "spherical_power_right":
+                case "hemoglobin_count":
+                case "platelet_count":
+                case "pulse_rate":
+                case "fasting_sugar_level":
+                case "random_sugar_level":
+                    return "0"
+                    break;
+                case "second_visit":
+                    return  "Yes/No"   
+                default:
+                    return "Enter the "+ value;
+            }
+        }
+
+        function addingUnits(keyName){
+            switch (keyName) {
+                case "cylindrical_power_right":
+                case "cylindrical_power_left":
+                case "spherical_power_left":
+                case "spherical_power_right":
+                    return `<span style="width: 6rem;" class="input-group-text" id="basic-addon3">Diopters</span>`
+                case "hemoglobin_count":
+                    return `<span style="width: 6rem;" class="input-group-text" id="basic-addon3">g/dl</span>`
+                case "platelet_count":
+                    return `<span style="width: 6rem;" class="input-group-text" id="basic-addon3">/mm<sup>3</sup></span>`
+                case "pulse_rate":
+                    return `<span style="width: 6rem;" class="input-group-text" id="basic-addon3">bpm</span>`
+                case "fasting_sugar_level":
+                case "random_sugar_level":
+                    return `<span style="width: 6rem;" class="input-group-text" id="basic-addon3">mg/dL</span>`
+                case "blood_pressure":
+                    return `<span style="width: 6rem;" class="input-group-text" id="basic-addon3">mm Hg</span>`
+                default:
+                    return ``;
+            }
+        }
+
+        function getAppointmentprops(appointmentName) {
+            // console.log(appointmentName, "sadasdasdsad")
+            var appointmentType = `{{ data.appointmentProps|safe }}`;
+            jsonified_appointmentTypes = JSON.parse(appointmentType)
+            selected_appointment = jsonified_appointmentTypes[appointmentName]
+
+            var props = `
+                        <br/>
+                        <div class="mb-3 ml-3 mr-3">
+                            <h5> Appointment Properties</h5>
+                            <hr/>
+                        </div>`
+            for (var [key, value] of Object.entries(selected_appointment)) {
+                props += `<div class="mb-3 ml-3 mr-3">                            
+                            <div class="input-group">
+                                <span style="width: 12rem;" class="input-group-text" id="basic-addon3">${value}</span>
+                                <input type="${inputType(key)}" step="${stepSize(key)}" class="form-control" id="exampleFormControlInput1" placeholder="${setPlaceholder(key, value)}">
+                                ${addingUnits(key)}                                
+                            </div>
+                          </div>`
+            }
+            document.getElementById('apppointmentProps').innerHTML = props
+        }
+
+
+        document.getElementById("appointmentType").addEventListener("change", function () {
+            var selectedValue = this.value;
+            getAppointmentprops(selectedValue)
+        })
 
     </script>
 
