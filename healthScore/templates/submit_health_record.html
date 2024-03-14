@@ -83,7 +83,7 @@
             <div class="col-md-8">
                 <div class="card" style="width: 100%; border-radius:15px; box-shadow: 2px 7px #FFE6E6;">
                     <div class="card-body">
-                        <h4 class="card-title">Submit a Health Request{{data.docs}}</h4>
+                        <h4 class="card-title">Submit a Health Request{{data.appointmentType}}</h4>
                         <hr />
                     </div>
                     <form id="submitRecord">
@@ -91,11 +91,10 @@
 
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
-
                                 <select id="hospitalSelect" class="custom-select form-select">
                                     <option value="N/A" selected disabled>Please select the Hospital</option>
                                     {% for hos in data.hospitals %}
-                                    <option value="{{hos.name}}">{{hos.name}}</option>
+                                    <option value="{{hos.id}}">{{hos.name}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -103,15 +102,26 @@
 
 
                         <div class="mb-3 ml-3 mr-3">
+
                             <div class="dropdown">
                                 <select id="doctorSelect" class="custom-select form-select">
                                     <option value="N/A" selected disabled>Please select the Doctor</option>
-                                    <!-- {% for docs in data.docs %}
-                                    <option value="{{docs.name}}">{{docs.name}}</option>
-                                    {% endfor %} -->
                                 </select>
                             </div>
                         </div>
+
+
+                        <div class="mb-3 ml-3 mr-3">
+                            <div class="dropdown">
+                                <select id="appointmentType" class="custom-select form-select">
+                                    <option value="N/A" selected disabled>Please select the type of Appointment</option>
+                                    {% for key, value in data.appointmentType.items %}
+                                    <option value="{{key}}">{{value}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
 
                         <div class="mb-3 ml-3 mr-3">
                             <label for="exampleFormControlInput1" class="form-label">Email address</label>
@@ -143,7 +153,7 @@
         function something(docs) {
             console.log(docs, "dasdasdasd")
 
-            fetch('{% url "get_doctors" hos_name=0 %}'.replace('0', docs)
+            fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', docs)
                 , {
                     method: 'GET',
                     headers: {

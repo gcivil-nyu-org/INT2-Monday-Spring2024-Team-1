@@ -39,8 +39,10 @@ urlpatterns = [
     path("viewRequests", views.view_health_history_requests, name="view_requests"),
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
     path("viewReports", views.view_report, name="view_reports"),
-    
-    path("getHospitals", views.get_hospitals, name="get_hospitals"),
-    path("getDoctors/<str:hos_name>/", views.get_doctors, name="get_doctors")
+
+
+    # Submitting health request apis
+    path("submitHealthRecord", views.get_hospitals, name="get_hospitals"),
+    path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors")
 
 ]

@@ -35,6 +35,27 @@ from .user_utils import get_health_history_details
 
 
 DATE_FORMAT = "%Y-%m-%d"
+APPOINTMENT_TYPE = {
+    'blood_test': "Blood Test",
+    'eye': 'Eye Exams',
+    'general': 'General Physical',
+    'dermatologist': 'Dermatologist',
+    'diabetes_screening': 'Diabetes Screening',
+    'dentist': 'Dentist',
+    'gynecologist': 'Gynecologist',
+    'vaccinations': 'Vaccinations'
+}
+
+APPOINTMENT_PROPS = {
+    'blood_test': {"blood_group": "Blood Group", "hemoglobin_count": "Hemoglobin Count", "date": "Date", "platelet_count": "Platelet Count"},
+    'eye': {'cylindrical_power_right': "Cylindrical Power Right", 'cylindrical_power_left': "Cylindrical Power Left", 'spherical_power_left': "Spherical Power Left", 'spherical_power_right': "Spherical Power Right", "date": "Date"},
+    'general': {'blood_pressure': "Blood Pressure", "pulse_rate":"Pulse Rate", "date": "Date"},
+    'dermatologist': {"care_received":"Care Received", 'second_visit': "Second Visit", "date": "Date"},
+    'diabetes_screening': {"fasting_sugar_level":"Fasting Sugar Level", "random_sugar_level":"Random Sugar Level",'second_visit': "Second Visit", "date": "Date"},
+    'dentist': {"care_received":"Care Received",'second_visit': "Second Visit", "date": "Date"},
+    'gynecologist': {"care_received":"Care Received",'second_visit': "Second Visit", "date": "Date"},
+    'vaccinations': {"name": "Name","type":"Vaccination Type","dose_2": "Dose 2", "dose2_date": "Dose 2 Date"}
+}
 
 
 def homepage(request):
@@ -336,20 +357,24 @@ def view_health_history_requests(request):
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
 
-
+# @login_required
+# @csrf_exempt
 def get_hospitals(request):
     hospitalList = list(Hospital.objects.all().values())
     data = {
-        "hospitals": hospitalList
+        "hospitals": hospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": APPOINTMENT_PROPS
     }
     return render(request, "submit_health_record.html", {"data": data})
 
 
-
-def get_doctors(request, hos_name):
+# @login_required
+# @csrf_exempt
+def get_doctors(request, hos_id):
     print(request)
 
-    doctorList = list(HospitalStaff.objects.filter(admin=False, hospitalID__name=hos_name).values())
+    doctorList = list(HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values())
     return JsonResponse(
         {
             "doctors": doctorList
