@@ -349,8 +349,8 @@ def get_hospitals(request):
 def get_doctors(request, hos_name):
     print(request)
 
-    doctorList = list(HospitalStaff.objects.filter(admin=False, hospitalID__name=hos_name))
-    data = {
-        "docs": doctorList
-    }
-    return render(request, "submit_health_record.html", {"data": data})
+    doctorList = list(HospitalStaff.objects.filter(admin=False, hospitalID__name=hos_name).values())
+    return JsonResponse(
+        {
+            "doctors": doctorList
+        })
