@@ -334,3 +334,23 @@ def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
+
+
+
+def get_hospitals(request):
+    hospitalList = list(Hospital.objects.all().values())
+    data = {
+        "hospitals": hospitalList
+    }
+    return render(request, "submit_health_record.html", {"data": data})
+
+
+
+def get_doctors(request, hos_name):
+    print(request)
+
+    doctorList = list(HospitalStaff.objects.filter(admin=False, hospitalID__name=hos_name))
+    data = {
+        "docs": doctorList
+    }
+    return render(request, "submit_health_record.html", {"data": data})
