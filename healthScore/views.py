@@ -24,6 +24,7 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
+    Appointment,
     HealthRecord,
     Hospital,
     User,
@@ -424,10 +425,23 @@ def hospitalRegistration(request):
 
     return render(request, "hospitalRegistration.html")
 
-def create_record(request):
-    print(request, "request")
-    updatedData = json.loads(request.body)
-    current_user = request.user
-    current_user_id = current_user.id
+# def create_record(request):
+#     print(request, "request")
+#     updatedData = json.loads(request.body)
+#     current_user = ""
+#     current_user = request.user
+    
+#     current_user_id = current_user.id
 
-    return render(request, "view_requests.html")
+#     new_record = Appointment.objects.create(
+#         name=updatedData['appointmentType'],
+#         properties=updatedData["appointmentProperties"]
+#     )
+
+#     HealthRecord.objects.create(
+#         doctorID=updatedData['doctorId']
+#         userID=current_user_id,
+#         hospitalID=updatedData["hospitalID"],
+#         appointmentId=new_record,
+#         status="pending",
+#     )
