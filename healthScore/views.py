@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -31,7 +30,7 @@ from .models import (
     HospitalStaff,
 )
 
-from .user_utils import get_health_history_details
+from .user_utils import get_health_history_details, hash_password
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -379,3 +378,56 @@ def get_doctors(request, hos_id):
         {
             "doctors": doctorList
         })
+
+def hospitalRegistration(request):
+    context = {
+        "hospitalName": "",
+        "hospitalAddress": "",
+        "email": "",
+        "password": "",
+        "contactInfo": "",
+        "website": "",
+        "error_message": "",
+    }
+
+    if request.method == "POST":
+        context["hospitalName"] = hospitalName = request.POST.get("hospitalName")
+        context["hospitalAddress"] = hospitalAddress = request.POST.get(
+            "hospitalAddress"
+        )
+        context["email"] = email = request.POST.get("email")
+        context["password"] = password = request.POST.get("password")
+        context["contactInfo"] = contactInfo = request.POST.get("contactInfo")
+        context["website"] = website = request.POST.get("website")
+
+        if Hospital.objects.filter(name=hospitalName, address=hospitalAddress).exists():
+            context["error_message"] = (
+                "An account already exists for this hospital name and address"
+            )
+            return render(request, "hospitalRegistration.html", context)
+
+        if Hospital.objects.filter(email=email).exists():
+            context["error_message"] = "An account already exists with this email"
+            return render(request, "hospitalRegistration.html", context)
+
+        hashed_password = hash_password(password=password)
+        Hospital.objects.create(
+            name=hospitalName,
+            address=hospitalAddress,
+            email=email,
+            password=hashed_password,
+            contactInfo=contactInfo,
+            website=website,
+        )
+
+        return redirect("homepage")
+
+    return render(request, "hospitalRegistration.html")
+
+def create_record(request):
+    print(request, "request")
+    updatedData = json.loads(request.body)
+    current_user = request.user
+    current_user_id = current_user.id
+
+    return render(request, "view_requests.html")

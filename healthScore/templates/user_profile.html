@@ -93,6 +93,7 @@
             const jsonData = {};
             formData.forEach((value, key) => {jsonData[key] = value;});
 
+            console.log(jsonData, "formData user profile")
             fetch('{% url "edit_user_info" %}', {
                 method: 'PUT',
                 headers: {
