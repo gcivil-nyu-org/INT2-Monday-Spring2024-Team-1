@@ -65,6 +65,33 @@
         input[type=date]:invalid::-webkit-datetime-edit {
             color: #999;
         }
+
+        .cardStyles{
+            width: 100%!important; 
+            border-radius:15px!important; 
+            box-shadow: 2px 7px #E1AFD1!important;
+        }
+
+        .submitButton{
+            text-align: center !important;
+        }
+
+        .appointmentProperties{
+            width: 6rem; 
+            border-radius: 0rem 0.25rem 0.25rem 0rem !important;
+        }
+
+        .labelProperties{
+            width: 12rem; 
+            border-radius: 0.25rem 0px 0px 0.25rem !important;
+        }
+
+        .dropdownStyle{
+            width: 100%!important;
+            text-align: center;
+        }
+
+
     </style>
 </head>
 
@@ -78,7 +105,7 @@
                 <!-- For placement of the submit card -->
             </div>
             <div class="col-md-8">
-                <div class="card" style="width: 100%; border-radius:15px; box-shadow: 2px 7px #E1AFD1;">
+                <div class="card cardStyles">
                     <div class="card-body">
                         <h4 class="card-title">Submit a Health Request</h4>
                         <hr />
@@ -122,7 +149,7 @@
                         </div>
 
                         {% csrf_token %}
-                        <div class="col-12" style="text-align: center !important;">
+                        <div class="col-12 submitButton">
                             <button type="button" class="btn btn-primary" onclick="createNewRecord()">Save
                                 Changes</button>
                         </div>
@@ -247,18 +274,18 @@
                     case "cylindrical_power_left":
                     case "spherical_power_left":
                     case "spherical_power_right":
-                        return `<span style="width: 6rem; border-radius: 0rem 0.25rem 0.25rem 0rem !important;" class="input-group-text" id="basic-addon3">Diopters</span>`
+                        return `<span class="input-group-text appointmentProperties" id="basic-addon3">Diopters</span>`
                     case "hemoglobin_count":
-                        return `<span style="width: 6rem; border-radius: 0rem 0.25rem 0.25rem 0rem !important;" class="input-group-text" id="basic-addon3">g/dl</span>`
+                        return `<span class="input-group-text appointmentProperties" id="basic-addon3">g/dl</span>`
                     case "platelet_count":
-                        return `<span style="width: 6rem; border-radius: 0rem 0.25rem 0.25rem 0rem !important;" class="input-group-text" id="basic-addon3">/mm<sup>3</sup></span>`
+                        return `<span class="input-group-text appointmentProperties" id="basic-addon3">/mm<sup>3</sup></span>`
                     case "pulse_rate":
-                        return `<span style="width: 6rem; border-radius: 0rem 0.25rem 0.25rem 0rem !important;" class="input-group-text" id="basic-addon3">bpm</span>`
+                        return `<span class="input-group-text appointmentProperties" id="basic-addon3">bpm</span>`
                     case "fasting_sugar_level":
                     case "random_sugar_level":
-                        return `<span style="width: 6rem; border-radius: 0rem 0.25rem 0.25rem 0rem !important;" class="input-group-text" id="basic-addon3">mg/dL</span>`
+                        return `<span class="input-group-text appointmentProperties" id="basic-addon3">mg/dL</span>`
                     case "blood_pressure":
-                        return `<span style="width: 6rem; border-radius: 0rem 0.25rem 0.25rem 0rem !important;" class="input-group-text" id="basic-addon3">mm Hg</span>`
+                        return `<span class="input-group-text appointmentProperties" id="basic-addon3">mm Hg</span>`
                     default:
                         return ``;
                 }
@@ -278,7 +305,7 @@
                 for (var [key, value] of Object.entries(selected_appointment)) {
                     props += `<div class="mb-3 ml-3 mr-3">                            
                             <div class="input-group">
-                                <span style="width: 12rem; border-radius: 0.25rem 0px 0px 0.25rem !important;" class="input-group-text" id="basic-addon3">${value}</span>
+                                <span class="input-group-text labelProperties" id="basic-addon3">${value}</span>
                                 <input name="${key}" 
                                     type="${inputType(key)}" 
                                     onkeydown="${key === 'date' ? 'return false;' : ''}" 
@@ -305,21 +332,21 @@
 
                 if (!(keys.includes("hospitalID"))) {
                     document.getElementById('message').innerHTML = ""
-                    document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                                     Please select a Hospital!
                                     </div>`
                     return false
                 }
                 else if (!(keys.includes("doctorId"))) {
                     document.getElementById('message').innerHTML = ""
-                    document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                                     Please select a Doctor!
                                     </div>`
                     return false
                 }
                 else if (!(keys.includes("appointmentType"))) {
                     document.getElementById('message').innerHTML = ""
-                    document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                                     Please select an Appointment Type!
                                     </div>`
                     return false
@@ -330,7 +357,7 @@
                             var date = new Date(jsonData[keys[i]]);
                             if (isNaN(date.getTime())) {
                                 document.getElementById('message').innerHTML = ""
-                                document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                                document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                                     Invalid Date Provided!
                                     </div>`
                                 return false
@@ -340,7 +367,7 @@
                         else if (keys[i] == "blood_group") {
                             if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(jsonData[keys[i]])) {
                                 document.getElementById('message').innerHTML = ""
-                                document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                                document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                                     Invalid Blood Type Provided!
                                     </div>`
                                 return false
@@ -349,7 +376,7 @@
                         else if (keys[i] == "second_visit") {
                             if (!['yes', 'no'].includes(jsonData[keys[i]].toLowerCase())) {
                                 document.getElementById('message').innerHTML = ""
-                                document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                                document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                                     Please Enter Yes/No for Second Visit!
                                     </div>`
                                 return false
@@ -361,7 +388,7 @@
                                 case "number": {
                                     if (jsonData[keys[i]] == "") {
                                         document.getElementById('message').innerHTML = ""
-                                        document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                                        document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                                             One or more properties empty!
                                         </div>`
                                         return false
@@ -401,23 +428,10 @@
                     });
 
 
-                    fetch('{% url "create_new_record" %}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        },
-                        body: JSON.stringify(newData),
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data)
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                        });
+                    
                 }
             }
+        
         </script>
 </body>
 </html>
