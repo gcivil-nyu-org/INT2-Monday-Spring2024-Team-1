@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -25,6 +24,7 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
+    # Appointment,
     HealthRecord,
     Hospital,
     User,
@@ -32,7 +32,7 @@ from .models import (
     HealthRecord
 )
 
-from .user_utils import get_health_history_details
+from .user_utils import get_health_history_details, hash_password
 
 from .forms import (
     HealthRecordForm
@@ -40,6 +40,64 @@ from .forms import (
 
 
 DATE_FORMAT = "%Y-%m-%d"
+APPOINTMENT_TYPE = {
+    "blood_test": "Blood Test",
+    "eye": "Eye Exams",
+    "general": "General Physical",
+    "dermatologist": "Dermatologist",
+    "diabetes_screening": "Diabetes Screening",
+    "dentist": "Dentist",
+    "gynecologist": "Gynecologist",
+    "vaccinations": "Vaccinations",
+}
+
+APPOINTMENT_PROPS = {
+    "blood_test": {
+        "blood_group": "Blood Group",
+        "hemoglobin_count": "Hemoglobin Count",
+        "date": "Date",
+        "platelet_count": "Platelet Count",
+    },
+    "eye": {
+        "cylindrical_power_right": "Cylindrical Power Right",
+        "cylindrical_power_left": "Cylindrical Power Left",
+        "spherical_power_left": "Spherical Power Left",
+        "spherical_power_right": "Spherical Power Right",
+        "date": "Date",
+    },
+    "general": {
+        "blood_pressure": "Blood Pressure",
+        "pulse_rate": "Pulse Rate",
+        "date": "Date",
+    },
+    "dermatologist": {
+        "care_received": "Care Received",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "diabetes_screening": {
+        "fasting_sugar_level": "Fasting Sugar Level",
+        "random_sugar_level": "Random Sugar Level",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "dentist": {
+        "care_received": "Care Received",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "gynecologist": {
+        "care_received": "Care Received",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "vaccinations": {
+        "name": "Name",
+        "type": "Vaccination Type",
+        "dose_2": "Dose 2",
+        "date": "Dose 2 Date",
+    },
+}
 
 
 def homepage(request):
@@ -340,6 +398,7 @@ def view_health_history_requests(request):
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
+<<<<<<< HEAD
 def edit_health_record_view(request, id=None):
     if request.method == "POST":
         id = request.POST.get("id")
@@ -388,3 +447,93 @@ def add_health_record_view(request):
         return redirect("new_health_record_sent")
         
     return render(request, "record_add.html", context)
+=======
+
+@login_required
+@csrf_exempt
+def get_hospitals(request):
+    hospitalList = list(Hospital.objects.all().values())
+    data = {
+        "hospitals": hospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+    }
+    return render(request, "submit_health_record.html", {"data": data})
+
+
+@login_required
+@csrf_exempt
+def get_doctors(request, hos_id):
+    doctorList = list(
+        HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
+    )
+    return JsonResponse({"doctors": doctorList})
+
+
+def hospitalRegistration(request):
+    context = {
+        "hospitalName": "",
+        "hospitalAddress": "",
+        "email": "",
+        "password": "",
+        "contactInfo": "",
+        "website": "",
+        "error_message": "",
+    }
+
+    if request.method == "POST":
+        context["hospitalName"] = hospitalName = request.POST.get("hospitalName")
+        context["hospitalAddress"] = hospitalAddress = request.POST.get(
+            "hospitalAddress"
+        )
+        context["email"] = email = request.POST.get("email")
+        context["password"] = password = request.POST.get("password")
+        context["contactInfo"] = contactInfo = request.POST.get("contactInfo")
+        context["website"] = website = request.POST.get("website")
+
+        if Hospital.objects.filter(name=hospitalName, address=hospitalAddress).exists():
+            context["error_message"] = (
+                "An account already exists for this hospital name and address"
+            )
+            return render(request, "hospitalRegistration.html", context)
+
+        if Hospital.objects.filter(email=email).exists():
+            context["error_message"] = "An account already exists with this email"
+            return render(request, "hospitalRegistration.html", context)
+
+        hashed_password = hash_password(password=password)
+        Hospital.objects.create(
+            name=hospitalName,
+            address=hospitalAddress,
+            email=email,
+            password=hashed_password,
+            contactInfo=contactInfo,
+            website=website,
+        )
+
+        return redirect("homepage")
+
+    return render(request, "hospitalRegistration.html")
+
+
+# def create_record(request):
+#     print(request, "request")
+#     updatedData = json.loads(request.body)
+#     current_user = ""
+#     current_user = request.user
+
+#     current_user_id = current_user.id
+
+#     new_record = Appointment.objects.create(
+#         name=updatedData['appointmentType'],
+#         properties=updatedData["appointmentProperties"]
+#     )
+
+#     HealthRecord.objects.create(
+#         doctorID=updatedData['doctorId']
+#         userID=current_user_id,
+#         hospitalID=updatedData["hospitalID"],
+#         appointmentId=new_record,
+#         status="pending",
+#     )
+>>>>>>> develop
