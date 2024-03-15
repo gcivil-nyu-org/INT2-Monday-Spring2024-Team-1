@@ -335,6 +335,7 @@ def view_health_history_requests(request):
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
 
+@csrf_exempt
 def hospitalRegistration(request):
     context = {
         "hospitalName": "",
@@ -351,8 +352,8 @@ def hospitalRegistration(request):
         context["hospitalAddress"] = hospitalAddress = request.POST.get(
             "hospitalAddress"
         )
-        context["email"] = email = request.POST.get("email")
-        context["password"] = password = request.POST.get("password")
+        context["hospitalEmail"] = hospitalEmail = request.POST.get("hospitalEmail")
+        context["hospitalPassword"] = hospitalPassword = request.POST.get("hospitalPassword")
         context["contactInfo"] = contactInfo = request.POST.get("contactInfo")
         context["website"] = website = request.POST.get("website")
 
@@ -362,15 +363,15 @@ def hospitalRegistration(request):
             )
             return render(request, "hospitalRegistration.html", context)
 
-        if Hospital.objects.filter(email=email).exists():
+        if Hospital.objects.filter(email=hospitalEmail).exists():
             context["error_message"] = "An account already exists with this email"
             return render(request, "hospitalRegistration.html", context)
 
-        hashed_password = hash_password(password=password)
+        hashed_password = hash_password(password=hospitalPassword)
         Hospital.objects.create(
             name=hospitalName,
             address=hospitalAddress,
-            email=email,
+            email=hospitalEmail,
             password=hashed_password,
             contactInfo=contactInfo,
             website=website,
