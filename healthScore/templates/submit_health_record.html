@@ -428,6 +428,22 @@
                     });
 
 
+                    fetch('{% url "create_new_record" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                        body: JSON.stringify(newData),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data)
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+
                     
                 }
             }
