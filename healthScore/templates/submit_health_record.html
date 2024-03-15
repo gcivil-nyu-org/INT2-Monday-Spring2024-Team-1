@@ -282,8 +282,6 @@
                 var appointmentType = `{{ data.appointmentProps|safe }}`;
                 jsonified_appointmentTypes = JSON.parse(appointmentType)
                 selected_appointment = jsonified_appointmentTypes[appointmentName]
-                console.log(selected_appointment, "something")
-
 
                 var props = `
                         <br/>
@@ -295,7 +293,14 @@
                     props += `<div class="mb-3 ml-3 mr-3">                            
                             <div class="input-group">
                                 <span style="width: 12rem; border-radius: 0.25rem 0px 0px 0.25rem !important;" class="input-group-text" id="basic-addon3">${value}</span>
-                                <input name="${key}" type="${inputType(key)}" step="${stepSize(key)}" class="form-control" id="exampleFormControlInput1" placeholder="${setPlaceholder(key, value)}">
+                                <input name="${key}" 
+                                    type="${inputType(key)}" 
+                                    onkeydown="${key === 'date' ? 'return false;' : ''}" 
+                                    onkeypress="${key === 'date' ? 'return false;' : ''}" 
+                                    onpaste="${key === 'date' ? 'return false;' : ''}"  
+                                    step="${stepSize(key)}" 
+                                    class="form-control" id="exampleFormControlInput1"
+                                    placeholder="${setPlaceholder(key, value)}">
                                 ${addingUnits(key)}                                
                             </div>
                           </div>`
@@ -310,12 +315,9 @@
 
 
             function validateData(jsonData) {
-                console.log(jsonData, "in valudate")
                 keys = Object.keys(jsonData)
-                console.log(keys, "all keys")
 
                 if (!(keys.includes("hospitalID"))) {
-                    console.log("hospital illa")
                     document.getElementById('message').innerHTML = ""
                     document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
                                     Please select a Hospital!
@@ -323,7 +325,6 @@
                     return false
                 }
                 else if (!(keys.includes("doctorId"))) {
-                    console.log("doctor ilalaa")
                     document.getElementById('message').innerHTML = ""
                     document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
                                     Please select a Doctor!
@@ -338,22 +339,20 @@
                     return false
                 }
                 else {
-                    console.log(jsonData, "jsonDataapfiapsdiniadn")
-                    keys.forEach(k => {
-                        if (k == "date") {
-                            var date = new Date(jsonData[k]);
+                    for (var i = 0; i < keys.length; i++) {
+                        if (keys[i] == "date") {
+                            var date = new Date(jsonData[keys[i]]);
                             if (isNaN(date.getTime())) {
                                 document.getElementById('message').innerHTML = ""
                                 document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
                                     Invalid Date Provided!
                                     </div>`
-                                console.log("Date Invalid")
                                 return false
                             }
 
                         }
-                        else if (k == "blood_group") {
-                            if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(jsonData[k])) {
+                        else if (keys[i] == "blood_group") {
+                            if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(jsonData[keys[i]])) {
                                 document.getElementById('message').innerHTML = ""
                                 document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
                                     Invalid Blood Type Provided!
@@ -361,11 +360,20 @@
                                 return false
                             }
                         }
+                        else if (keys[i] == "second_visit") {
+                            if (!['yes', 'no'].includes(jsonData[keys[i]].toLowerCase())) {
+                                document.getElementById('message').innerHTML = ""
+                                document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
+                                    Please Enter Yes/No for Second Visit!
+                                    </div>`
+                                return false
+                            }
+                        }
                         else {
-                            switch (inputType(k)) {
+                            switch (inputType(keys[i])) {
                                 case "text":
                                 case "number": {
-                                    if (jsonData[k] == "") {
+                                    if (jsonData[keys[i]] == "") {
                                         document.getElementById('message').innerHTML = ""
                                         document.getElementById('message').innerHTML = `<div class='alert alert-danger' style="width: 100%!important; text-align: center" role='alert'>
                                             One or more properties empty!
@@ -376,41 +384,22 @@
 
                             }
                         }
-                    })
+                    }
                 }
-
-
-
-                // Object.keys(jsonData).forEach(function (key) {
-                //     if(key=="hospitalID" && jsonData[key]==""){
-
-                //         return false
-                //     }
-                //     else if(key=="doctorId" && jsonData[key]==""){
-                //         return false
-                //     }
-                //     else if(key=="appointmentType" && jsonData[key]=="null"){
-                //         return false
-                //     }
-                // })
-
-
-
+                return true
             }
 
             function createNewRecord() {
                 const form = document.getElementById('submitRecord');
-                // console.log(form)
 
                 const formData = new FormData(form);
-                console.log(formData)
                 const jsonData = {};
                 formData.forEach((value, key) => { jsonData[key] = value; });
                 if (validateData(jsonData)) {
+                    document.getElementById('message').innerHTML = ""
                     var appointmentType = `{{ data.appointmentProps|safe }}`;
                     jsonified_appointmentTypes = JSON.parse(appointmentType)
                     selected_appointment = jsonified_appointmentTypes[jsonData['appointmentType']]
-                    console.log(selected_appointment, "createNewRecord")
 
                     var newData = {
                         hospitalID: jsonData.hospitalID,
@@ -420,16 +409,12 @@
                     };
 
                     Object.keys(jsonData).forEach(function (key) {
-                        // Exclude hospitalID, doctorId, and appointmentType
                         if (key !== "hospitalID" && key !== "doctorId" && key !== "appointmentType" && key !== "csrfmiddlewaretoken") {
-                            // Add the key-value pair to appointmentProperties object
                             newData.appointmentProperties[key] = jsonData[key];
                         }
                     });
 
 
-
-                    console.log(newData, "jsonData")
                     fetch('{% url "create_new_record" %}', {
                         method: 'POST',
                         headers: {
@@ -441,10 +426,6 @@
                         .then(response => response.json())
                         .then(data => {
                             console.log(data)
-                            // const feedbackElement = document.getElementById('formFeedback');
-                            // feedbackElement.innerHTML = '';
-                            // const message = data.error ? `<div class="alert alert-danger">${data.error}</div>` : `<div class="alert alert-success">${data.message}</div>`;
-                            // feedbackElement.innerHTML = message;
                         })
                         .catch((error) => {
                             console.error('Error:', error);
