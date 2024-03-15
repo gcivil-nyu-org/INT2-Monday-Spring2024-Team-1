@@ -39,4 +39,8 @@ urlpatterns = [
     path("viewRequests", views.view_health_history_requests, name="view_requests"),
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
     path("viewReports", views.view_report, name="view_reports"),
+
+    path("<int:id>/edit/", views.edit_health_record_view, name="edit_health_record"),
+    path("new/", views.add_health_record_view, name="new_health_record"),
+    path("record-sent/", views.record_sent_view, name="new_health_record_sent"),
 ]

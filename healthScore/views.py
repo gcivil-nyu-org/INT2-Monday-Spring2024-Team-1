@@ -29,9 +29,14 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
+    HealthRecord
 )
 
 from .user_utils import get_health_history_details
+
+from .forms import (
+    HealthRecordForm
+)
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -334,3 +339,52 @@ def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
+
+def edit_health_record_view(request, id=None):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        record = HealthRecord.objects.filter(id=id)
+        if record.exists():
+            record.doctorID = request.POST.get("doctorID")
+            record.userID = request.POST.get("userID")
+            record.hospitalID = request.POST.get("hospitalID")
+            record.status = request.POST.get("status")
+            record.createdAt = request.POST.get("createdAt")
+            record.appointmentId = request.POST.get("appointmentId")
+            record.healthDocuments = request.POST.get("healthDocuments")
+            record.save()
+        
+    return render(request, "record_edit.html")
+
+def record_sent_view(request):
+    return render(request, "record_add_complete.html")
+
+@login_required
+def add_health_record_view(request):
+    form = HealthRecordForm(request.POST or None)
+    context = {
+        'form': form
+    }
+    if form.is_valid():
+        user = form.cleaned_data.get("user")
+        hospital_name = form.cleaned_data.get("hospital")
+        doctor = form.cleaned_data.get("doctor")
+        appointment = form.cleaned_data.get("appointment")
+        health_document = form.cleaned_data.get("health_document")
+
+        hospital = Hospital.objects.filter(name=hospital_name)
+        if hospital.exists():
+            
+
+        HealthRecord.objects.create(
+            doctor=doctorID,
+            userID=userID,
+            hospitalID=hospitalID,
+            status=status,
+            createdAt=createdAt,
+            appointmentId=appointmentId,
+            healthDocuments=healthDocuments
+        )
+        return redirect("new_health_record_sent")
+        
+    return render(request, "record_add.html", context)
