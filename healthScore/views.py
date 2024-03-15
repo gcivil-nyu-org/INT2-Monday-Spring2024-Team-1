@@ -24,7 +24,7 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    Appointment,
+    # Appointment,
     HealthRecord,
     Hospital,
     User,
