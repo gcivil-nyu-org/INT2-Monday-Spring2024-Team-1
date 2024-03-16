@@ -343,7 +343,9 @@ def hospitalRegistration(request):
             "hospitalAddress"
         )
         context["hospitalEmail"] = hospitalEmail = request.POST.get("hospitalEmail")
-        context["hospitalPassword"] = hospitalPassword = request.POST.get("hospitalPassword")
+        context["hospitalPassword"] = hospitalPassword = request.POST.get(
+            "hospitalPassword"
+        )
         context["contactInfo"] = contactInfo = request.POST.get("contactInfo")
         context["website"] = website = request.POST.get("website")
 

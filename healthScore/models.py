@@ -23,10 +23,11 @@ class HospitalManager(BaseUserManager):
         return hospital
 
     def create_hospital_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
 
         return self.create_hospital(email, password, **extra_fields)
+
 
 # Create your models here.
 class Hospital(models.Model):  # Viewed by healthScoreAdmin and hospitalAdmin
@@ -41,8 +42,8 @@ class Hospital(models.Model):  # Viewed by healthScoreAdmin and hospitalAdmin
 
     objects = HospitalManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["name"]
 
 
 class HospitalStaff(models.Model):  # Viewed by hospitalAdmin
