@@ -161,3 +161,14 @@ class CommunityInteraction(models.Model):
     #     commentDownvotes
     #     userIdOfCommenter
     # }]
+
+class Post(models.Model):
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+    title = models.TextField(null=False)
+    description = models.TextField(default="")
+    createdAt = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+

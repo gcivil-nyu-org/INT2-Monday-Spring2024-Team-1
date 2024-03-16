@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
 from datetime import datetime
@@ -29,10 +29,11 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
+    Post,
 )
 
 from .user_utils import get_health_history_details
-
+from .forms import PostForm
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -334,3 +335,42 @@ def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
+
+# @login_required
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            # post.user = request.user
+            user = User.objects.get(id=5)
+            post.user = user
+            post.save()
+            return redirect("view_posts")
+    else:
+        form = PostForm()
+    return render(request, "create_post.html", {"form": form})
+
+def view_posts(request):
+    posts = Post.objects.all().order_by('-createdAt')
+    return render(request, "view_posts.html", {'posts': posts})
+
+
+# def edit_post(request):
+#     post_id = 1
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user != post.user:
+        return redirect('view_posts')
+
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('view_posts')
+    else:
+        form = PostForm(instance=post)
+
+    return render(request, 'edit_post.html', {'form': form, 'post': post})

@@ -39,4 +39,7 @@ urlpatterns = [
     path("viewRequests", views.view_health_history_requests, name="view_requests"),
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
     path("viewReports", views.view_report, name="view_reports"),
+    path("createPost", views.create_post, name='create_post'),
+    path("viewPosts", views.view_posts, name='view_posts'),
+    path("editPost", views.edit_post, name='edit_post'),
 ]
