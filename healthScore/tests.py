@@ -36,32 +36,24 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         h1 = Hospital.objects.create(
             name="Hospital A",
             address="Address A",
-            email="hospital_a@example.com",
-            password="123456",
             contactInfo="123456781",
             status="approved",
         )
         h2 = Hospital.objects.create(
             name="Hospital B",
             address="Address B",
-            email="hospital_b@example.com",
-            password="123456",
             contactInfo="123456781",
             status="pending",
         )
         h3 = Hospital.objects.create(
             name="Hospital C",
             address="Address C",
-            email="hospital_c@example.com",
-            password="123456",
             contactInfo="123456781",
             status="rejected",
         )
         h4 = Hospital.objects.create(
             name="Hospital D",
             address="Address D",
-            email="hospital_d@example.com",
-            password="123456",
             contactInfo="123456781",
             status="pending",
         )
