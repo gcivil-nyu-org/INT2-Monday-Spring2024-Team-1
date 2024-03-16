@@ -438,10 +438,18 @@ class CustomUserManagerTest(TestCase):
         user = User.objects.create_patient(email=email, password=password)
 
         self.assertEqual(user.email, email)
+        self.assertTrue(user.is_patient)
         self.assertFalse(user.is_staff)
         self.assertTrue(user.check_password(password))
+    
+    def test_create_staff(self):
+        User = get_user_model()
+        email = "test@example.com"
+        password = "testpassword"
+        user = User.objects.create_staff(email=email, password=password)
 
         self.assertEqual(user.email, email)
+        self.assertFalse(user.is_patient)
         self.assertTrue(user.is_staff)
         self.assertTrue(user.check_password(password))
 
