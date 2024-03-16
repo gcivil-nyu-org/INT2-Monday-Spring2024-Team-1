@@ -344,7 +344,7 @@ def registration(request):
         else:
             # hashed_password = make_password(request.POST.get("password"))
 
-            User.objects.create_user(
+            User.objects.create_patient(
                 email=email,
                 password=password,
                 name=fullname,

@@ -141,7 +141,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
 
         # Adding user data
-        u1 = User.objects.create_user(
+        u1 = User.objects.create_patient(
             email="user1@example.com",
             name="User1",
             password="userpass1",
@@ -155,7 +155,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
 
         self.user = u1
-        u2 = User.objects.create_user(
+        u2 = User.objects.create_patient(
             email="user2@example.com",
             name="User2",
             password="userpass2",
@@ -167,7 +167,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             securityAns="",
             bloodGroup="B+",
         )
-        u3 = User.objects.create_user(
+        u3 = User.objects.create_patient(
             email="user3@example.com",
             name="User3",
             password="userpass3",
@@ -179,7 +179,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             securityAns="",
             bloodGroup="O+",
         )
-        u4 = User.objects.create_user(
+        u4 = User.objects.create_patient(
             email="user4@example.com",
             name="User4",
             password="userpass4",
@@ -359,7 +359,7 @@ class HomepageViewTest(TestCase):
 
 class LoginViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_patient(
             email="test@example.com", password="testpassword"
         )
 
@@ -386,7 +386,7 @@ class LoginViewTest(TestCase):
 
 class RegistrationViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_patient(
             email="test@example.com",
             password="testpassword",
             name="Test User",
@@ -431,11 +431,11 @@ class RegistrationViewTest(TestCase):
 
 # models.py
 class CustomUserManagerTest(TestCase):
-    def test_create_user(self):
+    def test_create_patient(self):
         User = get_user_model()
         email = "test@example.com"
         password = "testpassword"
-        user = User.objects.create_user(email=email, password=password)
+        user = User.objects.create_patient(email=email, password=password)
 
         self.assertEqual(user.email, email)
         self.assertFalse(user.is_staff)
@@ -453,10 +453,10 @@ class CustomUserManagerTest(TestCase):
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.check_password(password))
 
-    def test_create_user_missing_email(self):
+    def test_create_patient_missing_email(self):
         User = get_user_model()
         with self.assertRaises(ValueError):
-            User.objects.create_user(email=None, password="testpassword")
+            User.objects.create_patient(email=None, password="testpassword")
 
 
 class UserTest(TestCase):

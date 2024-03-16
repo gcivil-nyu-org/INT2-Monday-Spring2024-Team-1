@@ -18,10 +18,7 @@ class Hospital(models.Model):  # Viewed by healthScoreAdmin and hospitalAdmin
     id = models.AutoField(primary_key=True)
     name = models.TextField(null=False)
     address = models.TextField(null=False)
-    email = models.EmailField(null=False)  # Super admin's account
-    password = models.TextField()  # Super admin's account
     contactInfo = models.TextField(null=False, max_length=10)
-    website = models.TextField(default="")
     status = models.TextField(choices=STATUS_CHOICES, default="pending")
 
 
@@ -30,8 +27,6 @@ class HospitalStaff(models.Model):  # Viewed by hospitalAdmin
     hospitalID = models.ForeignKey("hospital", to_field="id", on_delete=models.CASCADE)
     admin = models.BooleanField(default=False)  # True = hospitalAdmin, False = Doctor
     name = models.TextField(null=False)
-    email = models.EmailField(null=False)
-    password = models.TextField(null=False)
     specialization = models.TextField(default="")
     contactInfo = models.TextField(default="", max_length=10)
     securityQues = models.TextField(
@@ -51,13 +46,21 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, email=None, password=None, **extra_fields):
+    def create_patient(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_patient", True)
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(email, password, **extra_fields)
+    
+    def create_staff(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_patient", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_patient", False)
         extra_fields.setdefault("is_superuser", True)
         return self._create_user(email, password, **extra_fields)
 
@@ -70,6 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_patient = models.BooleanField(default=False)
 
     last_login = models.DateTimeField(blank=True, null=True)
 
