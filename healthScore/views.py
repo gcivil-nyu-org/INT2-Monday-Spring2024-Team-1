@@ -31,7 +31,7 @@ from .models import (
     HospitalStaff,
 )
 
-from .user_utils import get_health_history_details, hash_password
+from .user_utils import get_health_history_details
 
 
 DATE_FORMAT = "%Y-%m-%d"

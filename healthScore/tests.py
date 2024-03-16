@@ -441,7 +441,7 @@ class CustomUserManagerTest(TestCase):
         self.assertTrue(user.is_patient)
         self.assertFalse(user.is_staff)
         self.assertTrue(user.check_password(password))
-    
+
     def test_create_staff(self):
         User = get_user_model()
         email = "test@example.com"
