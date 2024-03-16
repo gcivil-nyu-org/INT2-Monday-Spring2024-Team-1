@@ -63,8 +63,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h1,
             admin=True,
             name="Admin A",
-            email="admin_a@hospitala.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -72,8 +70,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h1,
             admin=False,
             name="Doctor A",
-            email="doctor_a@hospitala.com",
-            password="pass1234",
             specialization="Anesthesiology",
             contactInfo="1234567890",
         )
@@ -81,8 +77,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h2,
             admin=True,
             name="Admin B",
-            email="admin_b@hospitalb.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -90,8 +84,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h2,
             admin=False,
             name="Doctor B",
-            email="doctor_b@hospitalb.com",
-            password="pass1234",
             specialization="Cardiology",
             contactInfo="1234567890",
         )
@@ -99,8 +91,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h3,
             admin=True,
             name="Admin C",
-            email="admin_c@hospitalc.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -108,8 +98,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h3,
             admin=False,
             name="Doctor C",
-            email="doctor_c@hospitalc.com",
-            password="pass1234",
             specialization="Dermatology",
             contactInfo="1234567890",
         )
@@ -117,8 +105,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h4,
             admin=True,
             name="Admin D",
-            email="admin_d@hospitald.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -126,8 +112,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h4,
             admin=False,
             name="Doctor D",
-            email="doctor_d@hospitald.com",
-            password="pass1234",
             specialization="Forensic Pathology",
             contactInfo="1234567890",
         )
