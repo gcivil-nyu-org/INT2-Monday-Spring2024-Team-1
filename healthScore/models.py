@@ -13,6 +13,21 @@ STATUS_CHOICES = [
 ]
 
 
+class HospitalManager(BaseUserManager):
+    def create_hospital(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Hospitals must have an email address")
+        hospital = self.model(email=self.normalize_email(email), **extra_fields)
+        hospital.set_password(password)
+        hospital.save(using=self._db)
+        return hospital
+
+    def create_hospital_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_hospital(email, password, **extra_fields)
+
 # Create your models here.
 class Hospital(models.Model):  # Viewed by healthScoreAdmin and hospitalAdmin
     id = models.AutoField(primary_key=True)
@@ -23,6 +38,11 @@ class Hospital(models.Model):  # Viewed by healthScoreAdmin and hospitalAdmin
     contactInfo = models.TextField(null=False, max_length=10)
     website = models.TextField(default="")
     status = models.TextField(choices=STATUS_CHOICES, default="pending")
+
+    objects = HospitalManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
 
 
 class HospitalStaff(models.Model):  # Viewed by hospitalAdmin
