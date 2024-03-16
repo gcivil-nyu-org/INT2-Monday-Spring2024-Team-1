@@ -477,10 +477,27 @@ class HospitalRegistrationViewTest(TestCase):
         self.hospital = Hospital.objects.create(
             name="Hospital A",
             address="Address A",
-            email="hospital_a@example.com",
-            password="hashed_password",
             contactInfo="1234567890",
-            website="helloworld@hospital_a.com",
+        )
+
+        self.patient = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+            dob="1990-01-01",
+            contactInfo="1234567890",
+            proofOfIdentity="Proof1",
+            address="Address1",
+            securityQues="",
+            securityAns="",
+            bloodGroup="A+",
+        )
+
+        self.admin = User.objects.create_staff(
+            email="admin1@example.com",
+            name="Admin 1",
+            password="adminpass1",
+            contactInfo="1234567890",
         )
 
     def test_hospitalRegistration_view(self):
@@ -488,39 +505,37 @@ class HospitalRegistrationViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "hospitalRegistration.html")
 
-    def test_post_request_name_address_exist(self):
+    def test_post_request_patient_email_exist(self):
         response = self.client.post(
             reverse("hospitalRegistration"),
             {
-                "hospitalName": "Hospital A",
-                "hospitalAddress": "Address A",
-                "email": "test@example.com",
+                "email": "user1@example.com",
                 "password": "testpassword",
             },
         )
-        hospital = Hospital.objects.get(name="Hospital A", address="Address A")
-        self.assertEqual(hospital.name, "Hospital A")
-        self.assertEqual(hospital.address, "Address A")
+        user = User.objects.get(email="user1@example.com")
+        self.assertEqual(user.email, "user1@example.com")
+        self.assertEqual(user.is_patient, True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            "An account already exists for this hospital name and address",
+            "A patient account already exists with this email",
             response.content.decode(),
         )
-
-    def test_post_request_email_exist(self):
+    
+    def test_post_request_admin_email_exist(self):
         response = self.client.post(
             reverse("hospitalRegistration"),
             {
-                "hospitalName": "Hospital B",
-                "email": "hospital_a@example.com",
+                "email": "admin1@example.com",
                 "password": "testpassword",
             },
         )
-        hospital = Hospital.objects.get(email="hospital_a@example.com")
-        self.assertEqual(hospital.email, "hospital_a@example.com")
+        user = User.objects.get(email="admin1@example.com")
+        self.assertEqual(user.email, "admin1@example.com")
+        self.assertEqual(user.is_staff, True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            "An account already exists with this email",
+            "An admin account already exists with this email",
             response.content.decode(),
         )
 
@@ -530,20 +545,19 @@ class HospitalRegistrationViewTest(TestCase):
             {
                 "hospitalName": "Hospital B",
                 "hospitalAddress": "Address B",
-                "email": "hospital_b@example.com",
-                "password": "hashed_password",
+                "hospitalContactInfo": "9560152437",
+                "name": "Admin B",
+                "email": "adminb@gmail.com",
+                "password": "password",
                 "contactInfo": "1234567890",
-                "website": "helloworld@hospital_b.com",
-            },
+            }
         )
 
-        # hospital name and address check
-        hospital = Hospital.objects.get(name="Hospital B", address="Address B")
-        self.assertEqual(hospital.name, "Hospital B")
-        self.assertEqual(hospital.address, "Address B")
+        # user email checks
+        user = User.objects.get(email="adminb@gmail.com")
+        self.assertEqual(user.email, "adminb@gmail.com")
 
-        # hospital email check
-        hospital = Hospital.objects.get(email="hospital_b@example.com")
-        self.assertEqual(hospital.email, "hospital_b@example.com")
+        # hospital name, address check
+        hospital = Hospital.objects.get(name="Hospital B", address="Address B")
 
         self.assertRedirects(response, reverse("homepage"))
