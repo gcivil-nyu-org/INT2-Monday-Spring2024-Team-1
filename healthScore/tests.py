@@ -145,7 +145,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             email="user1@example.com",
             name="User1",
             password="userpass1",
-            username="user1",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof1",
@@ -160,7 +159,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             email="user2@example.com",
             name="User2",
             password="userpass2",
-            username="user2",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof2",
@@ -173,7 +171,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             email="user3@example.com",
             name="User3",
             password="userpass3",
-            username="user3",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof3",
@@ -186,7 +183,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             email="user4@example.com",
             name="User4",
             password="userpass4",
-            username="user4",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof4",
@@ -393,7 +389,6 @@ class RegistrationViewTest(TestCase):
         self.user = User.objects.create_user(
             email="test@example.com",
             password="testpassword",
-            username="testuser",
             name="Test User",
         )
 
@@ -415,26 +410,12 @@ class RegistrationViewTest(TestCase):
             response.content.decode(),
         )
 
-    def test_post_request_username_exist(self):
-        response = self.client.post(
-            reverse("registration"),
-            {"username": "testuser", "password": "testpassword"},
-        )
-        user = User.objects.get(username="testuser")
-        self.assertEqual(user.username, "testuser")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            "Username already exists. Please choose a different one.",
-            response.content.decode(),
-        )
-
     def test_post_request_new_user_registered(self):
         response = self.client.post(
             reverse("registration"),
             {
                 "email": "newuser@example.com",
                 "password": "newpassword",
-                "username": "newuser",
                 "fullname": "New User",
                 "gender": "female",
                 "phone_number": "0000000000",
@@ -482,7 +463,6 @@ class UserTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email="test@exmaple.com",
-            username="testuser",
             password="password",
             name="Test User",
         )
@@ -490,10 +470,6 @@ class UserTest(TestCase):
     def test_get_full_name(self):
         full_name = self.user.get_full_name()
         self.assertEqual(full_name, "Test User")
-
-    def test_get_short_name(self):
-        short_name = self.user.get_short_name()
-        self.assertEqual(short_name, "testuser")
 
 
 class HospitalRegistrationViewTest(TestCase):
