@@ -521,7 +521,7 @@ class HospitalRegistrationViewTest(TestCase):
             "A patient account already exists with this email",
             response.content.decode(),
         )
-    
+
     def test_post_request_admin_email_exist(self):
         response = self.client.post(
             reverse("hospitalRegistration"),
@@ -550,7 +550,7 @@ class HospitalRegistrationViewTest(TestCase):
                 "email": "adminb@gmail.com",
                 "password": "password",
                 "contactInfo": "1234567890",
-            }
+            },
         )
 
         # user email checks
