@@ -59,7 +59,6 @@ def view_user_info(request):
         userInfo = {
             "email": current_user.email,
             "name": current_user.name,
-            "username": current_user.username,
             "dob": current_user.dob,
             "contactInfo": current_user.contactInfo,
             # dummy string for now. Needs to be replaced with the S3 string
@@ -254,7 +253,6 @@ def view_report(request):
 def registration(request):
     context = {
         "email": "",
-        "username": "",
         "password": "",
         "fullname": "",
         "dob": "",
@@ -268,7 +266,6 @@ def registration(request):
 
     if request.method == "POST":  # when the form is submitted
         context["email"] = email = request.POST.get("email")
-        context["username"] = username = request.POST.get("username")
         context["password"] = password = request.POST.get("password")
         context["fullname"] = fullname = request.POST.get("fullname")
         context["dob"] = dob = request.POST.get("dob")
@@ -285,18 +282,11 @@ def registration(request):
             )
             return render(request, "registration.html", context)
 
-        elif User.objects.filter(username=username).exists():
-            context["error_message"] = (
-                "Username already exists. Please choose a different one."
-            )
-            return render(request, "registration.html", context)
-
         else:
             # hashed_password = make_password(request.POST.get("password"))
 
             User.objects.create_user(
                 email=email,
-                username=username,
                 password=password,
                 name=fullname,
                 dob=dob,
