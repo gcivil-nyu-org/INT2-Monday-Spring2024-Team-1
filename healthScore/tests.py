@@ -558,6 +558,6 @@ class HospitalRegistrationViewTest(TestCase):
         self.assertEqual(user.email, "adminb@gmail.com")
 
         # hospital name, address check
-        hospital = Hospital.objects.get(name="Hospital B", address="Address B")
+        Hospital.objects.get(name="Hospital B", address="Address B")
 
         self.assertRedirects(response, reverse("homepage"))
