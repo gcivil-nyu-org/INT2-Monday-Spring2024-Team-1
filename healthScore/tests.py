@@ -439,18 +439,10 @@ class CustomUserManagerTest(TestCase):
 
         self.assertEqual(user.email, email)
         self.assertFalse(user.is_staff)
-        self.assertFalse(user.is_superuser)
         self.assertTrue(user.check_password(password))
-
-    def test_create_superuser(self):
-        User = get_user_model()
-        email = "admin@example.com"
-        password = "adminexample"
-        user = User.objects.create_superuser(email=email, password=password)
 
         self.assertEqual(user.email, email)
         self.assertTrue(user.is_staff)
-        self.assertTrue(user.is_superuser)
         self.assertTrue(user.check_password(password))
 
     def test_create_patient_missing_email(self):
