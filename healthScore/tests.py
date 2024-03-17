@@ -36,32 +36,24 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         h1 = Hospital.objects.create(
             name="Hospital A",
             address="Address A",
-            email="hospital_a@example.com",
-            password="123456",
             contactInfo="123456781",
             status="approved",
         )
         h2 = Hospital.objects.create(
             name="Hospital B",
             address="Address B",
-            email="hospital_b@example.com",
-            password="123456",
             contactInfo="123456781",
             status="pending",
         )
         h3 = Hospital.objects.create(
             name="Hospital C",
             address="Address C",
-            email="hospital_c@example.com",
-            password="123456",
             contactInfo="123456781",
             status="rejected",
         )
         h4 = Hospital.objects.create(
             name="Hospital D",
             address="Address D",
-            email="hospital_d@example.com",
-            password="123456",
             contactInfo="123456781",
             status="pending",
         )
@@ -71,8 +63,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h1,
             admin=True,
             name="Admin A",
-            email="admin_a@hospitala.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -80,8 +70,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h1,
             admin=False,
             name="Doctor A",
-            email="doctor_a@hospitala.com",
-            password="pass1234",
             specialization="Anesthesiology",
             contactInfo="1234567890",
         )
@@ -89,8 +77,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h2,
             admin=True,
             name="Admin B",
-            email="admin_b@hospitalb.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -98,8 +84,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h2,
             admin=False,
             name="Doctor B",
-            email="doctor_b@hospitalb.com",
-            password="pass1234",
             specialization="Cardiology",
             contactInfo="1234567890",
         )
@@ -107,8 +91,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h3,
             admin=True,
             name="Admin C",
-            email="admin_c@hospitalc.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -116,8 +98,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h3,
             admin=False,
             name="Doctor C",
-            email="doctor_c@hospitalc.com",
-            password="pass1234",
             specialization="Dermatology",
             contactInfo="1234567890",
         )
@@ -125,8 +105,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h4,
             admin=True,
             name="Admin D",
-            email="admin_d@hospitald.com",
-            password="pass1234",
             specialization="",
             contactInfo="1234567890",
         )
@@ -134,18 +112,15 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             hospitalID=h4,
             admin=False,
             name="Doctor D",
-            email="doctor_d@hospitald.com",
-            password="pass1234",
             specialization="Forensic Pathology",
             contactInfo="1234567890",
         )
 
         # Adding user data
-        u1 = User.objects.create_user(
+        u1 = User.objects.create_patient(
             email="user1@example.com",
             name="User1",
             password="userpass1",
-            username="user1",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof1",
@@ -156,11 +131,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         )
 
         self.user = u1
-        u2 = User.objects.create_user(
+        u2 = User.objects.create_patient(
             email="user2@example.com",
             name="User2",
             password="userpass2",
-            username="user2",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof2",
@@ -169,11 +143,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             securityAns="",
             bloodGroup="B+",
         )
-        u3 = User.objects.create_user(
+        u3 = User.objects.create_patient(
             email="user3@example.com",
             name="User3",
             password="userpass3",
-            username="user3",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof3",
@@ -182,11 +155,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             securityAns="",
             bloodGroup="O+",
         )
-        u4 = User.objects.create_user(
+        u4 = User.objects.create_patient(
             email="user4@example.com",
             name="User4",
             password="userpass4",
-            username="user4",
             dob="1990-01-01",
             contactInfo="1234567890",
             proofOfIdentity="Proof4",
@@ -363,7 +335,7 @@ class HomepageViewTest(TestCase):
 
 class LoginViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_patient(
             email="test@example.com", password="testpassword"
         )
 
@@ -390,10 +362,9 @@ class LoginViewTest(TestCase):
 
 class RegistrationViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = User.objects.create_patient(
             email="test@example.com",
             password="testpassword",
-            username="testuser",
             name="Test User",
         )
 
@@ -415,26 +386,12 @@ class RegistrationViewTest(TestCase):
             response.content.decode(),
         )
 
-    def test_post_request_username_exist(self):
-        response = self.client.post(
-            reverse("registration"),
-            {"username": "testuser", "password": "testpassword"},
-        )
-        user = User.objects.get(username="testuser")
-        self.assertEqual(user.username, "testuser")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            "Username already exists. Please choose a different one.",
-            response.content.decode(),
-        )
-
     def test_post_request_new_user_registered(self):
         response = self.client.post(
             reverse("registration"),
             {
                 "email": "newuser@example.com",
                 "password": "newpassword",
-                "username": "newuser",
                 "fullname": "New User",
                 "gender": "female",
                 "phone_number": "0000000000",
@@ -450,39 +407,38 @@ class RegistrationViewTest(TestCase):
 
 # models.py
 class CustomUserManagerTest(TestCase):
-    def test_create_user(self):
+    def test_create_patient(self):
         User = get_user_model()
         email = "test@example.com"
         password = "testpassword"
-        user = User.objects.create_user(email=email, password=password)
+        user = User.objects.create_patient(email=email, password=password)
 
         self.assertEqual(user.email, email)
+        self.assertTrue(user.is_patient)
         self.assertFalse(user.is_staff)
-        self.assertFalse(user.is_superuser)
         self.assertTrue(user.check_password(password))
 
-    def test_create_superuser(self):
+    def test_create_staff(self):
         User = get_user_model()
-        email = "admin@example.com"
-        password = "adminexample"
-        user = User.objects.create_superuser(email=email, password=password)
+        email = "test@example.com"
+        password = "testpassword"
+        user = User.objects.create_staff(email=email, password=password)
 
         self.assertEqual(user.email, email)
+        self.assertFalse(user.is_patient)
         self.assertTrue(user.is_staff)
-        self.assertTrue(user.is_superuser)
         self.assertTrue(user.check_password(password))
 
-    def test_create_user_missing_email(self):
+    def test_create_patient_missing_email(self):
         User = get_user_model()
         with self.assertRaises(ValueError):
-            User.objects.create_user(email=None, password="testpassword")
+            User.objects.create_patient(email=None, password="testpassword")
 
 
 class UserTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email="test@exmaple.com",
-            username="testuser",
             password="password",
             name="Test User",
         )
@@ -491,20 +447,33 @@ class UserTest(TestCase):
         full_name = self.user.get_full_name()
         self.assertEqual(full_name, "Test User")
 
-    def test_get_short_name(self):
-        short_name = self.user.get_short_name()
-        self.assertEqual(short_name, "testuser")
-
 
 class HospitalRegistrationViewTest(TestCase):
     def setUp(self):
         self.hospital = Hospital.objects.create(
             name="Hospital A",
             address="Address A",
-            email="hospital_a@example.com",
-            password="hashed_password",
             contactInfo="1234567890",
-            website="helloworld@hospital_a.com",
+        )
+
+        self.patient = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+            dob="1990-01-01",
+            contactInfo="1234567890",
+            proofOfIdentity="Proof1",
+            address="Address1",
+            securityQues="",
+            securityAns="",
+            bloodGroup="A+",
+        )
+
+        self.admin = User.objects.create_staff(
+            email="admin1@example.com",
+            name="Admin 1",
+            password="adminpass1",
+            contactInfo="1234567890",
         )
 
     def test_hospitalRegistration_view(self):
@@ -512,39 +481,37 @@ class HospitalRegistrationViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "hospitalRegistration.html")
 
-    def test_post_request_name_address_exist(self):
+    def test_post_request_patient_email_exist(self):
         response = self.client.post(
             reverse("hospitalRegistration"),
             {
-                "hospitalName": "Hospital A",
-                "hospitalAddress": "Address A",
-                "email": "test@example.com",
+                "email": "user1@example.com",
                 "password": "testpassword",
             },
         )
-        hospital = Hospital.objects.get(name="Hospital A", address="Address A")
-        self.assertEqual(hospital.name, "Hospital A")
-        self.assertEqual(hospital.address, "Address A")
+        user = User.objects.get(email="user1@example.com")
+        self.assertEqual(user.email, "user1@example.com")
+        self.assertEqual(user.is_patient, True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            "An account already exists for this hospital name and address",
+            "A patient account already exists with this email",
             response.content.decode(),
         )
 
-    def test_post_request_email_exist(self):
+    def test_post_request_admin_email_exist(self):
         response = self.client.post(
             reverse("hospitalRegistration"),
             {
-                "hospitalName": "Hospital B",
-                "email": "hospital_a@example.com",
+                "email": "admin1@example.com",
                 "password": "testpassword",
             },
         )
-        hospital = Hospital.objects.get(email="hospital_a@example.com")
-        self.assertEqual(hospital.email, "hospital_a@example.com")
+        user = User.objects.get(email="admin1@example.com")
+        self.assertEqual(user.email, "admin1@example.com")
+        self.assertEqual(user.is_staff, True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            "An account already exists with this email",
+            "An admin account already exists with this email",
             response.content.decode(),
         )
 
@@ -554,20 +521,19 @@ class HospitalRegistrationViewTest(TestCase):
             {
                 "hospitalName": "Hospital B",
                 "hospitalAddress": "Address B",
-                "email": "hospital_b@example.com",
-                "password": "hashed_password",
+                "hospitalContactInfo": "9560152437",
+                "name": "Admin B",
+                "email": "adminb@gmail.com",
+                "password": "password",
                 "contactInfo": "1234567890",
-                "website": "helloworld@hospital_b.com",
             },
         )
 
-        # hospital name and address check
-        hospital = Hospital.objects.get(name="Hospital B", address="Address B")
-        self.assertEqual(hospital.name, "Hospital B")
-        self.assertEqual(hospital.address, "Address B")
+        # user email checks
+        user = User.objects.get(email="adminb@gmail.com")
+        self.assertEqual(user.email, "adminb@gmail.com")
 
-        # hospital email check
-        hospital = Hospital.objects.get(email="hospital_b@example.com")
-        self.assertEqual(hospital.email, "hospital_b@example.com")
+        # hospital name, address check
+        Hospital.objects.get(name="Hospital B", address="Address B")
 
         self.assertRedirects(response, reverse("homepage"))
