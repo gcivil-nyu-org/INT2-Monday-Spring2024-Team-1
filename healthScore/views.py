@@ -341,12 +341,27 @@ def registration(request):
             User.objects.create_patient(**common_fields, **user_specific_fields)
 
         elif role == "Healthcare Admin":
+            hospital_name = request.POST.get("hospital_name")
+            hospital_address = f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}"
+
             healthcare_admin_fields = {
-                "hospital_name": request.POST.get("hospital_name"),
-                "hospital_address": f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}",
+                "hospital_name": hospital_name,
+                "hospital_address": hospital_address,
             }
 
             User.objects.create_staff(**common_fields)
+
+            hospital, created = Hospital.objects.get_or_create(
+                name=hospital_name,
+                defaults={'address': hospital_address, 'contactInfo': phone_number}
+            )
+
+            HospitalStaff.objects.create(
+                hospitalID=hospital,
+                admin=True,
+                name=fullname,
+                contactInfo=phone_number
+            )
 
         return redirect("homepage")
 
