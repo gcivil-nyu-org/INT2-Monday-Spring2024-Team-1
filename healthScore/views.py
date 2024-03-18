@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -32,7 +33,6 @@ from .models import (
 )
 
 from .user_utils import get_health_history_details
-
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -310,30 +310,13 @@ def view_report(request):
 
 @csrf_exempt
 def registration(request):
-    context = {
-        "email": "",
-        "password": "",
-        "fullname": "",
-        "dob": "",
-        "gender": "",
-        "street_address": "",
-        "city": "",
-        "state": "",
-        "phone_number": "",
-        "error_message": "",
-    }
-
-    if request.method == "POST":  # when the form is submitted
-        context["email"] = email = request.POST.get("email")
-        context["password"] = password = request.POST.get("password")
-        context["fullname"] = fullname = request.POST.get("fullname")
-        context["dob"] = dob = request.POST.get("dob")
-        context["gender"] = gender = request.POST.get("gender")
-        context["street_address"] = street_address = request.POST.get("street_address")
-        context["city"] = city = request.POST.get("city")
-        context["state"] = state = request.POST.get("state")
-        context["phone_number"] = phone_number = request.POST.get("phone_number")
-        # identity_proof = request.POST.get("identity_proof")
+    if request.method == "POST":
+        role = request.POST.get("role")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        fullname = request.POST.get("fullname")
+        phone_number = request.POST.get("contactInfo")
+        context = {"error_message:": ""}
 
         if User.objects.filter(email=email).exists():
             context["error_message"] = (
@@ -341,20 +324,45 @@ def registration(request):
             )
             return render(request, "registration.html", context)
 
-        else:
-            # hashed_password = make_password(request.POST.get("password"))
+        common_fields = {
+            "email": email,
+            "password": password,
+            "name": fullname,
+            "contactInfo": phone_number,
+        }
 
-            User.objects.create_patient(
-                email=email,
-                password=password,
-                name=fullname,
-                dob=dob,
-                gender=gender,
-                address=f"{street_address}, {city}, {state}",
-                contactInfo=phone_number,
+        if role == "User":
+            user_specific_fields = {
+                "dob": request.POST.get("dob"),
+                "gender": request.POST.get("gender"),
+                "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
+                "proofOfIdentity": request.POST.get(
+                    "identity_proof"
+                ),  # This needs handling for file upload
+            }
+            User.objects.create_patient(**common_fields, **user_specific_fields)
+
+        elif role == "Healthcare Admin":
+            hospital_name = request.POST.get("hospital_name")
+            hospital_address = f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}"
+
+            healthcare_admin_fields = {
+                "hospital_name": hospital_name,
+                "hospital_address": hospital_address,
+            }
+
+            User.objects.create_staff(**common_fields)
+
+            hospital, created = Hospital.objects.get_or_create(
+                name=hospital_name,
+                defaults={"address": hospital_address, "contactInfo": phone_number},
             )
 
-            return redirect("homepage")
+            HospitalStaff.objects.create(
+                hospitalID=hospital, admin=True, name=fullname, contactInfo=phone_number
+            )
+
+        return redirect("homepage")
 
     return render(request, "registration.html")
 

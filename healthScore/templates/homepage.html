@@ -140,27 +140,7 @@
   
   
 <body>
-  <header>
-    <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
-    
-    
-    
-    <div class="buttons">
-        {%  if user.is_authenticated %}
-            <div class="user-dropdown">
-                <button class="user-button"><i class="fas fa-user fa-2x"></i></button>
-                <div class="user-dropdown-content">
-                    <a class="dropdown-item" href="{% url 'user_info' %}">Account</a>
-                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                </div>
-            </div>
-        {% else %}
-            <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
-            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
-        {%  endif %}
-    </div>
-  </header>
-
+  {%  include 'header.html' %}
 
 
   <div class="welcome-text">
