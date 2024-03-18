@@ -43,7 +43,4 @@ urlpatterns = [
     path("submitHealthRecord", views.get_hospitals, name="get_hospitals"),
     path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
     # path("createNewRecord", views.create_record, name="create_new_record"),
-    path(
-        "hospitalRegistration", views.hospitalRegistration, name="hospitalRegistration"
-    ),
 ]
