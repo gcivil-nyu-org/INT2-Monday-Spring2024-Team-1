@@ -398,7 +398,6 @@ def view_health_history_requests(request):
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
-<<<<<<< HEAD
 def edit_health_record_view(request, id=None):
     if request.method == "POST":
         id = request.POST.get("id")
@@ -433,7 +432,7 @@ def add_health_record_view(request):
 
         hospital = Hospital.objects.filter(name=hospital_name)
         if hospital.exists():
-            
+            pass
 
         HealthRecord.objects.create(
             doctor=doctorID,
@@ -447,7 +446,6 @@ def add_health_record_view(request):
         return redirect("new_health_record_sent")
         
     return render(request, "record_add.html", context)
-=======
 
 @login_required
 @csrf_exempt
@@ -536,4 +534,3 @@ def hospitalRegistration(request):
 #         appointmentId=new_record,
 #         status="pending",
 #     )
->>>>>>> develop
