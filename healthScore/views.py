@@ -141,9 +141,9 @@ def edit_user_info(request):
         new_email = updatedData.get("email")
         if new_email and new_email != current_user.email:
             if (
-                    User.objects.exclude(id=current_user.id)
-                            .filter(email=new_email)
-                            .exists()
+                User.objects.exclude(id=current_user.id)
+                .filter(email=new_email)
+                .exists()
             ):
                 return JsonResponse(
                     {
@@ -311,11 +311,11 @@ def view_report(request):
 @csrf_exempt
 def registration(request):
     if request.method == "POST":
-        role = request.POST.get('role')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        fullname = request.POST.get('fullname')
-        phone_number = request.POST.get('contactInfo')
+        role = request.POST.get("role")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        fullname = request.POST.get("fullname")
+        phone_number = request.POST.get("contactInfo")
         context = {"error_message:": ""}
 
         if User.objects.filter(email=email).exists():
@@ -336,7 +336,9 @@ def registration(request):
                 "dob": request.POST.get("dob"),
                 "gender": request.POST.get("gender"),
                 "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
-                "proofOfIdentity": request.POST.get("identity_proof"),  # This needs handling for file upload
+                "proofOfIdentity": request.POST.get(
+                    "identity_proof"
+                ),  # This needs handling for file upload
             }
             User.objects.create_patient(**common_fields, **user_specific_fields)
 
@@ -353,14 +355,11 @@ def registration(request):
 
             hospital, created = Hospital.objects.get_or_create(
                 name=hospital_name,
-                defaults={'address': hospital_address, 'contactInfo': phone_number}
+                defaults={"address": hospital_address, "contactInfo": phone_number},
             )
 
             HospitalStaff.objects.create(
-                hospitalID=hospital,
-                admin=True,
-                name=fullname,
-                contactInfo=phone_number
+                hospitalID=hospital, admin=True, name=fullname, contactInfo=phone_number
             )
 
         return redirect("homepage")
@@ -455,7 +454,7 @@ def hospitalRegistration(request):
             return render(request, "hospitalRegistration.html", context)
 
         if not Hospital.objects.filter(
-                name=hospitalName, address=hospitalAddress
+            name=hospitalName, address=hospitalAddress
         ).exists():
             Hospital.objects.create(
                 name=hospitalName,
@@ -473,6 +472,7 @@ def hospitalRegistration(request):
         return redirect("homepage")
 
     return render(request, "hospitalRegistration.html")
+
 
 # def create_record(request):
 #     print(request, "request")
