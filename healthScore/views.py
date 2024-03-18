@@ -32,7 +32,7 @@ from .models import (
     HealthRecord
 )
 
-from .user_utils import get_health_history_details, hash_password
+from .user_utils import get_health_history_details
 
 from .forms import (
     HealthRecordForm
@@ -123,7 +123,6 @@ def view_user_info(request):
         userInfo = {
             "email": current_user.email,
             "name": current_user.name,
-            "username": current_user.username,
             "dob": current_user.dob,
             "contactInfo": current_user.contactInfo,
             # dummy string for now. Needs to be replaced with the S3 string
@@ -316,60 +315,69 @@ def view_report(request):
 
 @csrf_exempt
 def registration(request):
-    context = {
-        "email": "",
-        "username": "",
-        "password": "",
-        "fullname": "",
-        "dob": "",
-        "gender": "",
-        "street_address": "",
-        "city": "",
-        "state": "",
-        "phone_number": "",
-        "error_message": "",
-    }
-
-    if request.method == "POST":  # when the form is submitted
-        context["email"] = email = request.POST.get("email")
-        context["username"] = username = request.POST.get("username")
-        context["password"] = password = request.POST.get("password")
-        context["fullname"] = fullname = request.POST.get("fullname")
-        context["dob"] = dob = request.POST.get("dob")
-        context["gender"] = gender = request.POST.get("gender")
-        context["street_address"] = street_address = request.POST.get("street_address")
-        context["city"] = city = request.POST.get("city")
-        context["state"] = state = request.POST.get("state")
-        context["phone_number"] = phone_number = request.POST.get("phone_number")
-        # identity_proof = request.POST.get("identity_proof")
+    if request.method == "POST":
+        role = request.POST.get("role")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        fullname = request.POST.get("fullname")
+        phone_number = request.POST.get("contactInfo")
+        context = {"error_message:": ""}
 
         if User.objects.filter(email=email).exists():
-            context["error_message"] = (
-                "An account already exists for this email address. Please log in."
-            )
+            user = User.objects.get(email=email)
+            if user.is_patient:
+                context["error_message"] = (
+                    "A patient account already exists with this email"
+                )
+            elif user.is_staff:
+                context["error_message"] = (
+                    "An admin account already exists with this email"
+                )
+            else:
+                context["error_message"] = (
+                    "A healthcare worker account already exists with this email"
+                )
+
             return render(request, "registration.html", context)
 
-        elif User.objects.filter(username=username).exists():
-            context["error_message"] = (
-                "Username already exists. Please choose a different one."
+        common_fields = {
+            "email": email,
+            "password": password,
+            "name": fullname,
+            "contactInfo": phone_number,
+        }
+
+        if role == "User":
+            user_specific_fields = {
+                "dob": request.POST.get("dob"),
+                "gender": request.POST.get("gender"),
+                "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
+                "proofOfIdentity": request.POST.get(
+                    "identity_proof"
+                ),  # This needs handling for file upload
+            }
+            User.objects.create_patient(**common_fields, **user_specific_fields)
+
+        elif role == "Healthcare Admin":
+            hospital_name = request.POST.get("hospital_name")
+            hospital_address = f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}"
+
+            user = User.objects.create_staff(**common_fields)
+
+            hospital, created = Hospital.objects.get_or_create(
+                name=hospital_name,
+                defaults={"address": hospital_address, "contactInfo": phone_number},
             )
-            return render(request, "registration.html", context)
 
-        else:
-            # hashed_password = make_password(request.POST.get("password"))
-
-            User.objects.create_user(
-                email=email,
-                username=username,
-                password=password,
+            HospitalStaff.objects.create(
+                hospitalID=hospital,
+                admin=True,
                 name=fullname,
-                dob=dob,
-                gender=gender,
-                address=f"{street_address}, {city}, {state}",
                 contactInfo=phone_number,
+                userID=user.id,
             )
 
-            return redirect("homepage")
+        return redirect("homepage")
 
     return render(request, "registration.html")
 
@@ -466,52 +474,6 @@ def get_doctors(request, hos_id):
         HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
     )
     return JsonResponse({"doctors": doctorList})
-
-
-def hospitalRegistration(request):
-    context = {
-        "hospitalName": "",
-        "hospitalAddress": "",
-        "email": "",
-        "password": "",
-        "contactInfo": "",
-        "website": "",
-        "error_message": "",
-    }
-
-    if request.method == "POST":
-        context["hospitalName"] = hospitalName = request.POST.get("hospitalName")
-        context["hospitalAddress"] = hospitalAddress = request.POST.get(
-            "hospitalAddress"
-        )
-        context["email"] = email = request.POST.get("email")
-        context["password"] = password = request.POST.get("password")
-        context["contactInfo"] = contactInfo = request.POST.get("contactInfo")
-        context["website"] = website = request.POST.get("website")
-
-        if Hospital.objects.filter(name=hospitalName, address=hospitalAddress).exists():
-            context["error_message"] = (
-                "An account already exists for this hospital name and address"
-            )
-            return render(request, "hospitalRegistration.html", context)
-
-        if Hospital.objects.filter(email=email).exists():
-            context["error_message"] = "An account already exists with this email"
-            return render(request, "hospitalRegistration.html", context)
-
-        hashed_password = hash_password(password=password)
-        Hospital.objects.create(
-            name=hospitalName,
-            address=hospitalAddress,
-            email=email,
-            password=hashed_password,
-            contactInfo=contactInfo,
-            website=website,
-        )
-
-        return redirect("homepage")
-
-    return render(request, "hospitalRegistration.html")
 
 
 # def create_record(request):
