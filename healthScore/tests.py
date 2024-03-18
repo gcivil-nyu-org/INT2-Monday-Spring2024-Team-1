@@ -65,7 +65,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Admin A",
             specialization="",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
         hs2 = HospitalStaff.objects.create(
             hospitalID=h1,
@@ -73,7 +73,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Doctor A",
             specialization="Anesthesiology",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
         hs3 = HospitalStaff.objects.create(
             hospitalID=h2,
@@ -81,7 +81,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Admin B",
             specialization="",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
         hs4 = HospitalStaff.objects.create(
             hospitalID=h2,
@@ -89,7 +89,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Doctor B",
             specialization="Cardiology",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
         hs5 = HospitalStaff.objects.create(
             hospitalID=h3,
@@ -97,7 +97,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Admin C",
             specialization="",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
         hs6 = HospitalStaff.objects.create(
             hospitalID=h3,
@@ -105,7 +105,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Doctor C",
             specialization="Dermatology",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
         hs7 = HospitalStaff.objects.create(
             hospitalID=h4,
@@ -113,7 +113,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Admin D",
             specialization="",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
         hs8 = HospitalStaff.objects.create(
             hospitalID=h4,
@@ -121,7 +121,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             name="Doctor D",
             specialization="Forensic Pathology",
             contactInfo="1234567890",
-            userID=0
+            userID=0,
         )
 
         # Adding user data
@@ -398,7 +398,7 @@ class RegistrationViewTest(TestCase):
         response = self.client.get(reverse("registration"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "registration.html")
-    
+
     def test_post_request_patient_exists(self):
         response = self.client.post(
             reverse("registration"),
@@ -411,7 +411,7 @@ class RegistrationViewTest(TestCase):
             "A patient account already exists with this email",
             response.content.decode(),
         )
-    
+
     def test_post_request_admin_exists(self):
         response = self.client.post(
             reverse("registration"),
@@ -424,7 +424,7 @@ class RegistrationViewTest(TestCase):
             "An admin account already exists with this email",
             response.content.decode(),
         )
-    
+
     def test_post_request_healthcare_worker_exists(self):
         response = self.client.post(
             reverse("registration"),
@@ -452,13 +452,13 @@ class RegistrationViewTest(TestCase):
                 "state": "NJ",
                 "role": "User",
                 "contactInfo": "1234567890",
-                "identity_proof": "Proof.pdf"
+                "identity_proof": "Proof.pdf",
             },
         )
         user = User.objects.get(email="newuser@example.com")
         self.assertEqual(user.email, "newuser@example.com")
         self.assertRedirects(response, reverse("homepage"))
-    
+
     def test_post_request_new_admin_registered(self):
         response = self.client.post(
             reverse("registration"),
@@ -472,7 +472,7 @@ class RegistrationViewTest(TestCase):
                 "facility_street_address": "24 St",
                 "facility_city": "Brooklyn",
                 "facility_state": "NY",
-                "facility_zipcode": "11201"
+                "facility_zipcode": "11201",
             },
         )
         user = User.objects.get(email="newadmin@example.com")
