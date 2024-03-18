@@ -114,6 +114,42 @@
     document.getElementById("form_error").innerHTML = "";
     return true;
   }
+  
+  function validateHealthcareAdminForm() {
+    var password = document.getElementById("admin_password").value;
+    var retypePassword = document.getElementById("admin_retype_password").value;
+    var hasCapitalLetter = /[A-Z]/.test(password);
+    var hasSpecialCharacter = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+
+    // Ensure password and retype password match
+    if (password !== retypePassword) {
+      document.getElementById("admin_retype_password_error").innerHTML = "Passwords do not match";
+      return false;
+    } else {
+      document.getElementById("admin_retype_password_error").innerHTML = "";
+    }
+
+    // Ensure password meets all requirements
+    if (password.length < 8 || !hasCapitalLetter || !hasSpecialCharacter) {
+      document.getElementById("admin_password_error").innerHTML = "Password must be at least 8 characters long, contain a capital letter, and a special character";
+      return false;
+    } else {
+      document.getElementById("admin_password_error").innerHTML = "";
+    }
+
+    // Ensure all fields are filled out
+    var formElements = document.getElementById("registration_form").elements;
+    for (var i = 0; i < formElements.length; i++) {
+      if (formElements[i].tagName === "INPUT" || formElements[i].tagName === "SELECT") {
+        if (formElements[i].value === "") {
+          document.getElementById("form_error").innerHTML = "Please fill out all fields";
+          return false;
+        }
+      }
+    }
+    document.getElementById("form_error").innerHTML = "";
+    return true;
+  }
 
   function showPasswordRequirements() {
     document.getElementById("password_requirements").style.display = "block";
@@ -255,8 +291,8 @@
     <label for="zipcode">Zipcode<span style="color: red;">*</span></label>
     <input type="text" id="zipcode" name="zipcode" maxlength="5" pattern="[0-9]+" required value="{{ zipcode }}"><br>
     
-    <label for="phone_number">Phone Number<span style="color: red;">*</span></label>
-    <input type="text" id="phone_number" name="phone_number" maxlength="10" pattern="[0-9]+" required value="{{ phone_number }}"><br><br><br>
+    <label for="contactInfo">Phone Number<span style="color: red;">*</span></label>
+    <input type="text" id="contactInfo" name="contactInfo" maxlength="10" pattern="[0-9]+" required value="{{ contactInfo }}"><br><br><br>
     
     
     <label for="identity_proof">Proof of Identity<span style="color: red;">*</span></label>
@@ -269,20 +305,21 @@
 </form>
 
 <form id="adminForm" action="/hs/registration/" method="post" onsubmit="return validateForm()" style="display: none">
+    <input type="hidden" name="role" id="admin_selected_role" value="Healthcare Admin">
         
     <label for="admin_email">Email<span style="color: red;">*</span></label>
     <input type="email" id="admin_email" name="email" required value="{{ email }}"><br>
 
     <label for="admin_password">Password<span style="color: red;">*</span></label>
     <input type="password" id="admin_password" name="password" required onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
-    <div id="password_requirements" class="password-requirements" style="display: none;">
+    <div id="admin_password_requirements" class="password-requirements" style="display: none;">
         Password must be at least 8 characters long, contain a capital letter, and a special character.
     </div>
-    <span id="password_error" class="error-message"></span><br>
+    <span id="amin_password_error" class="error-message"></span><br>
 
     <label for="admin_retype_password">Confirm Password<span style="color: red;">*</span></label>
     <input type="password" id="admin_retype_password" name="retype_password" required>
-    <span id="retype_password_error" class="error-message"></span><br><br>
+    <span id="admin_retype_password_error" class="error-message"></span><br><br>
 
     <label for="admin_fullname">Name<span style="color: red;">*</span></label>
     <input type="text" id="admin_fullname" name="fullname" required value="{{ fullname }}"><br>
