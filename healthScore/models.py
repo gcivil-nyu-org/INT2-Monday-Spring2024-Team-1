@@ -29,6 +29,7 @@ class HospitalStaff(models.Model):  # Viewed by hospitalAdmin
     name = models.TextField(null=False)
     specialization = models.TextField(default="")
     contactInfo = models.TextField(default="", max_length=10)
+    userID = models.IntegerField(null=False)
     securityQues = models.TextField(
         default=""
     )  # If we not doing email resetting password
