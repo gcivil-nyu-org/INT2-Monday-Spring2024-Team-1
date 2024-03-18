@@ -315,7 +315,7 @@ def registration(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         fullname = request.POST.get('fullname')
-        phone_number = request.POST.get('phone_number')
+        phone_number = request.POST.get('contactInfo')
         context = {"error_message:": ""}
 
         if User.objects.filter(email=email).exists():
@@ -346,7 +346,7 @@ def registration(request):
                 "hospital_address": f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}",
             }
 
-            User.objects.create_healthcare_worker(**common_fields)
+            User.objects.create_staff(**common_fields)
 
         return redirect("homepage")
 
