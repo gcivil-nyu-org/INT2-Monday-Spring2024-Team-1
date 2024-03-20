@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Post</title>
+<style>
+    #post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+    }
+    .post {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .post h2 {
+        margin-top: 0;
+    }
+    .comment {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #eee;
+        border-radius: 5px;
+    }
+    #new-comment-form {
+        margin-top: 20px;
+    }
+    #new-comment-form textarea {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+    }
+    #new-comment-form button {
+        background-color: #5B0888;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #new-comment-form button:hover {
+        background-color: #2d0444;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+    }
+    .logo {
+      width: 350px;
+      height: 100px;
+    }
+    .buttons {
+      display: flex;
+      gap: 15px;
+      padding-right: 10px;
+    }
+    .register-button{
+      background-color: #5B0888;
+      font-size: 15px;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #2d0444;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #5B0888;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #2d0444;
+    }
+    .user-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .user-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .user-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .user-dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .user-dropdown-content a:hover {background-color: #f1f1f1}
+
+    .user-dropdown:hover .user-dropdown-content {
+      display: block;
+    }
+</style>
+</head>
+<body>
+{%  include 'header.html' %}
+<br><br>  
+<div id="post-container">
+    <div id="post"></div>
+    <h2>Comments</h2>
+    <div id="comments"></div>
+    <form id="new-comment-form">
+        <textarea id="comment-content" name="comment-content" rows="4" placeholder="Add a Comment" required></textarea><br>
+        <button type="submit">Post Comment</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const postContainer = document.getElementById("post");
+        const commentsContainer = document.getElementById("comments");
+        const newCommentForm = document.getElementById("new-comment-form");
+
+        const postData = {
+            title: "Lower elbow pain when working out",
+            content: "I've been encountering some discomfort in my lower elbow during my workout sessions lately, and I'm hoping to gather some insights or tips from those who might have experienced something similar. <br><br> Specifically, the pain seems to manifest around the lower portion of my elbow, especially during exercises like bicep curls, tricep extensions, and push-ups. It's not excruciating, but it's enough to be noticeable and concerning."};
+
+        // Show post in formatting
+        const postElement = document.createElement("div");
+        postElement.classList.add("post");
+        postElement.innerHTML = `
+            <h2>${postData.title}</h2>
+            <p>${postData.content}</p>
+        `;
+        postContainer.appendChild(postElement);
+
+
+        const commentsData = [
+            { content: "Might be ulnar nerve compression..." },
+            { content: "That sounds difficult, have you tried putting ice on it?" }
+        ];
+        commentsData.forEach(function(comment) {
+            const commentElement = document.createElement("div");
+            commentElement.classList.add("comment");
+            commentElement.innerHTML = `
+                <p>${comment.content}</p>
+            `;
+            commentsContainer.appendChild(commentElement);
+        });
+
+      
+        // Posting new comment
+        newCommentForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const commentContent = document.getElementById("comment-content").value;
+
+            if (commentContent) {
+                const commentElement = document.createElement("div");
+                commentElement.classList.add("comment");
+                commentElement.innerHTML = `
+                    <p>${commentContent}</p>
+                `;
+                commentsContainer.appendChild(commentElement);
+
+                document.getElementById("comment-content").value = "";
+            } else {
+                alert("Please enter a comment.");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
