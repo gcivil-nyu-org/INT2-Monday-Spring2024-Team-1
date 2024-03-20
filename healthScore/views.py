@@ -460,7 +460,41 @@ def get_record(request, rec_id):
 def get_edit(request, rec_id):
     print(request)
 
-    a = list(HealthRecord.objects.filter(id=rec_id).values())
-    print(a)
+    selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
+    app = list(Appointment.objects.filter(id=selected_record[0]['appointmentId_id']).values())
 
-    return render("edit_health_record.html",{"data": json.dumps(a[0], default=str)}) 
+    
+    hospitalList = list(Hospital.objects.all().values())
+    unselectedHospitalList = []
+    for hospital in hospitalList:
+        if(hospital['id']==selected_record[0]['hospitalID']):
+            selected_record[0]['hospital_name'] = hospital['name']
+            selected_hospital = hospital
+        else:
+            unselectedHospitalList.append(hospital)
+
+
+
+    selectedHospitalId = selected_hospital['id']
+    doctorList = list(
+        HospitalStaff.objects.filter(admin=False).values()
+    )
+
+    unselectedDoctorList = []
+    for docs in doctorList:
+        if(docs["id"]==selected_record[0]["doctorID"]):
+            selected_record[0]['doctor_name'] = docs['name']
+        else:
+            unselectedDoctorList.append(docs)
+
+    data = {
+        "appointment_props": app[0],
+        "record": selected_record[0], 
+        "hospitals": unselectedHospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+        "doctors": unselectedDoctorList
+    }
+
+    return render(request, "edit_health_record.html",{"data": data}) 
+    

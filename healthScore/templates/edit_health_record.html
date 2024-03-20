@@ -105,7 +105,7 @@
             <div class="col-md-8">
                 <div class="card cardStyles">
                     <div class="card-body">
-                        <h4 class="card-title">{{data}}</h4>
+                        <h4 class="card-title">Edit your request</h4>
                         <hr />
                     </div>
                     <form id="submitRecord">
@@ -114,7 +114,7 @@
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
                                 <select id="hospitalSelect" class="custom-select form-select" name="hospitalID">
-                                    <option value="N/A" selected disabled>Please select the Hospital</option>
+                                    <option value="{{data.record.hospitalID}}" selected>{{data.record.hospital_name}}</option>
                                     {% for hos in data.hospitals %}
                                     <option value="{{hos.id}}">{{hos.name}}</option>
                                     {% endfor %}
@@ -131,13 +131,14 @@
                             </div>
                         </div>
 
-
+                        
                         <div class="mb-3 ml-3 mr-3">
+                            
                             <div class="dropdown">
                                 <select id="appointmentType" class="custom-select form-select" name="appointmentType">
-                                    <option value="N/A" selected disabled>Please select the type of Appointment</option>
+                                    <!-- <option value="N/A" selected disabled>Please select the type of Appointment</option> -->
                                     {% for key, value in data.appointmentType.items %}
-                                    <option value="{{key}}">{{value}}</option>
+                                    <option value="{{key}}" {$ if key==data.appointment_props.name $}selected{$ endif $}>{{value}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
