@@ -108,29 +108,13 @@
     }
 </style>
 </head>
-<header>
-<a href="{% url 'homepage' %}">
-    <img src="https://i.imgur.com/A0GOi7B.png" alt="Logo" class="logo">
-</a>
-    
-    <div class="buttons">
-        {%  if user.is_authenticated %}
-            <div class="user-dropdown">
-                <button class="user-button"><i class="fas fa-user fa-2x"></i></button>
-                <div class="user-dropdown-content">
-                    <a class="dropdown-item" href="{% url 'user_info' %}">Account</a>
-                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                </div>
-            </div>
-        {% else %}
-            <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
-            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
-        {%  endif %}
-    </div>
-</header>  
   
+
+
+
   
 <body>
+{%  include 'header.html' %}
 
 <div id="topics_container">
     <h1>Community</h1>
