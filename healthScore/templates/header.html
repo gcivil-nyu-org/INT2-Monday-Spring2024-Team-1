@@ -1,5 +1,5 @@
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Score</title>
@@ -16,39 +16,42 @@
           padding: 20px;
           background-color: #FFFFFF;
         }
-        .logo {
-          width: 350px;
-          height: 100px;
-        }
-        .buttons {
-          display: flex;
-          gap: 15px;
-          padding-right: 10px;
-        }
         .register-button{
           background-color: #5B0888;
           font-size: 15px;
+            font-weight: bold;
           color: #FFFFFF;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 10px;
+          border: 2px solid #5B0888;
+          padding: 8px 15px;
+          border-radius: 5px;
           cursor: pointer;
         }
         .register-button:hover{
-          background-color: #2d0444;
+            background-color: #2d0444;
+            border: 2px solid #2d0444;
+            text-decoration: none;
+            color: white
         }
         .login-button{
           background-color: transparent;
           font-size: 15px;
           color: #5B0888;
-          font-weight: bold;
+          font-weight: bolder;
           border: none;
-          padding: 10px 20px;
-          border-radius: 20px;
+          padding: 8px 15px;
+          border-radius: 5px;
           cursor: pointer;
         }
         .login-button:hover{
           color: #2d0444;
+        }
+        .nav-link {
+            color: #222222;
+            padding: 2px;
+            font-weight: normal;
+        }
+        .nav-link:hover {
+          color: #000;
         }
         .user-dropdown {
         position: relative;
@@ -82,26 +85,42 @@
         .user-dropdown:hover .user-dropdown-content {
             display: block;
         }
+        
+        .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
+        }
     </style>
 </head>
 
-<header>
-<a href="{% url 'homepage' %}">
-    <img src="https://i.imgur.com/A0GOi7B.png" alt="Logo" class="logo">
-</a>
+<header class="p-3 text-bg-dark">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+              <img src="https://i.imgur.com/A0GOi7B.png" alt="Logo" width="267" height="80">
     
-    <div class="buttons">
-        {%  if user.is_authenticated %}
-            <div class="user-dropdown">
-                <button class="user-button"><i class="fas fa-user fa-2x"></i></button>
-                <div class="user-dropdown-content">
-                    <a class="dropdown-item" href="{% url 'user_info' %}">Account</a>
-                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                </div>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+              <li><a href="/" class="nav-link px-2">Home</a></li>
+              <li><a href="#" class="nav-link px-2">Features</a></li>
+              <li><a href="#" class="nav-link px-2">Pricing</a></li>
+              <li><a href="#" class="nav-link px-2">FAQs</a></li>
+              <li><a href="#" class="nav-link px-15">About</a></li>
+            </ul>
+          </div>
+          <div class="text-end">
+              <a href="/hs/login" class="login-button">Login</a>
+              <a href="/hs/registration" class="register-button">Register</a>
             </div>
-        {% else %}
-            <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
-            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
-        {%  endif %}
+      </div>
     </div>
 </header>
