@@ -76,6 +76,7 @@ def get_health_history_details(request):
             # Append a dictionary for each record with all the details needed
             detailed_history_list.append(
                 {
+                    "record_id":h.id, 
                     "doctor_name": doctor_name,
                     "hospital_name": hospital_name,
                     "hospital_address": hospital_address,
@@ -89,4 +90,4 @@ def get_health_history_details(request):
             )
 
         zipped_details = zip(detailed_history_list, each_details)
-        return zipped_details
+        return [zipped_details, detailed_history_list]

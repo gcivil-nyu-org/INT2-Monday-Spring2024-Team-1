@@ -24,7 +24,7 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    # Appointment,
+    Appointment,
     HealthRecord,
     Hospital,
     User,
@@ -396,9 +396,11 @@ def login_view(request):
 
 
 def view_health_history_requests(request):
-    zipped_details = get_health_history_details(request=request)
+    zipped = get_health_history_details(request=request)
+    zipped_details = zipped[0]
+    edit_history = zipped[1]
 
-    return render(request, "view_requests.html", {"zipped_details": zipped_details})
+    return render(request, "view_requests.html", {"zipped_details": zipped_details, "edit_history": json.dumps(edit_history, default=str)})
 
 
 @login_required
@@ -422,23 +424,43 @@ def get_doctors(request, hos_id):
     return JsonResponse({"doctors": doctorList})
 
 
-# def create_record(request):
-#     print(request, "request")
-#     updatedData = json.loads(request.body)
-#     current_user = ""
-#     current_user = request.user
+def create_record(request):
+    print(request, "request")
+    updatedData = json.loads(request.body)
+    current_user = ""
+    current_user = request.user
 
-#     current_user_id = current_user.id
+    current_user_id = current_user.id
 
-#     new_record = Appointment.objects.create(
-#         name=updatedData['appointmentType'],
-#         properties=updatedData["appointmentProperties"]
-#     )
+    new_record = Appointment.objects.create(
+        name=updatedData['appointmentType'],
+        properties=updatedData["appointmentProperties"]
+    )
 
-#     HealthRecord.objects.create(
-#         doctorID=updatedData['doctorId']
-#         userID=current_user_id,
-#         hospitalID=updatedData["hospitalID"],
-#         appointmentId=new_record,
-#         status="pending",
-#     )
+    HealthRecord.objects.create(
+        doctorID=updatedData['doctorId'],
+        userID=current_user_id,
+        hospitalID=updatedData["hospitalID"],
+        appointmentId=new_record,
+        status="pending",
+    )
+
+    return HttpResponse("abcd")
+
+
+def get_record(request, rec_id):
+    print(rec_id, "request")
+    a = list(HealthRecord.objects.filter(id=rec_id).values())
+    print(a)
+
+    return JsonResponse({"data": json.dumps(a[0], default=str)}) 
+
+
+
+def get_edit(request, rec_id):
+    print(request)
+
+    a = list(HealthRecord.objects.filter(id=rec_id).values())
+    print(a)
+
+    return render("edit_health_record.html",{"data": json.dumps(a[0], default=str)}) 

@@ -42,5 +42,7 @@ urlpatterns = [
     # Submitting health request apis
     path("submitHealthRecord", views.get_hospitals, name="get_hospitals"),
     path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
-    # path("createNewRecord", views.create_record, name="create_new_record"),
+    path("getRecord/<str:rec_id>/", views.get_record, name="get_record"),
+    path("getEdit/<str:rec_id>/", views.get_edit, name="get_edit"),
+    path("createNewRecord", views.create_record, name="create_new_record"),
 ]

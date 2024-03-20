@@ -199,7 +199,7 @@
                 {% for request, details in zipped_details %}
                     <tr>
                         <td class="appointmentName"
-                            onclick="getProperties(`{{ forloop.counter }}|{{ request.appointment_properties }}|{{ request.appointment_name }}`)"
+                            onclick="getProperties(`{{ request.hospital_name }}|{{ request.record_status }}|{{ request.doctor_name }}|{{ request.appointment_type }}|{{ request.appointment_properties }}|{{ request.appointment_name }}|{{ request.record_id }}`)"
                             data-toggle="modal" data-target="#myModal">{{ request.appointment_name }}</td>
                         <td>{{ request.appointment_type }}</td>
                         <td>{{ request.doctor_name }}</td>
@@ -262,35 +262,44 @@
 
     function getProperties(appointment) {
         appointment_details = appointment.split("|")
-        if (appointment_details[1]) {
-            appointment_name = appointment_details[2]
+        if (appointment_details[1]=="rejected") {
+            console.log(appointment_details, "sopmethign")
+            
 
-            appointment_properties = JSON.parse(appointment_details[1])
+            hospital_name = appointment_details[0]
+            record_status = appointment_details[1]
+            doctor_name = appointment_details[2] 
+            appointment_name = appointment_details[3]
+            appointment_properties = appointment_details[4]
+            appointment_type = appointment_details[5]
+            record_id = appointment_details[6]
 
-            document.getElementById('modal-title').innerHTML = appointment_name
+            fetch('{% url "get_record" rec_id=0 %}'.replace('0', record_id)
+                    , {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        
+                        console.log(data, "data")
+                        // Get the base URL
+                        const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+                        console.log(baseUrl); // Output: http://127.0.0.1:8000/hs/
+                        window.location.href = baseUrl+"getEdit/"+record_id
 
-            var props = `<table class="table table-striped my-4 addPropertiesKeys">
-                            <thead class="thead-dark">`
-            for (var [key, value] of Object.entries(appointment_properties)) {
-                if (key == 'date') {
-                    value = formattedDate(value)
-                }
-                props += `
-                    <tr>
-                        <th class="addPropertiesKeys">${capitalizeLetter(key)}</th>
-                        <td class="addPropertiesValues">${value}</td>
-                    </tr>
-                `
-            }
+                        
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
 
-            props += `    </thead>
-                    </table>`
-
-            document.getElementById('modal-body').innerHTML = props
         } else {
-            document.getElementById('modal-body').innerHTML = `<div class='alert alert-danger' role='alert'>
-                                    No Properties!
-                                    </div>`
+            // document.getElementById('modal-body').innerHTML = `<div class='alert alert-danger' role='alert'>
+            //                         No Properties!
+            //                         </div>`
         }
     }
 
