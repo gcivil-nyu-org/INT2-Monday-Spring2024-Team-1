@@ -140,9 +140,9 @@ def edit_user_info(request):
         new_email = updatedData.get("email")
         if new_email and new_email != current_user.email:
             if (
-                    User.objects.exclude(id=current_user.id)
-                            .filter(email=new_email)
-                            .exists()
+                User.objects.exclude(id=current_user.id)
+                .filter(email=new_email)
+                .exists()
             ):
                 return JsonResponse(
                     {
@@ -446,36 +446,40 @@ def get_doctors(request, hos_id):
 
 def get_facility_doctors(request):
     if request.user.is_authenticated:
-        user_hospital_staff_entry = get_object_or_404(HospitalStaff, userID=request.user.id)
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
         hospital_id = user_hospital_staff_entry.hospitalID.id
 
-        staff_members = HospitalStaff.objects.filter(hospitalID=hospital_id, admin=False)
+        staff_members = HospitalStaff.objects.filter(
+            hospitalID=hospital_id, admin=False
+        )
 
         staff_data = []
         for staff in staff_members:
-
             try:
-                print(staff.userID)
                 user = User.objects.get(id=staff.userID)
-                staff_data.append({
-                    'name': user.name,
-                    'email': user.email,
-                    'contactInfo': staff.contactInfo,
-                    'specialty': staff.specialization
-                })
-                print("In the good spot")
+                staff_data.append(
+                    {
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                    }
+                )
             except User.DoesNotExist:
-                print("We reached the bad spot")
                 continue
 
-        return JsonResponse({'data': staff_data}, safe=False)
+        return JsonResponse({"data": staff_data}, safe=False)
 
-    return JsonResponse({'error': 'Unauthorized'}, status=401)
+    return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
 def get_facility_admins(request):
     if request.user.is_authenticated:
-        user_hospital_staff_entry = get_object_or_404(HospitalStaff, userID=request.user.id)
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
         hospital_id = user_hospital_staff_entry.hospitalID.id
 
         staff_members = HospitalStaff.objects.filter(hospitalID=hospital_id, admin=True)
@@ -484,25 +488,26 @@ def get_facility_admins(request):
         for staff in staff_members:
             try:
                 user = User.objects.get(id=staff.userID)
-                staff_data.append({
-                    'name': user.name,
-                    'email': user.email,
-                    'contactInfo': staff.contactInfo,
-                    'specialty': staff.specialization
-                })
+                staff_data.append(
+                    {
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                    }
+                )
             except User.DoesNotExist:
 
                 continue
 
-        return JsonResponse({'data': staff_data}, safe=False)
+        return JsonResponse({"data": staff_data}, safe=False)
 
-    return JsonResponse({'error': 'Unauthorized'}, status=401)
+    return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
 def hospital_staff_directory(request):
-    # Context data to pass to the template, if any
     context = {
-        'get_facility_doctors_url': 'api/get-facility-doctors/',
-        'get_facility_admins_url': 'api/get-facility-admins/',
+        "get_facility_doctors_url": "api/get-facility-doctors/",
+        "get_facility_admins_url": "api/get-facility-admins/",
     }
-    return render(request, 'healthcare_facility.html', context)
+    return render(request, "healthcare_facility.html", context)

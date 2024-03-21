@@ -51,7 +51,6 @@
 
 <script>
 $(document).ready(function(){
-    // Fetch healthcare workers
     $.ajax({
         url: getFacilityDoctorsUrl,
         type: 'GET',
@@ -71,8 +70,6 @@ $(document).ready(function(){
         }
     });
 
-    // Fetch admins (assuming a similar setup for admins)
-    // Replace `getFacilityAdminsUrl` with your actual URL for fetching admins
     $.ajax({
         url: getFacilityAdminsUrl,
         type: 'GET',
@@ -83,7 +80,7 @@ $(document).ready(function(){
                     <td>${item.name}</td>
                     <td>${item.email}</td>
                     <td>${item.contactInfo}</td>
-                    <td>${item.specialty}</td> <!-- Assuming you adjust 'Department' to 'Specialty' for consistency -->
+                    <td>${item.specialty}</td>
                 </tr>`);
             });
         },
