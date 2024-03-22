@@ -326,7 +326,6 @@
                 var bloodGroupElement = document.getElementsByName("blood_group");
                 if (bloodGroupElement.length>0) {
                     var bloodGroupValue = bloodGroupElement.value;
-                    console.log("bloodgroup", bloodGroupValue)
                     // ensure only certain values can be entered 
                     if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>

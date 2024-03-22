@@ -15,8 +15,10 @@ from healthScore.models import (
 
 from healthScore.views import (
     edit_user_info,
+    view_health_history,
     view_report,
     view_user_info,
+    view_health_history_requests,
 )
 
 
@@ -262,7 +264,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             healthDocuments="",
         )
 
-        print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
+        # print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
 
     def test_view_history(self):
         url = reverse("view_health_history")
@@ -272,9 +274,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "healthcare_worker": "Doctor A",
             "healthcare_facility": "Hospital A",
             "date": "2024-03-08",
-            "user": self.user,
         }
-        response = self.client.get(url, request_struct)
+        request = self.factory.get(url, request_struct)
+        request.user = self.user
+        response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
     def test_view_user_info_pass(self):
@@ -319,9 +322,10 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "healthcare_facility": "Hospital B",
             "date": datetime.now().strftime(DATE_FORMAT),
             "record_status": "approved",
-            "user": self.user,
         }
-        response = self.client.get(url, request_struct)
+        request = self.client.post(url, request_struct)
+        request.user = self.user
+        response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
 
     def test_view_report(self):
