@@ -15,10 +15,8 @@ from healthScore.models import (
 
 from healthScore.views import (
     edit_user_info,
-    view_health_history,
     view_report,
     view_user_info,
-    view_health_history_requests,
 )
 
 
@@ -274,7 +272,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "healthcare_worker": "Doctor A",
             "healthcare_facility": "Hospital A",
             "date": "2024-03-08",
-            "user": self.user
+            "user": self.user,
         }
         response = self.client.get(url, request_struct)
         self.assertEqual(response.status_code, 200)
@@ -321,7 +319,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "healthcare_facility": "Hospital B",
             "date": datetime.now().strftime(DATE_FORMAT),
             "record_status": "approved",
-            "user": self.user
+            "user": self.user,
         }
         response = self.client.get(url, request_struct)
         self.assertEqual(response.status_code, 200)
