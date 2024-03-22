@@ -518,7 +518,6 @@ def hospital_staff_directory(request):
 
 
 @login_required
-@csrf_exempt
 def add_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "POST":
         email = request.POST.get("email")
@@ -577,7 +576,6 @@ def add_healthcare_staff(request):
 
 
 @login_required
-@csrf_exempt
 def deactivate_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "PUT":
         updatedData = json.loads(request.body)
@@ -586,21 +584,20 @@ def deactivate_healthcare_staff(request):
         user = get_object_or_404(User, id=user_id)
 
         if user.is_patient:
-            return render(
-                request,
-                "healthcare_facility.html",
-                {"error_message": "Patient's account cannot be edited"},
+            return JsonResponse(
+                {"error": "Patient's account cannot be edited"}, status=400
             )
 
         user.is_active = 0
         user.save()
-        return redirect("hospital_staff_directory")
+        return JsonResponse(
+            {"message": "Healthcare staff deactivated successfully"}, status=200
+        )
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
 @login_required
-@csrf_exempt
 def activate_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "PUT":
         updatedData = json.loads(request.body)
@@ -609,14 +606,14 @@ def activate_healthcare_staff(request):
         user = get_object_or_404(User, id=user_id)
 
         if user.is_patient:
-            return render(
-                request,
-                "healthcare_facility.html",
-                {"error_message": "Patient's account cannot be edited"},
+            return JsonResponse(
+                {"error": "Patient's account cannot be edited"}, status=400
             )
 
         user.is_active = 1
         user.save()
-        return redirect("hospital_staff_directory")
+        return JsonResponse(
+            {"message": "Healthcare staff activated successfully"}, status=200
+        )
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
