@@ -2,6 +2,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.forms.models import model_to_dict
 import json
+from django.contrib.auth.decorators import login_required
 
 from .models import (
     HealthRecord,
@@ -10,9 +11,10 @@ from .models import (
     Appointment,
 )
 
-
-def get_health_history_details(request, userID):
+@login_required
+def get_health_history_details(request):
     if request.method == "GET":
+        userID = request.user
         history_list = HealthRecord.objects.filter(userID=userID)
 
         appointment_name = request.GET.get("appointment_name")

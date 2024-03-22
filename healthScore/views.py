@@ -109,7 +109,7 @@ def view_health_history(request):
     # Update request.GET with the modified QueryDict
     request.GET = updated_params
 
-    zipped_details = get_health_history_details(request=request, userID=request.user)
+    zipped_details = get_health_history_details(request=request)
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
 
