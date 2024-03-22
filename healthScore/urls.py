@@ -41,7 +41,7 @@ urlpatterns = [
     path("viewReports", views.view_report, name="view_reports"),
     # Submitting health request apis
     path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
-    path("<int:id>/edit/", views.edit_health_record_view, name="edit_health_record"),
+    # path("<int:id>/edit/", views.edit_health_record_view, name="edit_health_record"),
     path("new-record/", views.add_health_record_view, name="new_health_record"),
     path("request-sent/", views.record_sent_view, name="new_health_record_sent"),
     path(
