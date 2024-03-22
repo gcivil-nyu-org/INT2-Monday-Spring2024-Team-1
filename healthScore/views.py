@@ -518,6 +518,7 @@ def hospital_staff_directory(request):
 
 
 @login_required
+@csrf_exempt
 def add_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "POST":
         email = request.POST.get("email")
@@ -576,6 +577,7 @@ def add_healthcare_staff(request):
 
 
 @login_required
+@csrf_exempt
 def deactivate_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "PUT":
         updatedData = json.loads(request.body)
@@ -588,7 +590,7 @@ def deactivate_healthcare_staff(request):
                 {"error": "Patient's account cannot be edited"}, status=400
             )
 
-        user.is_active = 0
+        user.is_active = False
         user.save()
         return JsonResponse(
             {"message": "Healthcare staff deactivated successfully"}, status=200
@@ -598,6 +600,7 @@ def deactivate_healthcare_staff(request):
 
 
 @login_required
+@csrf_exempt
 def activate_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "PUT":
         updatedData = json.loads(request.body)
@@ -610,7 +613,7 @@ def activate_healthcare_staff(request):
                 {"error": "Patient's account cannot be edited"}, status=400
             )
 
-        user.is_active = 1
+        user.is_active = True
         user.save()
         return JsonResponse(
             {"message": "Healthcare staff activated successfully"}, status=200
