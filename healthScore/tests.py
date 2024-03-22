@@ -274,9 +274,9 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "healthcare_worker": "Doctor A",
             "healthcare_facility": "Hospital A",
             "date": "2024-03-08",
+            "user": self.user
         }
-        request = self.factory.get(url, request_struct)
-        response = view_health_history(request)
+        response = self.client.get(url, request_struct)
         self.assertEqual(response.status_code, 200)
 
     def test_view_user_info_pass(self):
@@ -321,9 +321,9 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "healthcare_facility": "Hospital B",
             "date": datetime.now().strftime(DATE_FORMAT),
             "record_status": "approved",
+            "user": self.user
         }
-        request = self.factory.get(url, request_struct)
-        response = view_health_history_requests(request)
+        response = self.client.get(url, request_struct)
         self.assertEqual(response.status_code, 200)
 
     def test_view_report(self):
