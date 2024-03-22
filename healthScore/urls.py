@@ -43,6 +43,26 @@ urlpatterns = [
     path("submitHealthRecord", views.get_hospitals, name="get_hospitals"),
     path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
     # path("createNewRecord", views.create_record, name="create_new_record"),
+    path(
+        "healthcareFacility/",
+        views.hospital_staff_directory,
+        name="hospital_staff_directory",
+    ),
+    path(
+        "getFacilityDoctors/", views.get_facility_doctors, name="get_facility_doctors"
+    ),
+    path("getFacilityAdmins/", views.get_facility_admins, name="get_facility_admins"),
+    path("addHealthcareStaff", views.add_healthcare_staff, name="add_healthcare_staff"),
+    path(
+        "deleteHealthcareStaff",
+        views.deactivate_healthcare_staff,
+        name="deactivate_healthcare_staff",
+    ),
+    path(
+        "activateHealthcareStaff",
+        views.activate_healthcare_staff,
+        name="activate_healthcare_staff",
+    ),
     path("createPost", views.create_post, name="create_post"),
     path("viewPosts", views.view_posts, name="view_posts"),
 ]

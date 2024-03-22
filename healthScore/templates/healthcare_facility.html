@@ -1,0 +1,95 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Staff Directory</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript">
+        var getFacilityDoctorsUrl = "{% url 'get_facility_doctors' %}";
+        var getFacilityAdminsUrl = "{% url 'get_facility_admins' %}";
+    </script>
+</head>
+<body>
+
+{%  include 'header.html' %}
+
+
+<div class="container mt-5">
+    <h2>Healthcare Workers</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody id="nonAdminBody">
+            
+        </tbody>
+    </table>
+</div>
+
+<div class="container mt-5">
+    <h2>Administrators</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody id="adminContacts">
+            
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url: getFacilityDoctorsUrl,
+        type: 'GET',
+        success: function(response) {
+            var tbodyEl = $('#nonAdminBody');
+            response.data.forEach(function(item) {
+                tbodyEl.append(`<tr>
+                    <td>${item.name}</td>
+                    <td>${item.email}</td>
+                    <td>${item.contactInfo}</td>
+                    <td>${item.specialty}</td>
+                </tr>`);
+            });
+        },
+        error: function() {
+            alert("Error fetching healthcare worker data.");
+        }
+    });
+
+    $.ajax({
+        url: getFacilityAdminsUrl,
+        type: 'GET',
+        success: function(response) {
+            var tbodyEl = $('#adminContacts');
+            response.data.forEach(function(item) {
+                tbodyEl.append(`<tr>
+                    <td>${item.name}</td>
+                    <td>${item.email}</td>
+                    <td>${item.contactInfo}</td>
+                    <td>${item.specialty}</td>
+                </tr>`);
+            });
+        },
+        error: function() {
+            alert("Error fetching admin data.");
+        }
+    });
+});
+</script>
+
+</body>
+</html>

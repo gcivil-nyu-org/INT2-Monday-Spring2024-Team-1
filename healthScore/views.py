@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -25,6 +24,7 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
+    # Appointment,
     HealthRecord,
     Hospital,
     User,
