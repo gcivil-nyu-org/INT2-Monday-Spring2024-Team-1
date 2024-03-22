@@ -466,6 +466,7 @@ def get_facility_doctors(request):
                         "email": user.email,
                         "contactInfo": staff.contactInfo,
                         "specialty": staff.specialization,
+                        "is_active": user.is_active,
                     }
                 )
             except User.DoesNotExist:
@@ -496,6 +497,7 @@ def get_facility_admins(request):
                         "email": user.email,
                         "contactInfo": staff.contactInfo,
                         "specialty": staff.specialization,
+                        "is_active": user.is_active,
                     }
                 )
             except User.DoesNotExist:
@@ -543,7 +545,7 @@ def add_healthcare_staff(request):
                     "A healthcare worker account already exists with this email"
                 )
 
-            return render(request, "hospitalRegistration.html", context)
+            return render(request, "healthcare_facility.html", context)
 
         user_fields = {
             "email": email,
@@ -569,6 +571,52 @@ def add_healthcare_staff(request):
             userID=user.id,
         )
 
+        return redirect("hospital_staff_directory")
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def deactivate_healthcare_staff(request):
+    if request.user.is_authenticated and request.method == "PUT":
+        updatedData = json.loads(request.body)
+        user_id = updatedData.get("user_id")
+
+        user = get_object_or_404(User, id=user_id)
+
+        if user.is_patient:
+            return render(
+                request,
+                "healthcare_facility.html",
+                {"error_message": "Patient's account cannot be edited"},
+            )
+
+        user.is_active = 0
+        user.save()
+        return redirect("hospital_staff_directory")
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def activate_healthcare_staff(request):
+    if request.user.is_authenticated and request.method == "PUT":
+        updatedData = json.loads(request.body)
+        user_id = updatedData.get("user_id")
+
+        user = get_object_or_404(User, id=user_id)
+
+        if user.is_patient:
+            return render(
+                request,
+                "healthcare_facility.html",
+                {"error_message": "Patient's account cannot be edited"},
+            )
+
+        user.is_active = 1
+        user.save()
         return redirect("hospital_staff_directory")
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
