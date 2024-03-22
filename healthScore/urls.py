@@ -52,4 +52,5 @@ urlpatterns = [
         "getFacilityDoctors/", views.get_facility_doctors, name="get_facility_doctors"
     ),
     path("getFacilityAdmins/", views.get_facility_admins, name="get_facility_admins"),
+    path("addHealthcareStaff", views.add_healthcare_staff, name="add_healthcare_staff"),
 ]
