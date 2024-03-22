@@ -11,6 +11,7 @@ from .models import (
     Appointment,
 )
 
+
 @login_required
 def get_health_history_details(request):
     if request.method == "GET":
