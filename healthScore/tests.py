@@ -277,6 +277,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         }
         request = self.factory.get(url, request_struct)
         request.user = self.user
+        print(request)
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
@@ -323,7 +324,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "date": datetime.now().strftime(DATE_FORMAT),
             "record_status": "approved",
         }
-        request = self.client.post(url, request_struct)
+        request = self.client.get(url, request_struct)
         request.user = self.user
         response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
