@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
 from datetime import datetime
@@ -442,3 +442,72 @@ def get_doctors(request, hos_id):
 #         appointmentId=new_record,
 #         status="pending",
 #     )
+
+
+def get_facility_doctors(request):
+    if request.user.is_authenticated:
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
+
+        staff_members = HospitalStaff.objects.filter(
+            hospitalID=hospital_id, admin=False
+        )
+
+        staff_data = []
+        for staff in staff_members:
+            try:
+                user = User.objects.get(id=staff.userID)
+                staff_data.append(
+                    {
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                    }
+                )
+            except User.DoesNotExist:
+                continue
+
+        return JsonResponse({"data": staff_data}, safe=False)
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+def get_facility_admins(request):
+    if request.user.is_authenticated:
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
+
+        staff_members = HospitalStaff.objects.filter(hospitalID=hospital_id, admin=True)
+
+        staff_data = []
+        for staff in staff_members:
+            try:
+                user = User.objects.get(id=staff.userID)
+                staff_data.append(
+                    {
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                    }
+                )
+            except User.DoesNotExist:
+
+                continue
+
+        return JsonResponse({"data": staff_data}, safe=False)
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+def hospital_staff_directory(request):
+    context = {
+        "get_facility_doctors_url": "api/get-facility-doctors/",
+        "get_facility_admins_url": "api/get-facility-admins/",
+    }
+    return render(request, "healthcare_facility.html", context)
