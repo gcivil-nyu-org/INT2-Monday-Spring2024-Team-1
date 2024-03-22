@@ -29,7 +29,8 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
-    HealthRecord
+    HealthRecord,
+    Appointment
 )
 
 from .user_utils import get_health_history_details
@@ -313,7 +314,6 @@ def view_report(request):
         return response
 
 
-@csrf_exempt
 def registration(request):
     if request.method == "POST":
         role = request.POST.get("role")
@@ -401,98 +401,69 @@ def login_view(request):
     return render(request, "login.html")
 
 
+@login_required
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
-def edit_health_record_view(request, id=None):
-    if request.method == "POST":
-        id = request.POST.get("id")
-        record = HealthRecord.objects.filter(id=id)
-        if record.exists():
-            record.doctorID = request.POST.get("doctorID")
-            record.userID = request.POST.get("userID")
-            record.hospitalID = request.POST.get("hospitalID")
-            record.status = request.POST.get("status")
-            record.createdAt = request.POST.get("createdAt")
-            record.appointmentId = request.POST.get("appointmentId")
-            record.healthDocuments = request.POST.get("healthDocuments")
-            record.save()
-        
-    return render(request, "record_edit.html")
-
+@login_required
 def record_sent_view(request):
-    return render(request, "record_add_complete.html")
+    return render(request, "record_submit_complete.html")
 
-@login_required
-def add_health_record_view(request):
-    form = HealthRecordForm(request.POST or None)
-    context = {
-        'form': form
-    }
-    if form.is_valid():
-        user = form.cleaned_data.get("user")
-        hospital_name = form.cleaned_data.get("hospital")
-        doctor = form.cleaned_data.get("doctor")
-        appointment = form.cleaned_data.get("appointment")
-        health_document = form.cleaned_data.get("health_document")
-
-        hospital = Hospital.objects.filter(name=hospital_name)
-        if hospital.exists():
-            pass
-
-        HealthRecord.objects.create(
-            doctor=doctorID,
-            userID=userID,
-            hospitalID=hospitalID,
-            status=status,
-            createdAt=createdAt,
-            appointmentId=appointmentId,
-            healthDocuments=healthDocuments
-        )
-        return redirect("new_health_record_sent")
-        
-    return render(request, "record_add.html", context)
-
-@login_required
-@csrf_exempt
-def get_hospitals(request):
-    hospitalList = list(Hospital.objects.all().values())
-    data = {
-        "hospitals": hospitalList,
-        "appointmentType": APPOINTMENT_TYPE,
-        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
-    }
-    return render(request, "submit_health_record.html", {"data": data})
-
-
-@login_required
-@csrf_exempt
 def get_doctors(request, hos_id):
     doctorList = list(
         HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
     )
     return JsonResponse({"doctors": doctorList})
 
+@login_required
+def add_health_record_view(request):
+    hospitalList = list(Hospital.objects.all().values())
+    data = {
+        "hospitals": hospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+    }
+    if request.method == "POST":
+        hospitalID = request.POST.get("hospitalID")
+        doctorID = request.POST.get("doctorId")
+        userID = request.user
+        # create a new appointment
+        appointmentType = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
+        appointmentProperties = dict()
+        all_fields = request.POST
+        for key, value in all_fields.items():
+            if key != 'csrfmiddlewaretoken' and key != 'hospitalID' and key != 'doctorId' and key != 'appointmentType':
+                appointmentProperties[key] = value
+        appointmentProperties = json.dumps(appointmentProperties)
+        new_appointment = Appointment.objects.create(
+            name = appointmentType,
+            properties = appointmentProperties
+        )
+        appointmentID = new_appointment
 
-# def create_record(request):
-#     print(request, "request")
-#     updatedData = json.loads(request.body)
-#     current_user = ""
-#     current_user = request.user
 
-#     current_user_id = current_user.id
+        HealthRecord.objects.create(
+            doctorID=doctorID,
+            userID=userID,
+            hospitalID=hospitalID,
+            appointmentId=appointmentID
+        )
+        return redirect("new_health_record_sent")
+    return render(request, "record_submit.html", {"data": data})
 
-#     new_record = Appointment.objects.create(
-#         name=updatedData['appointmentType'],
-#         properties=updatedData["appointmentProperties"]
-#     )
-
-#     HealthRecord.objects.create(
-#         doctorID=updatedData['doctorId']
-#         userID=current_user_id,
-#         hospitalID=updatedData["hospitalID"],
-#         appointmentId=new_record,
-#         status="pending",
-#     )
+@login_required
+def edit_health_record_view(request, id=None):
+    if request.method == "POST":
+        id = request.POST.get("id")
+        record = HealthRecord.objects.filter(id=id)
+        if record.exists():
+            record.doctorID = request.POST.get("doctorID")
+            record.hospitalID = request.POST.get("hospitalID")
+            record.status = "pending"
+            record.appointmentId = request.POST.get("appointmentId")
+            record.healthDocuments = request.POST.get("healthDocuments")
+            record.save()
+        
+    return render(request, "record_edit.html")
