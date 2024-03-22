@@ -11,9 +11,8 @@ from .models import (
 )
 
 
-def get_health_history_details(request):
+def get_health_history_details(request, userID):
     if request.method == "GET":
-        userID = request.user
         history_list = HealthRecord.objects.filter(userID=userID)
 
         appointment_name = request.GET.get("appointment_name")

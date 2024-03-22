@@ -479,6 +479,28 @@ class RegistrationViewTest(TestCase):
         self.assertEqual(user.email, "newadmin@example.com")
         self.assertRedirects(response, reverse("homepage"))
 
+    
+# class AddRecordViewTest(TestCase):
+#     def setUp(self):
+#         self.user = User.objects.create_patient(
+#             email="test@example.com", password="testpassword"
+#         )
+    
+#     def test_add_record_view(self):
+#         response = self.client.get(reverse("new_health_record"))
+#         self.assertEqual(response.status_code, 200)
+#         self.assertTemplateUsed(response, "record_submit.html")
+
+#     def test_add_new_record_success(self):
+#         response = self.client.post(
+#             reverse("new_health_record"), {
+#                 "hospitalID": 1,
+#                 "doctorId": 1,
+#                 "appointmentType": "eye"
+#             }
+#         )
+
+
 
 # models.py
 class CustomUserManagerTest(TestCase):

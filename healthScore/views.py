@@ -99,7 +99,7 @@ APPOINTMENT_PROPS = {
 def homepage(request):
     return render(request, "homepage.html")
 
-
+@login_required
 def view_health_history(request):
     # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
     updated_params = request.GET.copy()
@@ -108,7 +108,7 @@ def view_health_history(request):
     # Update request.GET with the modified QueryDict
     request.GET = updated_params
 
-    zipped_details = get_health_history_details(request=request)
+    zipped_details = get_health_history_details(request=request, userID=request.user)
     return render(request, "view_history.html", {"zipped_details": zipped_details})
 
 
@@ -455,20 +455,20 @@ def add_health_record_view(request):
     return render(request, "record_submit.html", {"data": data})
 
 
-@login_required
-def edit_health_record_view(request, id=None):
-    if request.method == "POST":
-        id = request.POST.get("id")
-        record = HealthRecord.objects.filter(id=id)
-        if record.exists():
-            record.doctorID = request.POST.get("doctorID")
-            record.hospitalID = request.POST.get("hospitalID")
-            record.status = "pending"
-            record.appointmentId = request.POST.get("appointmentId")
-            record.healthDocuments = request.POST.get("healthDocuments")
-            record.save()
+# @login_required
+# def edit_health_record_view(request, id=None):
+#     if request.method == "POST":
+#         id = request.POST.get("id")
+#         record = HealthRecord.objects.filter(id=id)
+#         if record.exists():
+#             record.doctorID = request.POST.get("doctorID")
+#             record.hospitalID = request.POST.get("hospitalID")
+#             record.status = "pending"
+#             record.appointmentId = request.POST.get("appointmentId")
+#             record.healthDocuments = request.POST.get("healthDocuments")
+#             record.save()
 
-    return render(request, "record_edit.html")
+#     return render(request, "record_edit.html")
 
 
 def get_facility_doctors(request):
