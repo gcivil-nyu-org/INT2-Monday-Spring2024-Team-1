@@ -455,7 +455,6 @@ def add_health_record_view(request):
     return render(request, "record_submit.html", {"data": data})
 
 
-
 @login_required
 def edit_health_record_view(request, id=None):
     if request.method == "POST":

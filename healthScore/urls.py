@@ -44,7 +44,6 @@ urlpatterns = [
     path("<int:id>/edit/", views.edit_health_record_view, name="edit_health_record"),
     path("new-record/", views.add_health_record_view, name="new_health_record"),
     path("request-sent/", views.record_sent_view, name="new_health_record_sent"),
-  
     path(
         "healthcareFacility/",
         views.hospital_staff_directory,
