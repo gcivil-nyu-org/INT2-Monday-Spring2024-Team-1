@@ -29,10 +29,12 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
+    Post,
+    Comment,
 )
 
 from .user_utils import get_health_history_details
-
+from .forms import PostForm, CommentForm
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -253,69 +255,60 @@ def view_report(request):
 
 @csrf_exempt
 def registration(request):
-    if request.method == "POST":
-        role = request.POST.get("role")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        fullname = request.POST.get("fullname")
-        phone_number = request.POST.get("contactInfo")
-        context = {"error_message:": ""}
+    context = {
+        "email": "",
+        "username": "",
+        "password": "",
+        "fullname": "",
+        "dob": "",
+        "gender": "",
+        "street_address": "",
+        "city": "",
+        "state": "",
+        "phone_number": "",
+        "error_message": "",
+    }
+
+    if request.method == "POST":  # when the form is submitted
+        context["email"] = email = request.POST.get("email")
+        context["username"] = username = request.POST.get("username")
+        context["password"] = password = request.POST.get("password")
+        context["fullname"] = fullname = request.POST.get("fullname")
+        context["dob"] = dob = request.POST.get("dob")
+        context["gender"] = gender = request.POST.get("gender")
+        context["street_address"] = street_address = request.POST.get("street_address")
+        context["city"] = city = request.POST.get("city")
+        context["state"] = state = request.POST.get("state")
+        context["phone_number"] = phone_number = request.POST.get("phone_number")
+        # identity_proof = request.POST.get("identity_proof")
 
         if User.objects.filter(email=email).exists():
-            user = User.objects.get(email=email)
-            if user.is_patient:
-                context["error_message"] = (
-                    "A patient account already exists with this email"
-                )
-            elif user.is_staff:
-                context["error_message"] = (
-                    "An admin account already exists with this email"
-                )
-            else:
-                context["error_message"] = (
-                    "A healthcare worker account already exists with this email"
-                )
-
+            context["error_message"] = (
+                "An account already exists for this email address. Please log in."
+            )
             return render(request, "registration.html", context)
 
-        common_fields = {
-            "email": email,
-            "password": password,
-            "name": fullname,
-            "contactInfo": phone_number,
-        }
-
-        if role == "User":
-            user_specific_fields = {
-                "dob": request.POST.get("dob"),
-                "gender": request.POST.get("gender"),
-                "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
-                "proofOfIdentity": request.POST.get(
-                    "identity_proof"
-                ),  # This needs handling for file upload
-            }
-            User.objects.create_patient(**common_fields, **user_specific_fields)
-
-        elif role == "Healthcare Admin":
-            hospital_name = request.POST.get("hospital_name")
-            hospital_address = f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}"
-
-            user = User.objects.create_staff(**common_fields)
-
-            hospital, created = Hospital.objects.get_or_create(
-                name=hospital_name,
-                defaults={"address": hospital_address, "contactInfo": phone_number},
+        elif User.objects.filter(username=username).exists():
+            context["error_message"] = (
+                "Username already exists. Please choose a different one."
             )
+            return render(request, "registration.html", context)
 
-            HospitalStaff.objects.create(
-                hospitalID=hospital,
-                admin=True,
+        else:
+            # hashed_password = make_password(request.POST.get("password"))
+
+            User.objects.create_user(
+                email=email,
+                username=username,
+                password=password,
                 name=fullname,
+                dob=dob,
+                gender=gender,
+                address=f"{street_address}, {city}, {state}",
                 contactInfo=phone_number,
-                userID=user.id,
             )
 
-        return redirect("homepage")
+            return redirect("homepage")
 
     return render(request, "registration.html")
 
@@ -356,7 +349,6 @@ def get_hospitals(request):
     }
     return render(request, "submit_health_record.html", {"data": data})
 
-
 @login_required
 @csrf_exempt
 def get_doctors(request, hos_id):
@@ -365,27 +357,6 @@ def get_doctors(request, hos_id):
     )
     return JsonResponse({"doctors": doctorList})
 
-
-# def create_record(request):
-#     print(request, "request")
-#     updatedData = json.loads(request.body)
-#     current_user = ""
-#     current_user = request.user
-
-#     current_user_id = current_user.id
-
-#     new_record = Appointment.objects.create(
-#         name=updatedData['appointmentType'],
-#         properties=updatedData["appointmentProperties"]
-#     )
-
-#     HealthRecord.objects.create(
-#         doctorID=updatedData['doctorId']
-#         userID=current_user_id,
-#         hospitalID=updatedData["hospitalID"],
-#         appointmentId=new_record,
-#         status="pending",
-#     )
 
 # @login_required
 def create_post(request):
@@ -397,31 +368,34 @@ def create_post(request):
             user = User.objects.get(id=5)
             post.user = user
             post.save()
-            return redirect("view_posts")
+            return redirect("create_post")
     else:
         form = PostForm()
-    return render(request, "create_post.html", {"form": form})
+    return render(request, "post_new_topic.html", {"form": form})
 
 def view_posts(request):
     posts = Post.objects.all().order_by('-createdAt')
-    return render(request, "view_posts.html", {'posts': posts})
+    return render(request, "community_home.html", {'posts': posts})
 
+def view_one_topic(request, post_id):
+    post_content = Post.objects.filter(id=post_id)
+    return render(request, "view_topic.html", {"post_content": post_content})
 
-# def edit_post(request):
-#     post_id = 1
-@login_required
-def edit_post(request, post_id):
+def create_comments(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-
-    if request.user != post.user:
-        return redirect('view_posts')
-
     if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
+        form = CommentForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('view_posts')
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.commenter = request.user
+            comment.save()
+            return redirect("show_comments")
     else:
-        form = PostForm(instance=post)
+        form = CommentForm()
+    return render(request, "view_topic.html", {"form": form})
 
-    return render(request, 'edit_post.html', {'form': form, 'post': post})
+def show_comments(request, post_id):
+    comments = Comment.objects.filter(post__id=post_id).order_by('-createdAt')
+    return render(request, "view_topic.html", {"comments": comments})
+

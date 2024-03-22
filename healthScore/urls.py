@@ -45,5 +45,4 @@ urlpatterns = [
     # path("createNewRecord", views.create_record, name="create_new_record"),
     path("createPost", views.create_post, name='create_post'),
     path("viewPosts", views.view_posts, name='view_posts'),
-    path("editPost", views.edit_post, name='edit_post'),
 ]

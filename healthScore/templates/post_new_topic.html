@@ -131,19 +131,23 @@
 <body>
 {%  include 'header.html' %}
 <br><br>
+
+{% block content %}
 <div id="topics_container">
     <h1>Post New Topic</h1>
-    <form id="new-post-form">
-        
+    <form id="new-post-form" method = "post">
+        {% csrf_token %}
+
         <label for="id_title">Title:</label><br>
-        <input type="text" id="id_title" name="id_title" required><br>
-      
+        <input type="text" id="id_title" name="title" required><br>
+
         <label for="id_description">Content:</label><br>
-        <textarea id="id_description" name="id_description" rows="4" required></textarea><br>
-        
+        <textarea id="id_description" name="description" rows="4" required></textarea><br>
+
         <button type="submit">Post</button>
     </form>
 </div>
+{% endblock %}
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
