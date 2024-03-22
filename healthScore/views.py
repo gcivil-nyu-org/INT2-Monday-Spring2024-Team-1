@@ -29,15 +29,10 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
-    HealthRecord,
-    Appointment
+    Appointment,
 )
 
 from .user_utils import get_health_history_details
-
-from .forms import (
-    HealthRecordForm
-)
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -407,15 +402,18 @@ def view_health_history_requests(request):
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
+
 @login_required
 def record_sent_view(request):
     return render(request, "record_submit_complete.html")
+
 
 def get_doctors(request, hos_id):
     doctorList = list(
         HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
     )
     return JsonResponse({"doctors": doctorList})
+
 
 @login_required
 def add_health_record_view(request):
@@ -434,24 +432,28 @@ def add_health_record_view(request):
         appointmentProperties = dict()
         all_fields = request.POST
         for key, value in all_fields.items():
-            if key != 'csrfmiddlewaretoken' and key != 'hospitalID' and key != 'doctorId' and key != 'appointmentType':
+            if (
+                key != "csrfmiddlewaretoken"
+                and key != "hospitalID"
+                and key != "doctorId"
+                and key != "appointmentType"
+            ):
                 appointmentProperties[key] = value
         appointmentProperties = json.dumps(appointmentProperties)
         new_appointment = Appointment.objects.create(
-            name = appointmentType,
-            properties = appointmentProperties
+            name=appointmentType, properties=appointmentProperties
         )
         appointmentID = new_appointment
-
 
         HealthRecord.objects.create(
             doctorID=doctorID,
             userID=userID,
             hospitalID=hospitalID,
-            appointmentId=appointmentID
+            appointmentId=appointmentID,
         )
         return redirect("new_health_record_sent")
     return render(request, "record_submit.html", {"data": data})
+
 
 @login_required
 def edit_health_record_view(request, id=None):
@@ -465,5 +467,5 @@ def edit_health_record_view(request, id=None):
             record.appointmentId = request.POST.get("appointmentId")
             record.healthDocuments = request.POST.get("healthDocuments")
             record.save()
-        
+
     return render(request, "record_edit.html")

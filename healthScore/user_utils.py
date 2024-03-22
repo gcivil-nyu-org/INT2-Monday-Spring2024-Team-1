@@ -2,8 +2,6 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from django.forms.models import model_to_dict
 import json
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 
 from .models import (
     HealthRecord,
