@@ -528,19 +528,18 @@ class HospitalStaffTests(TestCase):
     def setUp(self):
         self.hospital = Hospital.objects.create(name="Test Hospital")
         self.user = User.objects.create(
-            email='doctor@example.com',
-            password='testpass123',
-
+            email="doctor@example.com",
+            password="testpass123",
         )
         self.hospital_staff = HospitalStaff.objects.create(
             hospitalID=self.hospital,
             admin=False,
-            name='Test Doctor',
-            specialization='Cardiology',
-            contactInfo='1234567890',
-            userID=self.user.id
+            name="Test Doctor",
+            specialization="Cardiology",
+            contactInfo="1234567890",
+            userID=self.user.id,
         )
-        self.url = reverse('get_facility_doctors')
+        self.url = reverse("get_facility_doctors")
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(self.url)
