@@ -533,32 +533,23 @@ def add_health_record_view(request):
 @login_required
 def edit_health_record_view(request):
     if request.method == "POST":
-    #     # id = request.POST.get("id")
-    #     # record = HealthRecord.objects.filter(id=id)
-    #     # if record.exists():
-    #     rec = json.loads(request.body)
-    #     hospitalID = rec.get("hospitalID")
-    #     doctorID = rec.get("doctorId")
-    #     userID = request.user
-    #     # create a new appointment
-    #     appointmentType = APPOINTMENT_TYPE[rec.get("appointmentType")]
-    #     appointmentProperties = rec.get("appointmentProperties")
-    #     appointmentProperties = json.dumps(appointmentProperties)
-    #     new_appointment = Appointment.objects.create(
-    #         name=appointmentType, properties=appointmentProperties
-    #     )
-    #     appointmentID = new_appointment
+        rec = json.loads(request.body)
+        id = rec.get("recordId")
+        record = get_object_or_404(HealthRecord, id=id)
+        appID = rec.get("appointmentId")
+        appointment = get_object_or_404(Appointment, id=appID)
+        
+        appointment.name = APPOINTMENT_TYPE[rec.get("appointmentType")]
+        appointment.properties = json.dumps(rec.get("appointmentProperties"))
+        appointment.save()
 
-    #     HealthRecord.objects.create(
-    #         doctorID=doctorID,
-    #         userID=userID,
-    #         hospitalID=hospitalID,
-    #         appointmentId=appointmentID,
-    #     )
+        record.doctorID = rec.get("doctorId")
+        record.hospitalID = rec.get("hospitalID")
+        record.status = "pending"
+        record.appointmentId = appointment
+        record.save()
 
-
-        return redirect("view_requests")
-    return render(request, "edit_health_record.html")
+        return JsonResponse({"message":"Updated succesfully"})
 
 
 def get_facility_doctors(request):

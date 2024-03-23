@@ -20,6 +20,11 @@
             padding-top: 60px;
         }
 
+        .grab {
+            cursor: -webkit-grab;
+            cursor: grab;
+        }
+
         .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
@@ -149,7 +154,7 @@
     <!-- Data Display Section -->
     <div class="row">
         <div class="col-lg-12">
-            <table class="table table-striped my-4">
+            <table class="table table-striped my-4 table-hover">
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col">Reason for Visit</th>
@@ -164,7 +169,7 @@
                 </thead>
                 <tbody>
                 {% for request, details in zipped_details %}
-                    <tr>
+                    <tr class="{% if request.record_status == 'rejected' %}grab{% endif %}" >
                         <td class="appointmentName"
                             onclick="getProperties(`{{ request.hospital_name }}|{{ request.record_status }}|{{ request.doctor_name }}|{{ request.appointment_type }}|{{ request.appointment_properties }}|{{ request.appointment_name }}|{{ request.record_id }}`)"
                             data-toggle="modal" data-target="#myModal">{{ request.appointment_name }}</td>
