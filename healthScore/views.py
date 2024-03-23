@@ -531,7 +531,7 @@ def add_health_record_view(request):
 
 
 @login_required
-def edit_health_record_view(request, id=None):
+def edit_health_record_view(request):
     if request.method == "POST":
     #     # id = request.POST.get("id")
     #     # record = HealthRecord.objects.filter(id=id)
