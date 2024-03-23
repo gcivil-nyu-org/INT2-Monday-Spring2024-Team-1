@@ -148,52 +148,67 @@
         const commentsContainer = document.getElementById("comments");
         const newCommentForm = document.getElementById("new-comment-form");
 
-        const postData = {
-            title: "Lower elbow pain when working out",
-            content: "I've been encountering some discomfort in my lower elbow during my workout sessions lately, and I'm hoping to gather some insights or tips from those who might have experienced something similar. <br><br> Specifically, the pain seems to manifest around the lower portion of my elbow, especially during exercises like bicep curls, tricep extensions, and push-ups. It's not excruciating, but it's enough to be noticeable and concerning."};
+        fetch("/view_one_topic/<post_id>/")
+            .then(response => response.json())
+            .then(data => {
+                // Show post data
+                const postElement = document.createElement("div");
+                postElement.classList.add("post");
+                postElement.innerHTML = `
+                    <h2>${data.title}</h2>
+                    <p>${data.content}</p>
+                `;
+                postContainer.appendChild(postElement);
 
-        // Show post in formatting
-        const postElement = document.createElement("div");
-        postElement.classList.add("post");
-        postElement.innerHTML = `
-            <h2>${postData.title}</h2>
-            <p>${postData.content}</p>
-        `;
-        postContainer.appendChild(postElement);
+                // Fetch comments data from backend
+                fetch("/show_comments/<post_id>/")
+                    .then(response => response.json())
+                    .then(commentsData => {
+                        // Show comments
+                        commentsData.forEach(comment => {
+                            const commentElement = document.createElement("div");
+                            commentElement.classList.add("comment");
+                            commentElement.innerHTML = `
+                                <p>${comment.content}</p>
+                            `;
+                            commentsContainer.appendChild(commentElement);
+                        });
+                    });
+            });
 
-
-        const commentsData = [
-            { content: "Might be ulnar nerve compression..." },
-            { content: "That sounds difficult, have you tried putting ice on it?" }
-        ];
-        commentsData.forEach(function(comment) {
-            const commentElement = document.createElement("div");
-            commentElement.classList.add("comment");
-            commentElement.innerHTML = `
-                <p>${comment.content}</p>
-            `;
-            commentsContainer.appendChild(commentElement);
-        });
-
-      
         // Posting new comment
         newCommentForm.addEventListener("submit", function(event) {
             event.preventDefault();
             const commentContent = document.getElementById("comment-content").value;
 
             if (commentContent) {
-                const commentElement = document.createElement("div");
-                commentElement.classList.add("comment");
-                commentElement.innerHTML = `
-                    <p>${commentContent}</p>
-                `;
-                commentsContainer.appendChild(commentElement);
+                fetch("/create_comments/<post_id>/", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: commentContent
+                    })
+                })
+                .then(response => response.json())
+                .then(comment => {
+                    // Show new comment
+                    const commentElement = document.createElement("div");
+                    commentElement.classList.add("comment");
+                    commentElement.innerHTML = `
+                        <p>${comment.content}</p>
+                    `;
+                    commentsContainer.appendChild(commentElement);
 
-                document.getElementById("comment-content").value = "";
+                    // Clear textarea
+                    document.getElementById("comment-content").value = "";
+                });
             } else {
                 alert("Please enter a comment.");
             }
         });
+        
     });
 </script>
 
