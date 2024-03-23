@@ -5,7 +5,6 @@ from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 import json
-from django.core.serializers import serialize
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import (
