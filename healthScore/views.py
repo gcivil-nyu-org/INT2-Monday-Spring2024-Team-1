@@ -399,6 +399,7 @@ def login_view(request):
 
 @login_required
 def view_health_history_requests(request):
+    print("view_health_history_requests", request)
     zipped_details = get_health_history_details(request=request)
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})

@@ -14,7 +14,6 @@ from .models import (
 
 @login_required
 def get_health_history_details(request):
-    print("get_health_history_detail", request)
     if request.method == "GET":
         userID = request.user
         history_list = HealthRecord.objects.filter(userID=userID)
