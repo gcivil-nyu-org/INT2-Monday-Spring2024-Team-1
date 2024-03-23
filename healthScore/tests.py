@@ -19,6 +19,8 @@ from healthScore.views import (
     view_report,
     view_user_info,
     view_health_history_requests,
+    activate_healthcare_staff,
+    deactivate_healthcare_staff,
 )
 
 
@@ -521,3 +523,84 @@ class UserTest(TestCase):
     def test_get_full_name(self):
         full_name = self.user.get_full_name()
         self.assertEqual(full_name, "Test User")
+
+
+class HospitalStaffTests(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.hospital = Hospital.objects.create(name="Test Hospital")
+        self.user = User.objects.create(
+            email="admin@example.com", password="testpass123", is_staff=1, is_active=1
+        )
+        self.patient = User.objects.create(
+            id=1,
+            email="patient@example.com",
+            password="testpass123",
+            is_patient=1,
+            is_active=1,
+        )
+        self.doctor = User.objects.create(
+            id=2,
+            email="doctor@example.com",
+            password="testpass123",
+            is_healthcare_worker=1,
+            is_active=1,
+        )
+        self.hospital_staff = HospitalStaff.objects.create(
+            hospitalID=self.hospital,
+            admin=False,
+            name="Test Doctor",
+            specialization="Cardiology",
+            contactInfo="1234567890",
+            userID=self.doctor.id,
+        )
+        self.url = reverse("get_facility_doctors")
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_activate_healthcare_staff_error(self):
+        request = self.factory.put(
+            reverse("activate_healthcare_staff"),
+            data={"user_id": 1},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = activate_healthcare_staff(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_activate_healthcare_staff_pass(self):
+        request = self.factory.put(
+            reverse("activate_healthcare_staff"),
+            data={"user_id": 2},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = activate_healthcare_staff(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_deactivate_healthcare_staff_error(self):
+        request = self.factory.put(
+            reverse("deactivate_healthcare_staff"),
+            data={"user_id": 1},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = deactivate_healthcare_staff(request)
+        self.assertEqual(response.status_code, 400)
+
+    def test_deactivate_healthcare_staff_pass(self):
+        request = self.factory.put(
+            reverse("deactivate_healthcare_staff"),
+            data={"user_id": 2},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = deactivate_healthcare_staff(request)
+        self.assertEqual(response.status_code, 200)
