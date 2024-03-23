@@ -174,7 +174,3 @@ class Comment(models.Model):
     commenter = models.ForeignKey("User", on_delete=models.CASCADE)
     content = models.TextField(default="")
     createdAt = models.DateTimeField(auto_now_add=True)
-
-
-class Dummy(models.Model):
-    test = models.TextField(null=False)
