@@ -5,6 +5,7 @@ from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 import json
+from django.core.serializers import serialize
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import (
@@ -613,7 +614,7 @@ def create_post(request):
             user = User.objects.get(id=5)
             post.user = user
             post.save()
-            return redirect("create_post")
+            return redirect("view_posts")
     else:
         form = PostForm()
     return render(request, "post_new_topic.html", {"form": form})
@@ -623,11 +624,10 @@ def view_posts(request):
     posts = Post.objects.all().order_by("-createdAt")
     return render(request, "community_home.html", {"posts": posts})
 
-
 def view_one_topic(request, post_id):
-    post_content = Post.objects.filter(id=post_id)
-    return render(request, "view_topic.html", {"post_content": post_content})
-
+    post = get_object_or_404(Post, id=post_id)
+    comments = show_comments(post_id)
+    return render(request, "view_topic.html", {"post": post, "comments": comments})
 
 def create_comments(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -636,14 +636,20 @@ def create_comments(request, post_id):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.post = post
-            comment.commenter = request.user
+            # comment.commenter = request.user [for later improvement]
+            comment.commenter = User.objects.get(id=5)
             comment.save()
-            return redirect("show_comments")
-    else:
-        form = CommentForm()
-    return render(request, "view_topic.html", {"form": form})
 
+    return redirect('view_one_topic', post_id=post.id)
+    #
+    # else:
+    #     form = CommentForm()
+    #     print("here2")
+    # return render(request, "view_topic.html", {"form": form})
+    # print("here3")
+    # return redirect('view_one_topic', post_id=post.id)
 
-def show_comments(request, post_id):
+def show_comments(post_id):
     comments = Comment.objects.filter(post__id=post_id).order_by("-createdAt")
-    return render(request, "view_topic.html", {"comments": comments})
+    return comments
+    # return render(request, "view_topic.html", {"comments": comments})
