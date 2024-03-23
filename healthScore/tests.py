@@ -1,6 +1,7 @@
 from django.test import RequestFactory, TransactionTestCase, TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.http import HttpRequest
 
 from datetime import datetime
 import json
@@ -19,6 +20,8 @@ from healthScore.views import (
     view_report,
     view_user_info,
     view_health_history_requests,
+    get_doctors,
+    get_record
 )
 
 
@@ -335,6 +338,19 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         response = view_report(request)
         self.assertEqual(response.status_code, 200)
 
+    def test_get_doctors(self):
+        request = HttpRequest()
+        request.GET['hos_id'] = '1'
+        response = get_doctors(request, 1)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_records(self):
+        request = HttpRequest()
+        request.GET['rec_id'] = '1'
+        response = get_record(request, 1)
+        self.assertEqual(response.status_code, 200)
+
+
 
 class HomepageViewTest(TestCase):
     def test_homepage_view(self):
@@ -547,7 +563,6 @@ class UserTest(TestCase):
 
 
 class HospitalStaffTests(TestCase):
-
     def setUp(self):
         self.hospital = Hospital.objects.create(name="Test Hospital")
         self.user = User.objects.create(

@@ -416,36 +416,11 @@ def get_doctors(request, hos_id):
     return JsonResponse({"doctors": doctorList})
 
 
-def create_record(request):
-    print(request, "request")
-    updatedData = json.loads(request.body)
-    current_user = ""
-    current_user = request.user
-
-    current_user_id = current_user.id
-
-    new_record = Appointment.objects.create(
-        name=updatedData['appointmentType'],
-        properties=updatedData["appointmentProperties"]
-    )
-
-    HealthRecord.objects.create(
-        doctorID=updatedData['doctorId'],
-        userID=current_user_id,
-        hospitalID=updatedData["hospitalID"],
-        appointmentId=new_record,
-        status="pending",
-    )
-
-    return HttpResponse("abcd")
-
 
 def get_record(request, rec_id):
-    print(rec_id, "request")
-    a = list(HealthRecord.objects.filter(id=rec_id).values())
-    print(a)
+    healthRecordList = list(HealthRecord.objects.filter(id=rec_id).values())
 
-    return JsonResponse({"data": json.dumps(a[0], default=str)}) 
+    return JsonResponse({"data": json.dumps(healthRecordList[0], default=str)}) 
 
 
 

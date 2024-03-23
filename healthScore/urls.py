@@ -43,7 +43,6 @@ urlpatterns = [
     path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
     path("getRecord/<str:rec_id>/", views.get_record, name="get_record"),
     path("getEdit/<str:rec_id>/", views.get_edit, name="get_edit"),
-    path("createNewRecord", views.create_record, name="create_new_record"),
     path("edit-record/", views.edit_health_record_view, name="edit_record"),
     path("new-record/", views.add_health_record_view, name="new_health_record"),
     path("request-sent/", views.record_sent_view, name="new_health_record_sent"),
