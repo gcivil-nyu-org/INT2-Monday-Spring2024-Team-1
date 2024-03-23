@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
 from datetime import datetime
@@ -29,9 +29,11 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
+    Appointment,
 )
 
 from .user_utils import get_health_history_details
+
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -98,6 +100,7 @@ def homepage(request):
     return render(request, "homepage.html")
 
 
+@login_required
 def view_health_history(request):
     # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
     updated_params = request.GET.copy()
@@ -307,7 +310,6 @@ def view_report(request):
         return response
 
 
-@csrf_exempt
 def registration(request):
     if request.method == "POST":
         role = request.POST.get("role")
@@ -395,6 +397,7 @@ def login_view(request):
     return render(request, "login.html")
 
 
+@login_required
 def view_health_history_requests(request):
     zipped = get_health_history_details(request=request)
     zipped_details = zipped[0]
@@ -404,19 +407,10 @@ def view_health_history_requests(request):
 
 
 @login_required
-@csrf_exempt
-def get_hospitals(request):
-    hospitalList = list(Hospital.objects.all().values())
-    data = {
-        "hospitals": hospitalList,
-        "appointmentType": APPOINTMENT_TYPE,
-        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
-    }
-    return render(request, "submit_health_record.html", {"data": data})
+def record_sent_view(request):
+    return render(request, "record_submit_complete.html")
 
 
-@login_required
-@csrf_exempt
 def get_doctors(request, hos_id):
     doctorList = list(
         HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
@@ -498,3 +492,126 @@ def get_edit(request, rec_id):
 
     return render(request, "edit_health_record.html",{"data": data}) 
     
+@login_required
+def add_health_record_view(request):
+    hospitalList = list(Hospital.objects.all().values())
+    data = {
+        "hospitals": hospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+    }
+    if request.method == "POST":
+        hospitalID = request.POST.get("hospitalID")
+        doctorID = request.POST.get("doctorId")
+        userID = request.user
+        # create a new appointment
+        appointmentType = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
+        appointmentProperties = dict()
+        all_fields = request.POST
+        for key, value in all_fields.items():
+            if (
+                key != "csrfmiddlewaretoken"
+                and key != "hospitalID"
+                and key != "doctorId"
+                and key != "appointmentType"
+            ):
+                appointmentProperties[key] = value
+        appointmentProperties = json.dumps(appointmentProperties)
+        new_appointment = Appointment.objects.create(
+            name=appointmentType, properties=appointmentProperties
+        )
+        appointmentID = new_appointment
+
+        HealthRecord.objects.create(
+            doctorID=doctorID,
+            userID=userID,
+            hospitalID=hospitalID,
+            appointmentId=appointmentID,
+        )
+        return redirect("new_health_record_sent")
+    return render(request, "record_submit.html", {"data": data})
+
+
+# @login_required
+# def edit_health_record_view(request, id=None):
+#     if request.method == "POST":
+#         id = request.POST.get("id")
+#         record = HealthRecord.objects.filter(id=id)
+#         if record.exists():
+#             record.doctorID = request.POST.get("doctorID")
+#             record.hospitalID = request.POST.get("hospitalID")
+#             record.status = "pending"
+#             record.appointmentId = request.POST.get("appointmentId")
+#             record.healthDocuments = request.POST.get("healthDocuments")
+#             record.save()
+
+#     return render(request, "record_edit.html")
+
+
+def get_facility_doctors(request):
+    if request.user.is_authenticated:
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
+
+        staff_members = HospitalStaff.objects.filter(
+            hospitalID=hospital_id, admin=False
+        )
+
+        staff_data = []
+        for staff in staff_members:
+            try:
+                user = User.objects.get(id=staff.userID)
+                staff_data.append(
+                    {
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                    }
+                )
+            except User.DoesNotExist:
+                continue
+
+        return JsonResponse({"data": staff_data}, safe=False)
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+def get_facility_admins(request):
+    if request.user.is_authenticated:
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
+
+        staff_members = HospitalStaff.objects.filter(hospitalID=hospital_id, admin=True)
+
+        staff_data = []
+        for staff in staff_members:
+            try:
+                user = User.objects.get(id=staff.userID)
+                staff_data.append(
+                    {
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                    }
+                )
+            except User.DoesNotExist:
+
+                continue
+
+        return JsonResponse({"data": staff_data}, safe=False)
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+def hospital_staff_directory(request):
+    context = {
+        "get_facility_doctors_url": "api/get-facility-doctors/",
+        "get_facility_admins_url": "api/get-facility-admins/",
+    }
+    return render(request, "healthcare_facility.html", context)

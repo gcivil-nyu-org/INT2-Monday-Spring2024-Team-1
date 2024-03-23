@@ -264,7 +264,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             healthDocuments="",
         )
 
-        print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
+        # print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
 
     def test_view_history(self):
         url = reverse("view_health_history")
@@ -276,6 +276,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "date": "2024-03-08",
         }
         request = self.factory.get(url, request_struct)
+        request.user = self.user
         response = view_health_history(request)
         self.assertEqual(response.status_code, 200)
 
@@ -322,7 +323,8 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "date": datetime.now().strftime(DATE_FORMAT),
             "record_status": "approved",
         }
-        request = self.factory.get(url, request_struct)
+        request = self.client.post(url, request_struct)
+        request.user = self.user
         response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
 
@@ -480,6 +482,27 @@ class RegistrationViewTest(TestCase):
         self.assertRedirects(response, reverse("homepage"))
 
 
+# class AddRecordViewTest(TestCase):
+#     def setUp(self):
+#         self.user = User.objects.create_patient(
+#             email="test@example.com", password="testpassword"
+#         )
+
+#     def test_add_record_view(self):
+#         response = self.client.get(reverse("new_health_record"))
+#         self.assertEqual(response.status_code, 200)
+#         self.assertTemplateUsed(response, "record_submit.html")
+
+#     def test_add_new_record_success(self):
+#         response = self.client.post(
+#             reverse("new_health_record"), {
+#                 "hospitalID": 1,
+#                 "doctorId": 1,
+#                 "appointmentType": "eye"
+#             }
+#         )
+
+
 # models.py
 class CustomUserManagerTest(TestCase):
     def test_create_patient(self):
@@ -521,3 +544,26 @@ class UserTest(TestCase):
     def test_get_full_name(self):
         full_name = self.user.get_full_name()
         self.assertEqual(full_name, "Test User")
+
+
+class HospitalStaffTests(TestCase):
+
+    def setUp(self):
+        self.hospital = Hospital.objects.create(name="Test Hospital")
+        self.user = User.objects.create(
+            email="doctor@example.com",
+            password="testpass123",
+        )
+        self.hospital_staff = HospitalStaff.objects.create(
+            hospitalID=self.hospital,
+            admin=False,
+            name="Test Doctor",
+            specialization="Cardiology",
+            contactInfo="1234567890",
+            userID=self.user.id,
+        )
+        self.url = reverse("get_facility_doctors")
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
