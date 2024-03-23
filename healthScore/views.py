@@ -526,7 +526,11 @@ def add_healthcare_staff(request):
         contactInfo = request.POST.get("contactInfo")
         is_admin = int(request.POST.get("is_admin"))
         specialization = request.POST.get("specialization")
-        hospital_id = request.POST.get("hospital_id")
+
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
 
         context = {"error_message:": ""}
 
