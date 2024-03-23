@@ -29,7 +29,6 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
-    Appointment,
     Post,
     Comment,
 )
@@ -442,7 +441,6 @@ def get_edit(request, rec_id):
         else:
             unselectedHospitalList.append(hospital)
 
-    selectedHospitalId = selected_hospital["id"]
     doctorList = list(HospitalStaff.objects.filter(admin=False).values())
 
     unselectedDoctorList = []

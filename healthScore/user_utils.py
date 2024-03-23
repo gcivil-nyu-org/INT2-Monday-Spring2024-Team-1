@@ -66,7 +66,7 @@ def get_health_history_details(request):
             appointment_properties = json.loads(h.appointmentId.properties)
             appointment_type = (
                 appointment_details.name
-                if appointment_details.name != None
+                if appointment_details.name is not None
                 else "Unknown"
             )
 
