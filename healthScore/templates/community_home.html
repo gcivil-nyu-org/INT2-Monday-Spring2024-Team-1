@@ -127,7 +127,7 @@
         const topicsContainer = document.getElementById("topics_container");
         const topics = document.getElementById("topics")
 
-      // samples for demonstration
+      /* samples for demonstration
         const topicsData = [
             { title: "Lower elbow pain when working out", content: "I've been encountering some discomfort in my lower elbow during my workout sessions lately, and I'm hoping to gather some insights or tips from those who might have experienced something similar. Specifically, the pain seems to manifest around the lower portion of my elbow, especially during exercises like bicep curls, tricep extensions, and push-ups. It's not excruciating, but it's enough to be noticeable and concerning." },
             { title: "Dealing with stress and anxiety as a student", content: "Stress and anxiety can manifest in various ways, affecting our focus, motivation, and overall well-being. Whether it's looming deadlines, exam pressures, or the challenges of balancing academic and personal life, it's essential to find healthy ways to cope. I'm curious to hear from others who have experienced similar feelings. How do you manage stress and anxiety as a student? Are there specific techniques or practices that have been particularly effective for you? Whether it's mindfulness exercises, time management strategies, seeking support from friends or professionals, or anything else, I'm open to exploring different approaches." }
@@ -144,8 +144,28 @@
                 
             `;
             topicsContainer.appendChild(topicElement);
+        });*/
+
+    // Fetch topics from backend
+    fetch("/view_posts/")
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(topic => {
+                const topicElement = document.createElement("div");
+                topicElement.classList.add("topic");
+                topicElement.innerHTML = `
+                    <h2>${topic.title}</h2>
+                    <p class="post-content">${truncate(topic.content, 100)}</p>
+                    <p class="expand_topic"><a href="/view_one_topic/${topic.id}">Read more ></a></p>
+                `;
+                topics.appendChild(topicElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching topics:', error);
         });
-      
+
+        
       // show only beginning of topic content
       function truncate(content, maxLength) {
             if (content.length > maxLength) {
@@ -153,14 +173,6 @@
             }
             return content;
         }
-      
-
-      // might need to edit
-      postsContainer.addEventListener("click", function(event) {
-            if (event.target.classList.contains("expand_topic")) {
-              // click expand topic, redirect to post page 
-            }
-        });
       
     });
 </script>
