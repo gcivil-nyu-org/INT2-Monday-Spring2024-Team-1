@@ -30,6 +30,7 @@ from healthScore.views import (
 
 DATE_FORMAT = "%Y-%m-%d"
 
+
 # views.py
 class viewHealthHistoryTestCase(TransactionTestCase):
     reset_sequences = True
