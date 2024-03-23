@@ -345,8 +345,11 @@ class HomepageViewTest(TestCase):
 
 class LoginViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_patient(
-            email="test@example.com", password="testpassword"
+        self.active_user = User.objects.create_patient(
+            email="test@example.com", password="testpassword", is_active=True
+        )
+        self.inactive_user = User.objects.create_patient(
+            email="test_inactive@example.com", password="testpassword", is_active=False
         )
 
     def test_login_view(self):
@@ -359,6 +362,16 @@ class LoginViewTest(TestCase):
             reverse("login"), {"email": "test@example.com", "password": "testpassword"}
         )
         self.assertRedirects(response, reverse("homepage"))
+
+    def test_post_request_valid_credentials_inactive_user(self):
+        response = self.client.post(
+            reverse("login"),
+            {"email": "test_inactive@example.com", "password": "testpassword"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Invalid email or password. Please try again.", response.content.decode()
+        )
 
     def test_post_request_invalid_credentials(self):
         response = self.client.post(
