@@ -123,7 +123,7 @@
       <li>
         <h3>{{ post.title }}</h3>
           <p>{{ post.description|linebreaks }}</p>
-          <p>{{ post.id }}</p>
+{#          <p>{{ post.id }}</p>#}
           <p class="expand_topic"><a href="{% url 'view_one_topic' post.id %}">Read more ></a></p>
           <small>Date: {{ post.createdAt }}</small>
 
