@@ -23,7 +23,7 @@ from healthScore.views import (
     activate_healthcare_staff,
     deactivate_healthcare_staff,
     get_doctors,
-    get_record
+    get_record,
 )
 
 
@@ -269,7 +269,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             healthDocuments="",
         )
 
-        # print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
+        print(hs1, hs2, hs3, hs4, hs5, hs6, hs7, hs8, hr1, hr2, hr3, hr4)
 
     def test_view_history(self):
         url = reverse("view_health_history")
@@ -323,13 +323,13 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         # appointment name healthcare_worker, healthcare_facility date and record_status are passed
         request = HttpRequest()
         request.method = "GET"  # Set the HTTP method to GET
-        request.path = url  
+        request.path = url
         request.user = self.user
         request.GET["appointment_name"] = "Vaccine"
         request.GET["healthcare_worker"] = "Doctor A"
         request.GET["healthcare_facility"] = "Hospital B"
         request.GET["date"] = datetime.now().strftime(DATE_FORMAT)
-        request.GET["record_status"] = "approved"  
+        request.GET["record_status"] = "approved"
         response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
 
@@ -342,16 +342,15 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_get_doctors(self):
         request = HttpRequest()
-        request.GET['hos_id'] = '1'
+        request.GET["hos_id"] = "1"
         response = get_doctors(request, 1)
         self.assertEqual(response.status_code, 200)
 
     def test_get_records(self):
         request = HttpRequest()
-        request.GET['rec_id'] = '1'
+        request.GET["rec_id"] = "1"
         response = get_record(request, 1)
         self.assertEqual(response.status_code, 200)
-
 
 
 class HomepageViewTest(TestCase):
@@ -562,6 +561,7 @@ class UserTest(TestCase):
     def test_get_full_name(self):
         full_name = self.user.get_full_name()
         self.assertEqual(full_name, "Test User")
+
 
 class HospitalStaffTests(TestCase):
 

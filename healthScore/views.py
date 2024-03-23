@@ -403,7 +403,7 @@ def login_view(request):
 @login_required
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
-     
+
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
 
@@ -419,55 +419,51 @@ def get_doctors(request, hos_id):
     return JsonResponse({"doctors": doctorList})
 
 
-
 def get_record(request, rec_id):
     healthRecordList = list(HealthRecord.objects.filter(id=rec_id).values())
 
-    return JsonResponse({"data": json.dumps(healthRecordList[0], default=str)}) 
-
+    return JsonResponse({"data": json.dumps(healthRecordList[0], default=str)})
 
 
 def get_edit(request, rec_id):
     print(request)
 
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
-    app = list(Appointment.objects.filter(id=selected_record[0]['appointmentId_id']).values())
+    app = list(
+        Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
+    )
 
-    
     hospitalList = list(Hospital.objects.all().values())
     unselectedHospitalList = []
     for hospital in hospitalList:
-        if(hospital['id']==selected_record[0]['hospitalID']):
-            selected_record[0]['hospital_name'] = hospital['name']
+        if hospital["id"] == selected_record[0]["hospitalID"]:
+            selected_record[0]["hospital_name"] = hospital["name"]
             selected_hospital = hospital
         else:
             unselectedHospitalList.append(hospital)
 
-
-
-    selectedHospitalId = selected_hospital['id']
-    doctorList = list(
-        HospitalStaff.objects.filter(admin=False).values()
-    )
+    selectedHospitalId = selected_hospital["id"]
+    doctorList = list(HospitalStaff.objects.filter(admin=False).values())
 
     unselectedDoctorList = []
     for docs in doctorList:
-        if(docs["id"]==selected_record[0]["doctorID"]):
-            selected_record[0]['doctor_name'] = docs['name']
+        if docs["id"] == selected_record[0]["doctorID"]:
+            selected_record[0]["doctor_name"] = docs["name"]
         else:
             unselectedDoctorList.append(docs)
 
     data = {
         "appointment_props": app[0],
-        "record": selected_record[0], 
+        "record": selected_record[0],
         "hospitals": unselectedHospitalList,
         "appointmentType": APPOINTMENT_TYPE,
         "appointmentProps": json.dumps(APPOINTMENT_PROPS),
-        "doctors": unselectedDoctorList
+        "doctors": unselectedDoctorList,
     }
 
-    return render(request, "edit_health_record.html",{"data": data}) 
-    
+    return render(request, "edit_health_record.html", {"data": data})
+
+
 @login_required
 def add_health_record_view(request):
     hospitalList = list(Hospital.objects.all().values())
@@ -516,7 +512,7 @@ def edit_health_record_view(request):
         record = get_object_or_404(HealthRecord, id=id)
         appID = rec.get("appointmentId")
         appointment = get_object_or_404(Appointment, id=appID)
-        
+
         appointment.name = APPOINTMENT_TYPE[rec.get("appointmentType")]
         appointment.properties = json.dumps(rec.get("appointmentProperties"))
         appointment.save()
@@ -527,7 +523,7 @@ def edit_health_record_view(request):
         record.appointmentId = appointment
         record.save()
 
-        return JsonResponse({"message":"Updated succesfully"})
+        return JsonResponse({"message": "Updated succesfully"})
 
 
 def get_facility_doctors(request):
