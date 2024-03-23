@@ -530,20 +530,35 @@ def add_health_record_view(request):
     return render(request, "record_submit.html", {"data": data})
 
 
-# @login_required
-# def edit_health_record_view(request, id=None):
-#     if request.method == "POST":
-#         id = request.POST.get("id")
-#         record = HealthRecord.objects.filter(id=id)
-#         if record.exists():
-#             record.doctorID = request.POST.get("doctorID")
-#             record.hospitalID = request.POST.get("hospitalID")
-#             record.status = "pending"
-#             record.appointmentId = request.POST.get("appointmentId")
-#             record.healthDocuments = request.POST.get("healthDocuments")
-#             record.save()
+@login_required
+def edit_health_record_view(request, id=None):
+    if request.method == "POST":
+    #     # id = request.POST.get("id")
+    #     # record = HealthRecord.objects.filter(id=id)
+    #     # if record.exists():
+    #     rec = json.loads(request.body)
+    #     hospitalID = rec.get("hospitalID")
+    #     doctorID = rec.get("doctorId")
+    #     userID = request.user
+    #     # create a new appointment
+    #     appointmentType = APPOINTMENT_TYPE[rec.get("appointmentType")]
+    #     appointmentProperties = rec.get("appointmentProperties")
+    #     appointmentProperties = json.dumps(appointmentProperties)
+    #     new_appointment = Appointment.objects.create(
+    #         name=appointmentType, properties=appointmentProperties
+    #     )
+    #     appointmentID = new_appointment
 
-#     return render(request, "record_edit.html")
+    #     HealthRecord.objects.create(
+    #         doctorID=doctorID,
+    #         userID=userID,
+    #         hospitalID=hospitalID,
+    #         appointmentId=appointmentID,
+    #     )
+
+
+        return redirect("view_requests")
+    return render(request, "edit_health_record.html")
 
 
 def get_facility_doctors(request):

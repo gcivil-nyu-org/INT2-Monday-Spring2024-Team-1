@@ -108,7 +108,7 @@
                         <h4 class="card-title">Edit your request</h4>
                         <hr />
                     </div>
-                    <form id="submitRecord">
+                    <form id="updateRecord">
 
 
                         <div class="mb-3 ml-3 mr-3">
@@ -149,7 +149,7 @@
 
                         {% csrf_token %}
                         <div class="col-12 submitButton">
-                            <button type="button" class="btn btn-primary" onclick="createNewRecord()">Save
+                            <button type="button" class="btn btn-primary" onclick="updateRecord()">Save
                                 Changes</button>
                         </div>
 
@@ -303,6 +303,9 @@
                     var a = properties[key] 
                     return properties[key]
                 }
+                else{
+                    return ""
+                }
             }
 
             function getAppointmentprops(appointmentName) {
@@ -419,8 +422,8 @@
                 return true
             }
 
-            function createNewRecord() {
-                const form = document.getElementById('submitRecord');
+            function updateRecord() {
+                const form = document.getElementById('updateRecord');
 
                 const formData = new FormData(form);
                 const jsonData = {};
@@ -445,7 +448,7 @@
                     });
 
 
-                    fetch('{% url "create_new_record" %}', {
+                    fetch('{% url "edit_record" %}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
