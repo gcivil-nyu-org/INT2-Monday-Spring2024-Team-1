@@ -584,18 +584,15 @@ def add_healthcare_staff(request):
 @csrf_exempt
 def deactivate_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "PUT":
-        updatedData = json.loads(request.body)
-        user_id = updatedData.get("user_id")
+        updated_data = json.loads(request.body)
+        user_ids = updated_data.get("user_ids", [])
 
-        user = get_object_or_404(User, id=user_id)
+        for user_id in user_ids:
+            user = get_object_or_404(User, id=user_id)
+            if not user.is_patient:
+                user.is_active = False
+                user.save()
 
-        if user.is_patient:
-            return JsonResponse(
-                {"error": "Patient's account cannot be edited"}, status=400
-            )
-
-        user.is_active = False
-        user.save()
         return JsonResponse(
             {"message": "Healthcare staff deactivated successfully"}, status=200
         )

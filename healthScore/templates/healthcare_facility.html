@@ -26,33 +26,61 @@
         background-color: #2d0444;
         border-color: #2d0444;
       }
+      .scrollable-tbody {
+            height: 100px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+      .deactivate-btn{
+            margin-bottom: 20px;
+            background-color: red;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+      }
+      .deactivate-btn:hover{
+          margin-bottom: 20px;
+          background-color: darkred;
+          border-color: darkred;
+          color: white;
+      }
+      .deactivate-btn:focus{
+          outline: none;
+          box-shadow: 0 0 5px;
+      }
     </style>
 </head>
 <body>
 
 {%  include 'header.html' %}
 
-
 <div class="container mt-5">
+    <button type="button" id="deactivateButton" class="deactivate-btn">Deactivate</button><br>
     <h2>Healthcare Workers</h2>
     <form action="/hs/addHealthcareStaff" method="post">
         <table class="table">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone Number</th>
                     <th>Department</th>
+                    <th>Status</th>
                 </tr>
                 <tr>
+                    <th></th>
                     <th class="align-middle"><input type="text" id="newName" name="fullname"></th>
                     <th class="align-middle"><input type="text" id="newEmail" name="email"></th>
                     <th class="align-middle"><input type="text" id="newPhoneNumber" name="contactInfo"></th>
                     <th class="align-middle"><input type="text" id="newDepartment" name="specialization"></th>
-                    <th class="align-middle"><input type="hidden" name="is_admin" value="0"><button type="submit" class="btn btn-primary">Add</button></th>
+                    <th class="align-middle"><input type="hidden" name="is_admin" value="0">
+                    <button type="submit" class="btn btn-primary">Add</button></th>
                 </tr>
             </thead>
-            <tbody id="nonAdminBody">
+            <tbody class="scrollable-tbody" id="nonAdminBody">
                 
             </tbody>
         </table>
@@ -65,20 +93,24 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Phone Number</th>
                     <th>Department</th>
+                    <th>Status</th>
                 </tr>
                 <tr>
+                    <th></th>
                     <th class="align-middle"><input type="text" id="newAdminName" name="fullname"></th>
                     <th class="align-middle"><input type="text" id="newAdminEmail" name="email"></th>
                     <th class="align-middle"><input type="text" id="newAdminPhoneNumber" name="contactInfo"></th>
                     <th class="align-middle"><input type="text" id="newAdminDepartment" name="specialization"></th>
-                    <th class="align-middle"><input type="hidden" name="is_admin" value="1"><button type="submit" class="btn btn-primary">Add</button></th>
+                    <th class="align-middle"><input type="hidden" name="is_admin" value="1">
+                    <button type="submit" class="btn btn-primary">Add</button></th>
                 </tr>
             </thead>
-            <tbody id="adminContacts">
+            <tbody class="scrollable-tbody" id="adminContacts">
                 
             </tbody>
         </table>
@@ -94,10 +126,12 @@ $(document).ready(function(){
             var tbodyEl = $('#nonAdminBody');
             response.data.forEach(function(item) {
                 tbodyEl.append(`<tr>
+                    <td><input type="checkbox" class="deactivate-checkbox" value="${item.id}" /></td>
                     <td>${item.name}</td>
                     <td>${item.email}</td>
                     <td>${item.contactInfo}</td>
                     <td>${item.specialty}</td>
+                    <td>${item.is_active ? "Active" : "Inactive"}</td>
                 </tr>`);
             });
         },
@@ -113,15 +147,39 @@ $(document).ready(function(){
             var tbodyEl = $('#adminContacts');
             response.data.forEach(function(item) {
                 tbodyEl.append(`<tr>
+                    <td><input type="checkbox" class="deactivate-checkbox" value="${item.id}" /></td>
                     <td>${item.name}</td>
                     <td>${item.email}</td>
                     <td>${item.contactInfo}</td>
                     <td>${item.specialty}</td>
+                    <td>${item.is_active ? "Active" : "Inactive"}</td>
                 </tr>`);
             });
         },
         error: function() {
             alert("Error fetching admin data.");
+        }
+    });
+});
+
+$('#deactivateButton').click(function() {
+    var selectedIds = $('.deactivate-checkbox:checked').map(function() {
+        return $(this).val();
+    }).get();
+    
+    console.log("Selected IDs: ", selectedIds);
+
+    $.ajax({
+        url: '/hs/deleteHealthcareStaff', // Update with your correct URL
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({ "user_ids": selectedIds }),
+        success: function(response) {
+            alert("Healthcare staff deactivated successfully");
+            // Optionally, refresh the list or update the UI accordingly
+        },
+        error: function() {
+            alert("Error deactivating healthcare staff.");
         }
     });
 });
