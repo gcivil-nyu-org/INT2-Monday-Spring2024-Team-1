@@ -26,7 +26,7 @@ from healthScore.views import (
     create_post,
     view_posts,
     view_one_topic,
-    create_comments
+    create_comments,
 )
 
 from .forms import PostForm, CommentForm
@@ -623,27 +623,33 @@ class PostCommentTestCase(TestCase):
             name="User 1",
             password="patientpass",
         )
-        self.post = Post.objects.create(title='Test Post', description='Test Description', user=self.user1)
+        self.post = Post.objects.create(
+            title="Test Post", description="Test Description", user=self.user1
+        )
 
     def test_view_posts(self):
-        request = self.factory.get('/viewPosts')
+        request = self.factory.get("/viewPosts")
         response = view_posts(request)
         self.assertEqual(response.status_code, 200)
 
     def test_create_post(self):
-        request = self.factory.post('/createPost', {'title': 'Test Title', 'description': 'Test Description'})
+        request = self.factory.post(
+            "/createPost", {"title": "Test Title", "description": "Test Description"}
+        )
         request.user = self.user1
         response = create_post(request)
         self.assertEqual(response.status_code, 302)
 
     def test_view_one_topic(self):
-        request = self.factory.get(f'/view_one_topic/{self.post.id}/')
+        request = self.factory.get(f"/view_one_topic/{self.post.id}/")
         response = view_one_topic(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 200)
 
     def test_create_comments(self):
-        comment_data = {'content': 'Test Comment'}
-        request = self.factory.post(f'/create_comments/{self.post.id}/comment/', comment_data)
+        comment_data = {"content": "Test Comment"}
+        request = self.factory.post(
+            f"/create_comments/{self.post.id}/comment/", comment_data
+        )
         request.user = self.user1  # 模拟用户登录
         response = create_comments(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 302)
