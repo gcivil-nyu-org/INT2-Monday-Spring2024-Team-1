@@ -135,8 +135,9 @@
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
                                 <select id="appointmentType" class="custom-select form-select" name="appointmentType">
+                                    <option value="" selected disabled>Please select an appointment type</option>
                                     {% for key, value in data.appointmentType.items %}
-                                        <option value="{{key}}" {% if data.appointment_props.name == value %} selected {% endif %}>{{value}}</option>
+                                        <option value="{{key}}">{{value}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -168,6 +169,11 @@
     </div>
 
         <script>
+            function something(a){
+                console.log(a)
+            }
+            
+
             function getDoctors(hospital_id) {
                 fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospital_id)
                     , {
@@ -289,6 +295,16 @@
                 }
             }
 
+            function setValue(key){
+                var properties = `{{ data.appointment_props.properties|safe }}`;
+                properties = JSON.parse(properties)
+                var b = Object.keys(properties)
+                if(Object.keys(properties).includes(key)){
+                    var a = properties[key] 
+                    return properties[key]
+                }
+            }
+
             function getAppointmentprops(appointmentName) {
                 var appointmentType = `{{ data.appointmentProps|safe }}`;
                 jsonified_appointmentTypes = JSON.parse(appointmentType)
@@ -311,7 +327,10 @@
                                     onpaste="${key === 'date' ? 'return false;' : ''}"  
                                     step="${stepSize(key)}" 
                                     class="form-control" id="exampleFormControlInput1"
-                                    placeholder="${setPlaceholder(key, value)}">
+                                    placeholder="${setPlaceholder(key, value)}"
+                                    value="${setValue(key)}"
+                                    >
+                                    
                                 ${addingUnits(key)}                                
                             </div>
                           </div>`
