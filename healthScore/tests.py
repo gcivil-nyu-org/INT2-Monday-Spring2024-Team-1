@@ -12,7 +12,6 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
     Post,
-    Comment,
 )
 
 from healthScore.views import (
@@ -29,11 +28,7 @@ from healthScore.views import (
     create_comments,
 )
 
-from .forms import PostForm, CommentForm
-
-
 DATE_FORMAT = "%Y-%m-%d"
-
 
 # views.py
 class viewHealthHistoryTestCase(TransactionTestCase):
@@ -650,6 +645,6 @@ class PostCommentTestCase(TestCase):
         request = self.factory.post(
             f"/create_comments/{self.post.id}/comment/", comment_data
         )
-        request.user = self.user1  # 模拟用户登录
+        request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 302)
