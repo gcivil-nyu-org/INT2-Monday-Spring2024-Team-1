@@ -168,15 +168,9 @@ class Post(models.Model):
     description = models.TextField(default="")
     createdAt = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.title
-
-
 class Comment(models.Model):
     post = models.ForeignKey("Post", related_name="comments", on_delete=models.CASCADE)
     commenter = models.ForeignKey("User", on_delete=models.CASCADE)
     content = models.TextField(default="")
     createdAt = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.content[:20]
