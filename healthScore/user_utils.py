@@ -64,7 +64,7 @@ def get_health_history_details(request):
             appointment_details = Appointment.objects.get(id=h.appointmentId_id)
             appointment_name = appointment_details.name
             appointment_properties = json.loads(h.appointmentId.properties)
-            appointment_type = appointment_properties.get("type", "Unknown")
+            appointment_type = appointment_details.name if appointment_details.name != None else "Unknown"
 
             # Fetch healthcare worker details by Dr. ID
             doctor_details = HospitalStaff.objects.get(id=h.doctorID)
@@ -92,4 +92,4 @@ def get_health_history_details(request):
             )
 
         zipped_details = zip(detailed_history_list, each_details)
-        return [zipped_details, detailed_history_list]
+        return zipped_details

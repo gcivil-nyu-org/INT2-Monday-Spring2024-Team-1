@@ -399,11 +399,9 @@ def login_view(request):
 
 @login_required
 def view_health_history_requests(request):
-    zipped = get_health_history_details(request=request)
-    zipped_details = zipped[0]
-    edit_history = zipped[1]
-
-    return render(request, "view_requests.html", {"zipped_details": zipped_details, "edit_history": json.dumps(edit_history, default=str)})
+    zipped_details = get_health_history_details(request=request)
+     
+    return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
 
 @login_required

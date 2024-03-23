@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>View Health History</title>
+    <title>Health Score</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
@@ -88,42 +88,9 @@
 
 <body>
 
-<div id="mySidebar" class="sidebar">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
-    <a href="#">Home</a>
-    <a href="#">Health History</a>
-    <a href="#">Raising a Request</a>
-</div>
+{% include 'header.html' %}
 
 <div class="container my-5">
-    <nav class="navbar navbar-light navbar-custom">
-        <a class="navbar-brand" href="#">Health Score</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">View Health History</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link disabled" href="#">Your Requests
-                        <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Health Score</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Community</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
     <h2 class="text-center">Your Requests</h2>
 
     <!-- Filter Section -->

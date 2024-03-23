@@ -126,25 +126,23 @@
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
                                 <select id="doctorSelect" class="custom-select form-select" name="doctorId">
-                                    <option value="N/A" selected disabled>Please select the Doctor</option>
+                                    <option value="{{data.record.doctorID}}" selected>{{data.record.doctor_name}}</option>
+                                    <!-- <option value="N/A" selected disabled>Please select the Doctor</option> -->
                                 </select>
                             </div>
                         </div>
 
-                        
                         <div class="mb-3 ml-3 mr-3">
-                            
                             <div class="dropdown">
                                 <select id="appointmentType" class="custom-select form-select" name="appointmentType">
-                                    <!-- <option value="N/A" selected disabled>Please select the type of Appointment</option> -->
                                     {% for key, value in data.appointmentType.items %}
-                                    <option value="{{key}}" {$ if key==data.appointment_props.name $}selected{$ endif $}>{{value}}</option>
+                                        <option value="{{key}}" {% if data.appointment_props.name == value %} selected {% endif %}>{{value}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
 
-                        <div id="apppointmentProps">
+                        <div id="appointmentProps">
                             <!-- Data filled dynamically -->
                         </div>
 
@@ -181,8 +179,8 @@
                     .then(response => response.json())
                     .then(data => {
                         var selectElement = document.getElementById("doctorSelect");
-                        if (selectElement.options.length > 1) {
-                            for (var i = selectElement.options.length - 1; i >= 1; i--) {
+                        if (selectElement.options.length > 0) {
+                            for (var i = selectElement.options.length - 1; i >= 0; i--) {
                                 selectElement.remove(i);
                             }
                         }
@@ -318,7 +316,7 @@
                             </div>
                           </div>`
                 }
-                document.getElementById('apppointmentProps').innerHTML = props
+                document.getElementById('appointmentProps').innerHTML = props
             }
 
             document.getElementById("appointmentType").addEventListener("change", function () {
