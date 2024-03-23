@@ -1,0 +1,391 @@
+Index: healthScore/views.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.shortcuts import render, redirect, get_object_or_404\nfrom django.http import HttpResponse\nfrom django.http import JsonResponse\nfrom datetime import datetime\nfrom django.contrib.auth import authenticate, login\nfrom django.contrib.auth.decorators import login_required\n\nimport json\n\nfrom reportlab.lib.pagesizes import letter\nfrom reportlab.platypus import (\n    SimpleDocTemplate,\n    Paragraph,\n    Spacer,\n    Table,\n    TableStyle,\n    Image,\n)\nfrom reportlab.lib.styles import getSampleStyleSheet\nfrom reportlab.lib import colors\nfrom reportlab.lib.enums import TA_RIGHT\nfrom reportlab.lib.styles import ParagraphStyle\n\n# To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)\nfrom django.views.decorators.csrf import csrf_exempt\n\nfrom .models import (\n    HealthRecord,\n    Hospital,\n    User,\n    HospitalStaff,\n    Post,\n)\n\nfrom .user_utils import get_health_history_details\nfrom .forms import PostForm\n\nDATE_FORMAT = \"%Y-%m-%d\"\n\n\ndef homepage(request):\n    return render(request, \"homepage.html\")\n\n\ndef view_health_history(request):\n    # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page\n    updated_params = request.GET.copy()\n    updated_params[\"record_status\"] = \"approved\"\n\n    # Update request.GET with the modified QueryDict\n    request.GET = updated_params\n\n    zipped_details = get_health_history_details(request=request)\n    return render(request, \"view_history.html\", {\"zipped_details\": zipped_details})\n\n\n@login_required\ndef view_user_info(request):\n    if request.method == \"GET\":\n        current_user = request.user\n        userInfo = {\n            \"email\": current_user.email,\n            \"name\": current_user.name,\n            \"username\": current_user.username,\n            \"dob\": current_user.dob,\n            \"contactInfo\": current_user.contactInfo,\n            # dummy string for now. Needs to be replaced with the S3 string\n            \"proofOfIdentity\": current_user.proofOfIdentity,\n            \"address\": current_user.address,\n            \"gender\": current_user.gender,\n            \"profilePic\": current_user.profilePic,\n            \"bloodGroup\": current_user.bloodGroup,\n            \"requests\": json.dumps(current_user.requests),\n        }\n        return render(request, \"user_profile.html\", {\"userInfo\": userInfo})\n\n\n@login_required\n@csrf_exempt\ndef edit_user_info(request):\n    if request.method == \"PUT\":\n        updatedData = json.loads(request.body)\n        current_user = request.user\n\n        new_email = updatedData.get(\"email\")\n        if new_email and new_email != current_user.email:\n            if (\n                User.objects.exclude(id=current_user.id)\n                .filter(email=new_email)\n                .exists()\n            ):\n                return JsonResponse(\n                    {\n                        \"error\": \"This email address is already being used by another account.\"\n                    },\n                    status=400,\n                )\n\n        data_updated = False\n\n        for field in [\"name\", \"email\", \"address\", \"contactInfo\", \"profilePic\"]:\n            new_value = updatedData.get(field)\n            current_value = getattr(current_user, field)\n            if new_value and new_value != current_value:\n                setattr(current_user, field, new_value)\n                data_updated = True\n\n        if data_updated:\n            current_user.save()\n            return JsonResponse(\n                {\"message\": \"User information updated successfully\"}, status=200\n            )\n        else:\n            return JsonResponse({\"message\": \"No data was changed.\"}, status=200)\n\n\ndef view_report(request):\n    if request.method == \"POST\":\n        response = HttpResponse(content_type=\"application/pdf\")\n        response[\"Content-Disposition\"] = 'attachment; filename=\"Report.pdf\"'\n\n        doc = SimpleDocTemplate(response, pagesize=letter)\n        styles = getSampleStyleSheet()\n        story = []\n\n        title_style = styles[\"Title\"]\n        title = \"Health Records Report\"\n        story.append(Paragraph(title, title_style))\n        story.append(Spacer(1, 18))\n\n        right_aligned_style = ParagraphStyle(\n            \"RightAligned\", parent=styles[\"Normal\"], alignment=TA_RIGHT\n        )\n        current_date = datetime.now().strftime(DATE_FORMAT)\n\n        logo = \"healthScore/static/HSlogo.jpg\"\n        logo_img = Image(logo, width=128, height=40)\n        logo_and_date = [\n            [logo_img, Paragraph(\"Date: \" + current_date, right_aligned_style)]\n        ]\n        logo_and_date = Table(logo_and_date)\n        logo_and_date.setStyle(\n            TableStyle(\n                [\n                    (\"VALIGN\", (0, 0), (-1, -1), \"MIDDLE\"),\n                    (\"ALIGN\", (1, 0), (1, 0), \"RIGHT\"),\n                    (\"BOTTOMPADDING\", (0, 0), (-1, -1), 12),\n                ]\n            )\n        )\n        story.append(logo_and_date)\n        user_id = 2\n        user_info = User.objects.get(id=user_id)\n        story.append(Paragraph(\"Name: \" + user_info.name, styles[\"Normal\"]))\n        story.append(\n            Paragraph(\"DOB: \" + user_info.dob.strftime(DATE_FORMAT), styles[\"Normal\"])\n        )\n        story.append(Paragraph(\"BloodGroup: \" + user_info.bloodGroup, styles[\"Normal\"]))\n        story.append(Paragraph(\"Email: \" + user_info.email, styles[\"Normal\"]))\n        story.append(Paragraph(\"Contact: \" + user_info.contactInfo, styles[\"Normal\"]))\n        story.append(Paragraph(\"Address: \" + user_info.address, styles[\"Normal\"]))\n        story.append(Spacer(1, 12))\n\n        table_data = [\n            [\n                Paragraph(\"Reason for Visit\"),\n                Paragraph(\"Visit Details\"),\n                Paragraph(\"Healthcare Worker\"),\n                Paragraph(\"Healthcare Facility\"),\n                Paragraph(\"Address\"),\n                Paragraph(\"Date\"),\n                Paragraph(\"Properties\"),\n            ],\n        ]\n\n        selected_record_ids = request.POST.getlist(\"record_ids\")\n        for record_id in selected_record_ids:\n            row = []\n            record = HealthRecord.objects.get(id=record_id)\n            appointment_pro = record.appointmentId.properties\n            appointment_properties = json.loads(appointment_pro)\n            appointment_name = record.appointmentId.name\n            appointment_name_para = Paragraph(appointment_name)\n            row.append(appointment_name_para)\n\n            appointment_type = appointment_properties.get(\"type\", \"Unknown\")\n            appointment_type_para = Paragraph(appointment_type)\n            row.append(appointment_type_para)\n\n            doctor_name = HospitalStaff.objects.get(id=record.doctorID).name\n            doctor_name_para = Paragraph(doctor_name)\n            row.append(doctor_name_para)\n\n            hospital_name = Hospital.objects.get(id=record.hospitalID).name\n            hospital_name_para = Paragraph(hospital_name)\n            row.append(hospital_name_para)\n\n            hospital_addr = Hospital.objects.get(id=record.hospitalID).address\n            hospital_addr_para = Paragraph(hospital_addr)\n            row.append(hospital_addr_para)\n\n            updated = record.updatedAt.strftime(DATE_FORMAT)\n            updated_para = Paragraph(updated)\n            row.append(updated_para)\n\n            temp_row = []\n            for rec, val in appointment_properties.items():\n                if rec == \"date\":\n                    val = datetime.strptime(val, \"%Y-%m-%d %H:%M:%S.%f\").strftime(\n                        DATE_FORMAT\n                    )\n\n                temp_row.append(Paragraph(str(rec).capitalize() + \" :   \" + str(val)))\n            row.append(temp_row)\n\n            table_data.append(row)\n\n        page_width, page_height = letter\n        left_margin = right_margin = 50\n        effective_page_width = page_width - (left_margin + right_margin)\n\n        col_widths = [\n            effective_page_width * 0.1,  # Reason for Visit\n            effective_page_width * 0.15,  # Visit Details\n            effective_page_width * 0.15,  # Healthcare Worker\n            effective_page_width * 0.15,  # Healthcare Facility\n            effective_page_width * 0.15,  # Address\n            effective_page_width * 0.15,  # Date\n            effective_page_width * 0.25,  # Properties\n        ]\n        table = Table(table_data, colWidths=col_widths)\n\n        table_style = TableStyle(\n            [\n                (\"BACKGROUND\", (0, 0), (-1, 0), colors.grey),\n                (\"TEXTCOLOR\", (0, 0), (-1, 0), colors.whitesmoke),\n                (\"ALIGN\", (0, 0), (-1, -1), \"CENTER\"),\n                (\"FONTNAME\", (0, 0), (-1, 0), \"Helvetica-Bold\"),\n                (\"BOTTOMPADDING\", (0, 0), (-1, 0), 12),\n                (\"BACKGROUND\", (0, 1), (-1, -1), colors.white),\n                (\"GRID\", (0, 0), (-1, -1), 1, colors.black),\n                (\"TEXTCOLOR\", (0, 0), (-1, -1), colors.black),\n                (\"VALIGN\", (0, 0), (-1, -1), \"TOP\"),\n                (\"WORDWRAP\", (0, 0), (-1, -1), \"CJK\"),\n            ]\n        )\n\n        table.setStyle(table_style)\n        story.append(table)\n\n        doc.build(story)\n        return response\n\n\n@csrf_exempt\ndef registration(request):\n    context = {\n        \"email\": \"\",\n        \"username\": \"\",\n        \"password\": \"\",\n        \"fullname\": \"\",\n        \"dob\": \"\",\n        \"gender\": \"\",\n        \"street_address\": \"\",\n        \"city\": \"\",\n        \"state\": \"\",\n        \"phone_number\": \"\",\n        \"error_message\": \"\",\n    }\n\n    if request.method == \"POST\":  # when the form is submitted\n        context[\"email\"] = email = request.POST.get(\"email\")\n        context[\"username\"] = username = request.POST.get(\"username\")\n        context[\"password\"] = password = request.POST.get(\"password\")\n        context[\"fullname\"] = fullname = request.POST.get(\"fullname\")\n        context[\"dob\"] = dob = request.POST.get(\"dob\")\n        context[\"gender\"] = gender = request.POST.get(\"gender\")\n        context[\"street_address\"] = street_address = request.POST.get(\"street_address\")\n        context[\"city\"] = city = request.POST.get(\"city\")\n        context[\"state\"] = state = request.POST.get(\"state\")\n        context[\"phone_number\"] = phone_number = request.POST.get(\"phone_number\")\n        # identity_proof = request.POST.get(\"identity_proof\")\n\n        if User.objects.filter(email=email).exists():\n            context[\"error_message\"] = (\n                \"An account already exists for this email address. Please log in.\"\n            )\n            return render(request, \"registration.html\", context)\n\n        elif User.objects.filter(username=username).exists():\n            context[\"error_message\"] = (\n                \"Username already exists. Please choose a different one.\"\n            )\n            return render(request, \"registration.html\", context)\n\n        else:\n            # hashed_password = make_password(request.POST.get(\"password\"))\n\n            User.objects.create_user(\n                email=email,\n                username=username,\n                password=password,\n                name=fullname,\n                dob=dob,\n                gender=gender,\n                address=f\"{street_address}, {city}, {state}\",\n                contactInfo=phone_number,\n            )\n\n            return redirect(\"homepage\")\n\n    return render(request, \"registration.html\")\n\n\ndef login_view(request):\n    if request.method == \"POST\":\n        email = request.POST.get(\"email\")\n        password = request.POST.get(\"password\")\n\n        user = authenticate(request, email=email, password=password)\n\n        if user is not None:\n            login(request, user)\n            return redirect(\"homepage\")\n        else:\n            return render(\n                request,\n                \"login.html\",\n                {\"error_message\": \"Invalid email or password. Please try again.\"},\n            )\n    return render(request, \"login.html\")\n\n\ndef view_health_history_requests(request):\n    zipped_details = get_health_history_details(request=request)\n\n    return render(request, \"view_requests.html\", {\"zipped_details\": zipped_details})\n\n# @login_required\ndef create_post(request):\n    if request.method == \"POST\":\n        form = PostForm(request.POST)\n        if form.is_valid():\n            post = form.save(commit=False)\n            # post.user = request.user\n            user = User.objects.get(id=5)\n            post.user = user\n            post.save()\n            return redirect(\"view_posts\")\n    else:\n        form = PostForm()\n    return render(request, \"create_post.html\", {\"form\": form})\n\ndef view_posts(request):\n    posts = Post.objects.all().order_by('-createdAt')\n    return render(request, \"view_posts.html\", {'posts': posts})\n\n\n# def edit_post(request):\n#     post_id = 1\n@login_required\ndef edit_post(request, post_id):\n    post = get_object_or_404(Post, id=post_id)\n\n    if request.user != post.user:\n        return redirect('view_posts')\n\n    if request.method == \"POST\":\n        form = PostForm(request.POST, instance=post)\n        if form.is_valid():\n            form.save()\n            return redirect('view_posts')\n    else:\n        form = PostForm(instance=post)\n\n    return render(request, 'edit_post.html', {'form': form, 'post': post})
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthScore/views.py b/healthScore/views.py
+--- a/healthScore/views.py	(revision 4ae1ea30e4e4603d1566b57985877cac99fead52)
++++ b/healthScore/views.py	(date 1711140500518)
+@@ -4,7 +4,6 @@
+ from datetime import datetime
+ from django.contrib.auth import authenticate, login
+ from django.contrib.auth.decorators import login_required
+-
+ import json
+ 
+ from reportlab.lib.pagesizes import letter
+@@ -25,17 +24,77 @@
+ from django.views.decorators.csrf import csrf_exempt
+ 
+ from .models import (
++    # Appointment,
+     HealthRecord,
+     Hospital,
+     User,
+     HospitalStaff,
+     Post,
++    Comment,
+ )
+ 
+ from .user_utils import get_health_history_details
+-from .forms import PostForm
++from .forms import PostForm, CommentForm
+ 
+ DATE_FORMAT = "%Y-%m-%d"
++APPOINTMENT_TYPE = {
++    "blood_test": "Blood Test",
++    "eye": "Eye Exams",
++    "general": "General Physical",
++    "dermatologist": "Dermatologist",
++    "diabetes_screening": "Diabetes Screening",
++    "dentist": "Dentist",
++    "gynecologist": "Gynecologist",
++    "vaccinations": "Vaccinations",
++}
++
++APPOINTMENT_PROPS = {
++    "blood_test": {
++        "blood_group": "Blood Group",
++        "hemoglobin_count": "Hemoglobin Count",
++        "date": "Date",
++        "platelet_count": "Platelet Count",
++    },
++    "eye": {
++        "cylindrical_power_right": "Cylindrical Power Right",
++        "cylindrical_power_left": "Cylindrical Power Left",
++        "spherical_power_left": "Spherical Power Left",
++        "spherical_power_right": "Spherical Power Right",
++        "date": "Date",
++    },
++    "general": {
++        "blood_pressure": "Blood Pressure",
++        "pulse_rate": "Pulse Rate",
++        "date": "Date",
++    },
++    "dermatologist": {
++        "care_received": "Care Received",
++        "second_visit": "Second Visit Required",
++        "date": "Date",
++    },
++    "diabetes_screening": {
++        "fasting_sugar_level": "Fasting Sugar Level",
++        "random_sugar_level": "Random Sugar Level",
++        "second_visit": "Second Visit Required",
++        "date": "Date",
++    },
++    "dentist": {
++        "care_received": "Care Received",
++        "second_visit": "Second Visit Required",
++        "date": "Date",
++    },
++    "gynecologist": {
++        "care_received": "Care Received",
++        "second_visit": "Second Visit Required",
++        "date": "Date",
++    },
++    "vaccinations": {
++        "name": "Name",
++        "type": "Vaccination Type",
++        "dose_2": "Dose 2",
++        "date": "Dose 2 Date",
++    },
++}
+ 
+ 
+ def homepage(request):
+@@ -61,7 +120,6 @@
+         userInfo = {
+             "email": current_user.email,
+             "name": current_user.name,
+-            "username": current_user.username,
+             "dob": current_user.dob,
+             "contactInfo": current_user.contactInfo,
+             # dummy string for now. Needs to be replaced with the S3 string
+@@ -254,60 +312,69 @@
+ 
+ @csrf_exempt
+ def registration(request):
+-    context = {
+-        "email": "",
+-        "username": "",
+-        "password": "",
+-        "fullname": "",
+-        "dob": "",
+-        "gender": "",
+-        "street_address": "",
+-        "city": "",
+-        "state": "",
+-        "phone_number": "",
+-        "error_message": "",
+-    }
+-
+-    if request.method == "POST":  # when the form is submitted
+-        context["email"] = email = request.POST.get("email")
+-        context["username"] = username = request.POST.get("username")
+-        context["password"] = password = request.POST.get("password")
+-        context["fullname"] = fullname = request.POST.get("fullname")
+-        context["dob"] = dob = request.POST.get("dob")
+-        context["gender"] = gender = request.POST.get("gender")
+-        context["street_address"] = street_address = request.POST.get("street_address")
+-        context["city"] = city = request.POST.get("city")
+-        context["state"] = state = request.POST.get("state")
+-        context["phone_number"] = phone_number = request.POST.get("phone_number")
+-        # identity_proof = request.POST.get("identity_proof")
++    if request.method == "POST":
++        role = request.POST.get("role")
++        email = request.POST.get("email")
++        password = request.POST.get("password")
++        fullname = request.POST.get("fullname")
++        phone_number = request.POST.get("contactInfo")
++        context = {"error_message:": ""}
+ 
+         if User.objects.filter(email=email).exists():
+-            context["error_message"] = (
+-                "An account already exists for this email address. Please log in."
+-            )
+-            return render(request, "registration.html", context)
+-
+-        elif User.objects.filter(username=username).exists():
+-            context["error_message"] = (
+-                "Username already exists. Please choose a different one."
+-            )
++            user = User.objects.get(email=email)
++            if user.is_patient:
++                context["error_message"] = (
++                    "A patient account already exists with this email"
++                )
++            elif user.is_staff:
++                context["error_message"] = (
++                    "An admin account already exists with this email"
++                )
++            else:
++                context["error_message"] = (
++                    "A healthcare worker account already exists with this email"
++                )
++
+             return render(request, "registration.html", context)
+ 
+-        else:
+-            # hashed_password = make_password(request.POST.get("password"))
++        common_fields = {
++            "email": email,
++            "password": password,
++            "name": fullname,
++            "contactInfo": phone_number,
++        }
++
++        if role == "User":
++            user_specific_fields = {
++                "dob": request.POST.get("dob"),
++                "gender": request.POST.get("gender"),
++                "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
++                "proofOfIdentity": request.POST.get(
++                    "identity_proof"
++                ),  # This needs handling for file upload
++            }
++            User.objects.create_patient(**common_fields, **user_specific_fields)
++
++        elif role == "Healthcare Admin":
++            hospital_name = request.POST.get("hospital_name")
++            hospital_address = f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}"
++
++            user = User.objects.create_staff(**common_fields)
+ 
+-            User.objects.create_user(
+-                email=email,
+-                username=username,
+-                password=password,
++            hospital, created = Hospital.objects.get_or_create(
++                name=hospital_name,
++                defaults={"address": hospital_address, "contactInfo": phone_number},
++            )
++
++            HospitalStaff.objects.create(
++                hospitalID=hospital,
++                admin=True,
+                 name=fullname,
+-                dob=dob,
+-                gender=gender,
+-                address=f"{street_address}, {city}, {state}",
+                 contactInfo=phone_number,
++                userID=user.id,
+             )
+ 
+-            return redirect("homepage")
++        return redirect("homepage")
+ 
+     return render(request, "registration.html")
+ 
+@@ -336,41 +403,61 @@
+ 
+     return render(request, "view_requests.html", {"zipped_details": zipped_details})
+ 
+-# @login_required
+-def create_post(request):
+-    if request.method == "POST":
+-        form = PostForm(request.POST)
+-        if form.is_valid():
+-            post = form.save(commit=False)
+-            # post.user = request.user
+-            user = User.objects.get(id=5)
+-            post.user = user
+-            post.save()
+-            return redirect("view_posts")
+-    else:
+-        form = PostForm()
+-    return render(request, "create_post.html", {"form": form})
+-
+-def view_posts(request):
+-    posts = Post.objects.all().order_by('-createdAt')
+-    return render(request, "view_posts.html", {'posts': posts})
+ 
+-
+-# def edit_post(request):
+-#     post_id = 1
+ @login_required
+-def edit_post(request, post_id):
++@csrf_exempt
++def get_hospitals(request):
++    hospitalList = list(Hospital.objects.all().values())
++    data = {
++        "hospitals": hospitalList,
++        "appointmentType": APPOINTMENT_TYPE,
++        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
++    }
++    return render(request, "submit_health_record.html", {"data": data})
++
++
++def create_comments(request, post_id):
+     post = get_object_or_404(Post, id=post_id)
+-
+-    if request.user != post.user:
+-        return redirect('view_posts')
+-
+     if request.method == "POST":
+-        form = PostForm(request.POST, instance=post)
++        form = CommentForm(request.POST)
+         if form.is_valid():
+-            form.save()
+-            return redirect('view_posts')
++            comment = form.save(commit=False)
++            comment.post = post
++            comment.commenter = request.user  # 假设使用当前登录的用户作为评论的作者
++            comment.save()
++            return redirect("view_topic.html")
+     else:
+-        form = PostForm(instance=post)
++        form = CommentForm()
++    return render(request, "view_topic.html", {"form": form})
++@login_required
++@csrf_exempt
++def get_doctors(request, hos_id):
++    doctorList = list(
++        HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
++    )
++    return JsonResponse({"doctors": doctorList})
++
++
++# def create_record(request):
++#     print(request, "request")
++#     updatedData = json.loads(request.body)
++#     current_user = ""
++#     current_user = request.user
++
++#     current_user_id = current_user.id
+ 
+-    return render(request, 'edit_post.html', {'form': form, 'post': post})
+\ No newline at end of file
++def show_comments(request, post_id):
++    comments = Comment.objects.all().order_by('-createAt')
++    return render(request, "view_topic.html", {"comments": comments})
++#     new_record = Appointment.objects.create(
++#         name=updatedData['appointmentType'],
++#         properties=updatedData["appointmentProperties"]
++#     )
++
++#     HealthRecord.objects.create(
++#         doctorID=updatedData['doctorId']
++#         userID=current_user_id,
++#         hospitalID=updatedData["hospitalID"],
++#         appointmentId=new_record,
++#         status="pending",
++#     )
+Index: healthScore/urls.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.urls import path\nfrom django.contrib.auth import views as auth_views\n\nfrom . import views\n\nurlpatterns = [\n    path(\"homepage\", views.homepage, name=\"homepage\"),\n    path(\"registration/\", views.registration, name=\"registration\"),\n    path(\"login/\", views.login_view, name=\"login\"),\n    path(\"logout/\", auth_views.LogoutView.as_view(), name=\"logout\"),\n    path(\n        \"password-reset/\",\n        auth_views.PasswordResetView.as_view(template_name=\"password_reset.html\"),\n        name=\"password_reset\",\n    ),\n    path(\n        \"password-reset-done/\",\n        auth_views.PasswordResetDoneView.as_view(\n            template_name=\"password_reset_done.html\"\n        ),\n        name=\"password_reset_done\",\n    ),\n    path(\n        \"reset/<uidb64>/<token>/\",\n        auth_views.PasswordResetConfirmView.as_view(\n            template_name=\"password_reset_confirm.html\"\n        ),\n        name=\"password_reset_confirm\",\n    ),\n    path(\n        \"password-reset-complete/\",\n        auth_views.PasswordResetCompleteView.as_view(\n            template_name=\"password_reset_complete.html\"\n        ),\n        name=\"password_reset_complete\",\n    ),\n    path(\"editUserInfo\", views.edit_user_info, name=\"edit_user_info\"),\n    path(\"userInfo\", views.view_user_info, name=\"user_info\"),\n    path(\"viewRequests\", views.view_health_history_requests, name=\"view_requests\"),\n    path(\"viewHealthHistory\", views.view_health_history, name=\"view_health_history\"),\n    path(\"viewReports\", views.view_report, name=\"view_reports\"),\n    path(\"createPost\", views.create_post, name='create_post'),\n    path(\"viewPosts\", views.view_posts, name='view_posts'),\n    path(\"editPost\", views.edit_post, name='edit_post'),\n]\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthScore/urls.py b/healthScore/urls.py
+--- a/healthScore/urls.py	(revision 4ae1ea30e4e4603d1566b57985877cac99fead52)
++++ b/healthScore/urls.py	(date 1711140500517)
+@@ -41,5 +41,8 @@
+     path("viewReports", views.view_report, name="view_reports"),
+     path("createPost", views.create_post, name='create_post'),
+     path("viewPosts", views.view_posts, name='view_posts'),
+-    path("editPost", views.edit_post, name='edit_post'),
++    # Submitting health request apis
++    path("submitHealthRecord", views.get_hospitals, name="get_hospitals"),
++    path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
++    # path("createNewRecord", views.create_record, name="create_new_record"),
+ ]
+Index: healthScore/models.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from django.db import models\nfrom django.contrib.auth.models import (\n    BaseUserManager,\n    PermissionsMixin,\n    AbstractBaseUser,\n)\n\n\nSTATUS_CHOICES = [\n    (\"approved\", \"Approved\"),\n    (\"rejected\", \"Rejected\"),\n    (\"pending\", \"Pending\"),\n]\n\n\n# Create your models here.\nclass Hospital(models.Model):  # Viewed by healthScoreAdmin and hospitalAdmin\n    id = models.AutoField(primary_key=True)\n    name = models.TextField(null=False)\n    address = models.TextField(null=False)\n    email = models.EmailField(null=False)  # Super admin's account\n    password = models.TextField()  # Super admin's account\n    contactInfo = models.TextField(null=False, max_length=10)\n    website = models.TextField(default=\"\")\n    status = models.TextField(choices=STATUS_CHOICES, default=\"pending\")\n\n\nclass HospitalStaff(models.Model):  # Viewed by hospitalAdmin\n    id = models.AutoField(primary_key=True)\n    hospitalID = models.ForeignKey(\"hospital\", to_field=\"id\", on_delete=models.CASCADE)\n    admin = models.BooleanField(default=False)  # True = hospitalAdmin, False = Doctor\n    name = models.TextField(null=False)\n    email = models.EmailField(null=False)\n    password = models.TextField(null=False)\n    specialization = models.TextField(default=\"\")\n    contactInfo = models.TextField(default=\"\", max_length=10)\n    securityQues = models.TextField(\n        default=\"\"\n    )  # If we not doing email resetting password\n    securityAns = models.TextField(\n        default=\"\"\n    )  # If we not doing email resetting password\n\n\nclass CustomUserManager(BaseUserManager):\n    def _create_user(self, email, password, **extra_fields):\n        if not email:\n            raise ValueError(\"You have not provided a valid e-mail address\")\n        user = self.model(email=self.normalize_email(email), **extra_fields)\n        user.set_password(password)\n        user.save(using=self._db)\n        return user\n\n    def create_user(self, email=None, password=None, **extra_fields):\n        extra_fields.setdefault(\"is_staff\", False)\n        extra_fields.setdefault(\"is_superuser\", False)\n        return self._create_user(email, password, **extra_fields)\n\n    def create_superuser(self, email=None, password=None, **extra_fields):\n        extra_fields.setdefault(\"is_staff\", True)\n        extra_fields.setdefault(\"is_superuser\", True)\n        return self._create_user(email, password, **extra_fields)\n\n\nclass User(AbstractBaseUser, PermissionsMixin):  # Viewed by User\n    id = models.AutoField(primary_key=True)\n    email = models.EmailField(unique=True)\n    password = models.TextField(null=False)\n\n    is_active = models.BooleanField(default=True)\n    is_superuser = models.BooleanField(default=False)\n    is_staff = models.BooleanField(default=False)\n\n    last_login = models.DateTimeField(blank=True, null=True)\n\n    username = models.CharField(max_length=50, unique=True)\n    name = models.TextField(blank=True, max_length=255, default=\"\")\n    dob = models.DateField(blank=True, null=True)\n    contactInfo = models.TextField(default=\"\", max_length=10)\n    address = models.TextField(null=False)\n    proofOfIdentity = models.TextField(\n        null=False\n    )  # Convert image to base64 string and store it here\n\n    securityQues = models.TextField(\n        default=\"\"\n    )  # If we not doing email resetting password\n    securityAns = models.TextField(\n        default=\"\"\n    )  # If we not doing email resetting password\n    gender = models.TextField(\n        blank=True, default=\"\"\n    )  # Can be updated to a choice field later on, if needed\n    profilePic = models.TextField(\n        null=True\n    )  # Convert image to base64 string and store it here\n    bloodGroup = models.TextField(null=False)\n    requests = models.JSONField(\n        null=True\n    )  # Will store data in this form: [{ requestedBy: '', dateTime:'', status:''}]. Will have\n    # the data of all the requests that have been done to view the user's records\n\n    USERNAME_FIELD = \"email\"\n    EMAIL_FIELD = \"email\"\n    REQUIRED_FIELDS = [\"username\"]\n\n    objects = CustomUserManager()\n\n    class Meta:\n        verbose_name = \"User\"\n        verbose_name_plural = \"Users\"\n\n    def get_full_name(self):\n        return self.name\n\n    def get_short_name(self):\n        return self.username\n\n\nclass HealthRecord(models.Model):  # Viewed by User and hospitalStaff who are doctors\n    id = models.AutoField(primary_key=True)\n    doctorID = models.IntegerField(null=False)\n    userID = models.ForeignKey(\"user\", to_field=\"id\", on_delete=models.CASCADE)\n    hospitalID = models.IntegerField(null=False)\n    status = models.TextField(choices=STATUS_CHOICES, default=\"pending\")\n    createdAt = models.DateTimeField(auto_now_add=True)\n    updatedAt = models.DateTimeField(auto_now_add=True)\n    appointmentId = models.ForeignKey(\n        \"appointment\", to_field=\"id\", on_delete=models.CASCADE\n    )\n    healthDocuments = models.JSONField(null=True)\n\n\nclass Appointment(models.Model):  # Viewed by User and hospitalStaff who are doctors\n    id = models.AutoField(primary_key=True)\n    name = models.TextField(null=False)\n    properties = models.JSONField(null=True)\n    # Will store values such as below. Need not be only vaccines\n    # {     # Can be a null field\n    #     name  -> vaccine\n    #     value -> covid\n    # }\n\n\nclass CommunityInteraction(models.Model):\n    userID = models.ForeignKey(\"user\", to_field=\"id\", on_delete=models.CASCADE)\n    postID = models.AutoField(primary_key=True)\n    postTitle = models.TextField(null=False)\n    postDescription = models.TextField(default=\"\")\n    postTimeStamp = models.DateTimeField(auto_now_add=True)\n    upvote = models.IntegerField(default=0)\n    downvote = models.IntegerField(default=0)\n    tags = models.TextField(default=\"\")\n    postComments = models.JSONField(null=True)\n    # These are the values that would be stored in the postComments jsonField\n    # [{\n    #     comment\n    #     commentID\n    #     commentTimeStamp\n    #     commentUpvotes\n    #     commentDownvotes\n    #     userIdOfCommenter\n    # }]\n\nclass Post(models.Model):\n    user = models.ForeignKey(\"User\", on_delete=models.CASCADE)\n    title = models.TextField(null=False)\n    description = models.TextField(default=\"\")\n    createdAt = models.DateTimeField(auto_now_add=True)\n\n    def __str__(self):\n        return self.title\n\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthScore/models.py b/healthScore/models.py
+--- a/healthScore/models.py	(revision 4ae1ea30e4e4603d1566b57985877cac99fead52)
++++ b/healthScore/models.py	(date 1711140500517)
+@@ -171,4 +171,23 @@
+     def __str__(self):
+         return self.title
+ 
++class Comment(models.Model):
++    post = models.ForeignKey("Post", related_name='comments', on_delete=models.CASCADE)
++    commenter = models.ForeignKey("User", on_delete=models.CASCADE)
++    content = models.TextField(default="")
++    createdAt = models.DateTimeField(auto_now_add=True)
++
++    def __str__(self):
++        return self.content[:20]
++
++
++class Post(models.Model):
++    user = models.ForeignKey("User", on_delete=models.CASCADE)
++    title = models.TextField(null=False)
++    description = models.TextField(default="")
++    createdAt = models.DateTimeField(auto_now_add=True)
++
++    def __str__(self):
++        return self.title
++
+ 
+Index: healthConfig/settings.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\"\"\"\nDjango settings for healthConfig project.\n\nGenerated by 'django-admin startproject' using Django 4.2.\n\nFor more information on this file, see\nhttps://docs.djangoproject.com/en/4.2/topics/settings/\n\nFor the full list of settings and their values, see\nhttps://docs.djangoproject.com/en/4.2/ref/settings/\n\"\"\"\n\nfrom pathlib import Path\nimport os\nimport pymysql\nimport random\n\npymysql.install_as_MySQLdb()\n\n# Build paths inside the project like this: BASE_DIR / 'subdir'.\nBASE_DIR = Path(__file__).resolve().parent.parent\n\n\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/\n\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = \"django-insecure-n1oep)=z2l=)(()n!2)rsd-vw_+x0@r*lqi#v5oxo37n8^@liy\"\n\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\n\nALLOWED_HOSTS = [\"*\"]\n\n\n# Application definition\n\nINSTALLED_APPS = [\n    \"healthScore.apps.HealthscoreConfig\",\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n]\n\nMIDDLEWARE = [\n    \"django.middleware.security.SecurityMiddleware\",\n    \"django.contrib.sessions.middleware.SessionMiddleware\",\n    \"django.middleware.common.CommonMiddleware\",\n    \"django.middleware.csrf.CsrfViewMiddleware\",\n    \"django.contrib.auth.middleware.AuthenticationMiddleware\",\n    \"django.contrib.messages.middleware.MessageMiddleware\",\n    \"django.middleware.clickjacking.XFrameOptionsMiddleware\",\n]\n\nROOT_URLCONF = \"healthConfig.urls\"\n\nTEMPLATES = [\n    {\n        \"BACKEND\": \"django.template.backends.django.DjangoTemplates\",\n        \"DIRS\": [],\n        \"APP_DIRS\": True,\n        \"OPTIONS\": {\n            \"context_processors\": [\n                \"django.template.context_processors.debug\",\n                \"django.template.context_processors.request\",\n                \"django.contrib.auth.context_processors.auth\",\n                \"django.contrib.messages.context_processors.messages\",\n            ],\n        },\n    },\n]\n\nWSGI_APPLICATION = \"healthConfig.wsgi.application\"\n\n\n# Database\n# https://docs.djangoproject.com/en/4.2/ref/settings/#databases\n\nDATABASES = {\n    \"default\": {\n        \"ENGINE\": \"django.db.backends.mysql\",\n        \"NAME\": \"HealthScore\",\n        \"USER\": os.environ[\"DB_USER\"],\n        \"PASSWORD\": os.environ[\"DB_PASSWORD\"],\n        \"HOST\": os.environ[\"DB_HOST\"],\n        \"PORT\": \"3306\",\n        \"TEST\": {\n            \"NAME\": \"test_healthScore\"\n            + str(os.getenv(\"TRAVIS_BUILD_NUMBER\", random.randint(0, 1000000)))\n        },\n    }\n}\n\n# Password validation\n# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators\n\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.UserAttributeSimilarityValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.MinimumLengthValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.CommonPasswordValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.NumericPasswordValidator\",\n    },\n]\n\nAUTHENTICATION_BACKENDS = [\"django.contrib.auth.backends.ModelBackend\"]\nAUTH_USER_MODEL = \"healthScore.user\"\n\nLOGOUT_REDIRECT_URL = \"/\"\n\n# Internationalization\n# https://docs.djangoproject.com/en/4.2/topics/i18n/\n\nLANGUAGE_CODE = \"en-us\"\n\nTIME_ZONE = \"UTC\"\n\nUSE_I18N = True\n\nUSE_TZ = True\n\n\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/4.2/howto/static-files/\n\nSTATIC_URL = \"static/\"\n\n# Default primary key field type\n# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field\n\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"\n\n# SMTP Configuration\n\nEMAIL_BACKEND = \"django.core.mail.backends.smtp.EmailBackend\"\nEMAIL_HOST = \"smtp.gmail.com\"\nEMAIL_PORT = 587\nEMAIL_USE_TLS = True\nEMAIL_HOST_USER = \"nyu.healthscore.team@gmail.com\"\nEMAIL_HOST_PASSWORD = \"oray abbz sltz obob\"  # app password not the actual password\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/healthConfig/settings.py b/healthConfig/settings.py
+--- a/healthConfig/settings.py	(revision 4ae1ea30e4e4603d1566b57985877cac99fead52)
++++ b/healthConfig/settings.py	(date 1711140500517)
+@@ -83,9 +83,9 @@
+     "default": {
+         "ENGINE": "django.db.backends.mysql",
+         "NAME": "HealthScore",
+-        "USER": os.environ["DB_USER"],
+-        "PASSWORD": os.environ["DB_PASSWORD"],
+-        "HOST": os.environ["DB_HOST"],
++        "USER": "root",
++        "PASSWORD": "root123456789",
++        "HOST": "localhost",
+         "PORT": "3306",
+         "TEST": {
+             "NAME": "test_healthScore"
