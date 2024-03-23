@@ -604,3 +604,8 @@ class HospitalStaffTests(TestCase):
         request.user = self.user
         response = deactivate_healthcare_staff(request)
         self.assertEqual(response.status_code, 200)
+
+
+class PostCommentTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects._create_user()

@@ -29,9 +29,12 @@ from .models import (
     Hospital,
     User,
     HospitalStaff,
+    Post,
+    Comment,
 )
 
 from .user_utils import get_health_history_details
+from .forms import PostForm, CommentForm
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -422,28 +425,6 @@ def get_doctors(request, hos_id):
     return JsonResponse({"doctors": doctorList})
 
 
-# def create_record(request):
-#     print(request, "request")
-#     updatedData = json.loads(request.body)
-#     current_user = ""
-#     current_user = request.user
-
-#     current_user_id = current_user.id
-
-#     new_record = Appointment.objects.create(
-#         name=updatedData['appointmentType'],
-#         properties=updatedData["appointmentProperties"]
-#     )
-
-#     HealthRecord.objects.create(
-#         doctorID=updatedData['doctorId']
-#         userID=current_user_id,
-#         hospitalID=updatedData["hospitalID"],
-#         appointmentId=new_record,
-#         status="pending",
-#     )
-
-
 def get_facility_doctors(request):
     if request.user.is_authenticated:
         user_hospital_staff_entry = get_object_or_404(
@@ -620,3 +601,50 @@ def activate_healthcare_staff(request):
         )
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+# @login_required
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            # post.user = request.user
+            user = User.objects.get(id=5)
+            post.user = user
+            post.save()
+            return redirect("view_posts")
+    else:
+        form = PostForm()
+    return render(request, "post_new_topic.html", {"form": form})
+
+
+def view_posts(request):
+    posts = Post.objects.all().order_by("-createdAt")
+    return render(request, "community_home.html", {"posts": posts})
+
+
+def view_one_topic(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = show_comments(post_id)
+    return render(request, "view_topic.html", {"post": post, "comments": comments})
+
+
+def create_comments(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            # comment.commenter = request.user [for later improvement]
+            comment.commenter = User.objects.get(id=5)
+            comment.save()
+
+    return redirect("view_one_topic", post_id=post.id)
+
+
+def show_comments(post_id):
+    comments = Comment.objects.filter(post__id=post_id).order_by("-createdAt")
+    return comments
+    # return render(request, "view_topic.html", {"comments": comments})
