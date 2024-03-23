@@ -20,6 +20,8 @@ from healthScore.views import (
     view_report,
     view_user_info,
     view_health_history_requests,
+    activate_healthcare_staff,
+    deactivate_healthcare_staff,
     get_doctors,
     get_record
 )
@@ -326,7 +328,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "date": datetime.now().strftime(DATE_FORMAT),
             "record_status": "approved",
         }
-        request = self.client.post(url, request_struct)
+        request = self.client.get(url, request_struct)
         request.user = self.user
         response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
