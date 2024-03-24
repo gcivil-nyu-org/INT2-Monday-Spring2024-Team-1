@@ -64,7 +64,11 @@ def get_health_history_details(request):
             appointment_details = Appointment.objects.get(id=h.appointmentId_id)
             appointment_name = appointment_details.name
             appointment_properties = json.loads(h.appointmentId.properties)
-            appointment_type = appointment_properties.get("type", "Unknown")
+            appointment_type = (
+                appointment_details.name
+                if appointment_details.name is not None
+                else "Unknown"
+            )
 
             # Fetch healthcare worker details by Dr. ID
             doctor_details = HospitalStaff.objects.get(id=h.doctorID)
@@ -78,6 +82,7 @@ def get_health_history_details(request):
             # Append a dictionary for each record with all the details needed
             detailed_history_list.append(
                 {
+                    "record_id": h.id,
                     "doctor_name": doctor_name,
                     "hospital_name": hospital_name,
                     "hospital_address": hospital_address,

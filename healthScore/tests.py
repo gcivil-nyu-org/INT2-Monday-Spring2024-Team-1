@@ -1,6 +1,9 @@
 from django.test import RequestFactory, TransactionTestCase, TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.http import HttpRequest
+
+from datetime import datetime
 import json
 
 from datetime import datetime
@@ -17,6 +20,12 @@ from healthScore.views import (
     record_sent_view,
     activate_healthcare_staff,
     deactivate_healthcare_staff,
+    get_doctors,
+    get_record,
+    record_sent_view,
+    get_edit,
+    add_health_record_view,
+    edit_health_record_view,
 )
 
 
@@ -124,15 +133,15 @@ class viewHealthHistoryTestCase(TransactionTestCase):
     def test_view_history_requests(self):
         url = reverse("view_requests")
         # appointment name healthcare_worker, healthcare_facility date and record_status are passed
-        request_struct = {
-            "appointment_name": "Vaccine",
-            "healthcare_worker": "Doctor A",
-            "healthcare_facility": "Hospital B",
-            "date": datetime.now().strftime(DATE_FORMAT),
-            "record_status": "approved",
-        }
-        request = self.factory.get(url, request_struct)
+        request = HttpRequest()
+        request.method = "GET"  # Set the HTTP method to GET
+        request.path = url
         request.user = self.user
+        request.GET["appointment_name"] = "Vaccine"
+        request.GET["healthcare_worker"] = "Doctor A"
+        request.GET["healthcare_facility"] = "Hospital B"
+        request.GET["date"] = datetime.now().strftime(DATE_FORMAT)
+        request.GET["record_status"] = "approved"
         response = view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
 
@@ -142,6 +151,78 @@ class viewHealthHistoryTestCase(TransactionTestCase):
         request = self.factory.post(url, request_struct)
         request.user = self.user
         response = view_report(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_doctors(self):
+        request = HttpRequest()
+        request.GET["hos_id"] = "1"
+        response = get_doctors(request, 1)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_records(self):
+        request = HttpRequest()
+        request.GET["rec_id"] = "1"
+        response = get_record(request, 1)
+        self.assertEqual(response.status_code, 200)
+
+    def test_new_health_record_sent(self):
+        request = HttpRequest()
+        request.user = self.user
+        response = record_sent_view(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_edit(self):
+        url = reverse("get_edit", args=[1])
+        request = HttpRequest()
+        request.path = url
+        request.user = self.user
+        request.GET["rec_id"] = "1"
+
+        response = get_edit(request, 1)
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_health_record_view(self):
+        url = reverse("new_health_record")
+        request = HttpRequest()
+        request.path = url
+        request.user = self.user
+        request.method = "POST"
+        request.POST["hospitalID"] = "1"
+        request.POST["doctorId"] = "1"
+        request.POST["appointmentType"] = "blood_test"
+        request.POST["type"] = "Covid"
+
+        response = add_health_record_view(request)
+        self.assertEqual(response.status_code, 302)
+
+    def test_add_health_record_view_else(self):
+        url = reverse("new_health_record")
+        request = HttpRequest()
+        request.path = url
+        request.user = self.user
+        request.method = "GET"
+
+        response = add_health_record_view(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_edit_health_record_view(self):
+        url = reverse("edit_record")
+        body = {
+            "recordId": "1",
+            "appointmentId": "1",
+            "appointmentType": "blood_test",
+            "appointmentProperties": {"type": "Covid"},
+            "doctorId": "1",
+            "hospitalID": "1",
+        }
+        request = self.factory.post(
+            url,
+            data=body,
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = edit_health_record_view(request)
         self.assertEqual(response.status_code, 200)
 
 

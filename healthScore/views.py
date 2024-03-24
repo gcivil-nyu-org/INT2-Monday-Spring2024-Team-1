@@ -24,15 +24,17 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    # Appointment,
+    Appointment,
     HealthRecord,
     Hospital,
     User,
     HospitalStaff,
-    Appointment,
+    Post,
+    Comment,
 )
 
 from .user_utils import get_health_history_details
+from .forms import PostForm, CommentForm
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -381,7 +383,7 @@ def login_view(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, email=email, password=password, is_active=True)
 
         if user is not None:
             login(request, user)
@@ -412,6 +414,48 @@ def get_doctors(request, hos_id):
         HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
     )
     return JsonResponse({"doctors": doctorList})
+
+
+def get_record(request, rec_id):
+    healthRecordList = list(HealthRecord.objects.filter(id=rec_id).values())
+
+    return JsonResponse({"data": json.dumps(healthRecordList[0], default=str)})
+
+
+def get_edit(request, rec_id):
+
+    selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
+    app = list(
+        Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
+    )
+
+    hospitalList = list(Hospital.objects.all().values())
+    unselectedHospitalList = []
+    for hospital in hospitalList:
+        if hospital["id"] == selected_record[0]["hospitalID"]:
+            selected_record[0]["hospital_name"] = hospital["name"]
+        else:
+            unselectedHospitalList.append(hospital)
+
+    doctorList = list(HospitalStaff.objects.filter(admin=False).values())
+
+    unselectedDoctorList = []
+    for docs in doctorList:
+        if docs["id"] == selected_record[0]["doctorID"]:
+            selected_record[0]["doctor_name"] = docs["name"]
+        else:
+            unselectedDoctorList.append(docs)
+
+    data = {
+        "appointment_props": app[0],
+        "record": selected_record[0],
+        "hospitals": unselectedHospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+        "doctors": unselectedDoctorList,
+    }
+
+    return render(request, "edit_health_record.html", {"data": data})
 
 
 @login_required
@@ -454,20 +498,26 @@ def add_health_record_view(request):
     return render(request, "record_submit.html", {"data": data})
 
 
-# @login_required
-# def edit_health_record_view(request, id=None):
-#     if request.method == "POST":
-#         id = request.POST.get("id")
-#         record = HealthRecord.objects.filter(id=id)
-#         if record.exists():
-#             record.doctorID = request.POST.get("doctorID")
-#             record.hospitalID = request.POST.get("hospitalID")
-#             record.status = "pending"
-#             record.appointmentId = request.POST.get("appointmentId")
-#             record.healthDocuments = request.POST.get("healthDocuments")
-#             record.save()
+@login_required
+def edit_health_record_view(request):
+    if request.method == "POST":
+        rec = json.loads(request.body)
+        id = rec.get("recordId")
+        record = get_object_or_404(HealthRecord, id=id)
+        appID = rec.get("appointmentId")
+        appointment = get_object_or_404(Appointment, id=appID)
 
-#     return render(request, "record_edit.html")
+        appointment.name = APPOINTMENT_TYPE[rec.get("appointmentType")]
+        appointment.properties = json.dumps(rec.get("appointmentProperties"))
+        appointment.save()
+
+        record.doctorID = rec.get("doctorId")
+        record.hospitalID = rec.get("hospitalID")
+        record.status = "pending"
+        record.appointmentId = appointment
+        record.save()
+
+        return JsonResponse({"message": "Updated succesfully"})
 
 
 def get_facility_doctors(request):
@@ -646,3 +696,50 @@ def activate_healthcare_staff(request):
         )
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+# @login_required
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            # post.user = request.user
+            user = User.objects.get(id=5)
+            post.user = user
+            post.save()
+            return redirect("view_posts")
+    else:
+        form = PostForm()
+    return render(request, "post_new_topic.html", {"form": form})
+
+
+def view_posts(request):
+    posts = Post.objects.all().order_by("-createdAt")
+    return render(request, "community_home.html", {"posts": posts})
+
+
+def view_one_topic(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = show_comments(post_id)
+    return render(request, "view_topic.html", {"post": post, "comments": comments})
+
+
+def create_comments(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            # comment.commenter = request.user [for later improvement]
+            comment.commenter = User.objects.get(id=5)
+            comment.save()
+
+    return redirect("view_one_topic", post_id=post.id)
+
+
+def show_comments(post_id):
+    comments = Comment.objects.filter(post__id=post_id).order_by("-createdAt")
+    return comments
+    # return render(request, "view_topic.html", {"comments": comments})

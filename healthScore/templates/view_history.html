@@ -20,6 +20,12 @@
             padding-top: 60px;
         }
 
+        .grab {
+            cursor: -webkit-grab;
+            cursor: grab;
+        }
+
+
         .sidebar a {
             padding: 10px 15px;
             text-decoration: none;
@@ -132,7 +138,7 @@
             <div class="col-lg-12">
                 <form action="{% url 'view_reports' %}" method="post">
                     {% csrf_token %}
-                    <table class="table table-striped my-4">
+                    <table class="table table-striped my-4 table-hover">
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Reason for Visit</th>
@@ -147,7 +153,7 @@
                         </thead>
                         <tbody>
                             {% for record, details in zipped_details %}
-                            <tr>
+                            <tr class="{% if request.record_status == 'rejected' %}grab{% endif %}" >
                                 <td class="appointmentName"
                                     onclick="getProperties(`{{ forloop.counter }}|{{ record.appointment_properties }}|{{record.appointment_name}}`)"
                                     data-toggle="modal" data-target="#myModal">{{ record.appointment_name }}</td>
