@@ -723,6 +723,7 @@ def view_one_topic(request, post_id):
     comments = show_comments(post_id)
     return render(request, "view_topic.html", {"post": post, "comments": comments})
 
+
 @login_required
 def create_comments(request, post_id):
     post = get_object_or_404(Post, id=post_id)
