@@ -58,6 +58,16 @@
 
 <div class="container mt-5">
     <button type="button" id="deactivateButton" class="deactivate-btn">Deactivate</button><br>
+    <div id="dynamicMessage" style="display: none;"></div>
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+            {{ error_message }}
+        </div>
+    {% elif message %}
+        <div class="alert alert-success" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
     <h2>Healthcare Workers</h2>
     <form action="/hs/addHealthcareStaff" method="post">
         <table class="table">
@@ -166,17 +176,20 @@ $('#deactivateButton').click(function() {
     var selectedIds = $('.deactivate-checkbox:checked').map(function() {
         return $(this).val();
     }).get();
-    
-    console.log("Selected IDs: ", selectedIds);
 
     $.ajax({
-        url: '/hs/deleteHealthcareStaff', // Update with your correct URL
+        url: '/hs/deleteHealthcareStaff',
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify({ "user_ids": selectedIds }),
         success: function(response) {
-            alert("Healthcare staff deactivated successfully");
-            // Optionally, refresh the list or update the UI accordingly
+            $('#dynamicMessage')
+                .html('<div class="alert alert-success" role="alert">' + response.message + '</div>')
+                .show();
+        
+            setTimeout(function() {
+                window.location.reload();
+            }, 5000);
         },
         error: function() {
             alert("Error deactivating healthcare staff.");
