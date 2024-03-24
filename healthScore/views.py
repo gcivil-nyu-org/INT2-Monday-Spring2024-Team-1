@@ -174,6 +174,7 @@ def edit_user_info(request):
             return JsonResponse({"message": "No data was changed."}, status=200)
 
 
+@login_required
 def view_report(request):
     if request.method == "POST":
         response = HttpResponse(content_type="application/pdf")
@@ -209,12 +210,9 @@ def view_report(request):
             )
         )
         story.append(logo_and_date)
-        user_id = 2
-        user_info = User.objects.get(id=user_id)
+        user_info = request.user
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
-        story.append(
-            Paragraph("DOB: " + user_info.dob.strftime(DATE_FORMAT), styles["Normal"])
-        )
+        story.append(Paragraph("DOB: " + user_info.dob, styles["Normal"]))
         story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
         story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
         story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
