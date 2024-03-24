@@ -425,7 +425,6 @@ def get_record(request, rec_id):
 
 
 def get_edit(request, rec_id):
-    print(request)
 
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
     app = list(
@@ -437,7 +436,6 @@ def get_edit(request, rec_id):
     for hospital in hospitalList:
         if hospital["id"] == selected_record[0]["hospitalID"]:
             selected_record[0]["hospital_name"] = hospital["name"]
-            selected_hospital = hospital
         else:
             unselectedHospitalList.append(hospital)
 
