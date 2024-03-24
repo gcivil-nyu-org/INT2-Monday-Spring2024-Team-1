@@ -6,8 +6,6 @@ from django.http import HttpRequest
 from datetime import datetime
 import json
 
-from datetime import datetime
-
 from healthScore.models import Hospital, User, HospitalStaff, HealthRecord, Appointment
 
 from healthScore.views import (
@@ -22,9 +20,7 @@ from healthScore.views import (
     deactivate_healthcare_staff,
     get_doctors,
     get_record,
-    record_sent_view,
     get_edit,
-    add_health_record_view,
     edit_health_record_view,
 )
 
