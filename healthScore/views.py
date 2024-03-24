@@ -698,15 +698,14 @@ def activate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
-# @login_required
+@login_required
 def create_post(request):
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
-            # post.user = request.user
-            user = User.objects.get(id=5)
-            post.user = user
+            post.user = request.user
+            # user = User.objects.get(id=5)
             post.save()
             return redirect("view_posts")
     else:
@@ -724,7 +723,7 @@ def view_one_topic(request, post_id):
     comments = show_comments(post_id)
     return render(request, "view_topic.html", {"post": post, "comments": comments})
 
-
+@login_required
 def create_comments(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method == "POST":
@@ -732,8 +731,8 @@ def create_comments(request, post_id):
         if form.is_valid():
             comment = form.save(commit=False)
             comment.post = post
-            # comment.commenter = request.user [for later improvement]
-            comment.commenter = User.objects.get(id=5)
+            comment.commenter = request.user
+            # comment.commenter = User.objects.get(id=5)
             comment.save()
 
     return redirect("view_one_topic", post_id=post.id)
