@@ -547,6 +547,7 @@ class HospitalStaffTests(TestCase):
         response = deactivate_healthcare_staff(request)
         self.assertEqual(response.status_code, 200)
 
+
 class PostCommentTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
