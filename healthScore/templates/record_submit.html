@@ -302,6 +302,7 @@
                             <div class="input-group">
                                 <span class="input-group-text labelProperties" id="basic-addon3">${value}</span>
                                 <input name="${key}"
+                                    id="${key}"
                                     type="${inputType(key)}" 
                                     onkeydown="${key === 'date' ? 'return false;' : ''}" 
                                     onkeypress="${key === 'date' ? 'return false;' : ''}" 
@@ -323,7 +324,7 @@
 
 
             function validateRecordForm() {
-                var bloodGroupElement = document.getElementsByName("blood_group");
+                var bloodGroupElement = document.getElementById("blood_group");
                 if (bloodGroupElement.length>0) {
                     var bloodGroupValue = bloodGroupElement.value;
                     // ensure only certain values can be entered 
@@ -335,7 +336,7 @@
                     }
                 }
 
-                var secondVisitElement = document.getElementsByName("second_visit");
+                var secondVisitElement = document.getElementById("second_visit");
                 if (secondVisitElement.length>0){
                     var secondVistValue = secondVisitElement.value;
                     if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
