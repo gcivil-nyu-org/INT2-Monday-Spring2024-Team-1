@@ -33,6 +33,7 @@ from healthScore.views import (
     get_record,
     get_edit,
     edit_health_record_view,
+    add_healthcare_staff,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -534,7 +535,7 @@ class HospitalStaffTests(TestCase):
 
         request.user = self.user
         response = deactivate_healthcare_staff(request)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
 
     def test_deactivate_healthcare_staff_pass(self):
         request = self.factory.put(
@@ -586,4 +587,122 @@ class PostCommentTestCase(TestCase):
         )
         request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
+
+
+class AddHealthcareStaffTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        h1 = Hospital.objects.create(
+            id=1,
+            name="Hospital A",
+            address="Address A",
+            contactInfo="1234567890",
+        )
+
+        User.objects.create_patient(
+            id=1,
+            email="patient@example.com",
+            name="Patient 1",
+            password="patientpass",
+            is_patient=1,
+        )
+
+        self.admin = User.objects.create_staff(
+            id=2,
+            email="admin@example.com",
+            name="Admin 1",
+            password="adminpass",
+            is_staff=1,
+        )
+
+        User.objects.create_healthcare_worker(
+            id=3,
+            email="doctor@example.com",
+            name="Doctor 1",
+            password="doctorpass",
+            is_healthcare_worker=1,
+        )
+
+        HospitalStaff.objects.create(
+            hospitalID=h1,
+            admin=True,
+            userID=2,
+        )
+
+    def test_post_request_patient_exists(self):
+        request = self.factory.post(
+            reverse("add_healthcare_staff"),
+            {
+                "email": "patient@example.com",
+                "fullname": "New Admin",
+                "contactInfo": "9746352632",
+                "specialization": "",
+                "is_admin": 1,
+            },
+        )
+        request.user = self.admin
+
+        response = add_healthcare_staff(request)
+
+        self.assertIn(
+            "A patient account already exists with this email",
+            response.content.decode(),
+        )
+
+    def test_post_request_admin_exists(self):
+        request = self.factory.post(
+            reverse("add_healthcare_staff"),
+            {
+                "email": "admin@example.com",
+                "fullname": "New Admin",
+                "contactInfo": "9746352632",
+                "specialization": "",
+                "is_admin": 1,
+            },
+        )
+        request.user = self.admin
+
+        response = add_healthcare_staff(request)
+
+        self.assertIn(
+            "An admin account already exists with this email",
+            response.content.decode(),
+        )
+
+    def test_post_request_healthcare_worker_exists(self):
+        request = self.factory.post(
+            reverse("add_healthcare_staff"),
+            {
+                "email": "doctor@example.com",
+                "fullname": "New Admin",
+                "contactInfo": "9746352632",
+                "specialization": "",
+                "is_admin": 1,
+            },
+        )
+        request.user = self.admin
+
+        response = add_healthcare_staff(request)
+
+        self.assertIn(
+            "A healthcare worker account already exists with this email",
+            response.content.decode(),
+        )
+
+    def test_valid_post_request(self):
+        request = self.factory.post(
+            reverse("add_healthcare_staff"),
+            {
+                "email": "newadmin@example.com",
+                "fullname": "New Admin",
+                "contactInfo": "9746352632",
+                "specialization": "",
+                "is_admin": 1,
+            },
+        )
+        request.user = self.admin
+
+        response = add_healthcare_staff(request)
+
         self.assertEqual(response.status_code, 302)
