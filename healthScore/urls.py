@@ -40,9 +40,12 @@ urlpatterns = [
     path("viewHealthHistory", views.view_health_history, name="view_health_history"),
     path("viewReports", views.view_report, name="view_reports"),
     # Submitting health request apis
-    path("submitHealthRecord", views.get_hospitals, name="get_hospitals"),
     path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
-    # path("createNewRecord", views.create_record, name="create_new_record"),
+    path("getRecord/<str:rec_id>/", views.get_record, name="get_record"),
+    path("getEdit/<str:rec_id>/", views.get_edit, name="get_edit"),
+    path("edit-record/", views.edit_health_record_view, name="edit_record"),
+    path("new-record/", views.add_health_record_view, name="new_health_record"),
+    path("request-sent/", views.record_sent_view, name="new_health_record_sent"),
     path(
         "healthcareFacility/",
         views.hospital_staff_directory,
@@ -62,5 +65,13 @@ urlpatterns = [
         "activateHealthcareStaff",
         views.activate_healthcare_staff,
         name="activate_healthcare_staff",
+    ),
+    path("createPost", views.create_post, name="create_post"),
+    path("viewPosts", views.view_posts, name="view_posts"),
+    path("view_one_topic/<int:post_id>/", views.view_one_topic, name="view_one_topic"),
+    path(
+        "create_comments/<int:post_id>/comment/",
+        views.create_comments,
+        name="create_comments",
     ),
 ]

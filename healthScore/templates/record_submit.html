@@ -66,32 +66,30 @@
             color: #999;
         }
 
-        .cardStyles{
-            width: 100%!important; 
-            border-radius:15px!important; 
-            box-shadow: 2px 7px #E1AFD1!important;
+        .cardStyles {
+            width: 100% !important;
+            border-radius: 15px !important;
+            box-shadow: 2px 7px #E1AFD1 !important;
         }
 
-        .submitButton{
+        .submitButton {
             text-align: center !important;
         }
 
-        .appointmentProperties{
-            width: 6rem; 
+        .appointmentProperties {
+            width: 6rem;
             border-radius: 0rem 0.25rem 0.25rem 0rem !important;
         }
 
-        .labelProperties{
-            width: 12rem; 
+        .labelProperties {
+            width: 12rem;
             border-radius: 0.25rem 0px 0px 0.25rem !important;
         }
 
-        .dropdownStyle{
-            width: 100%!important;
+        .dropdownStyle {
+            width: 100% !important;
             text-align: center;
         }
-
-
     </style>
 </head>
 
@@ -110,12 +108,12 @@
                         <h4 class="card-title">Submit a Health Request</h4>
                         <hr />
                     </div>
-                    <form id="submitRecord">
-
+                    <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()">
+                        {% csrf_token %}
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
-                                <select id="hospitalSelect" class="custom-select form-select" name="hospitalID">
-                                    <option value="N/A" selected disabled>Please select the Hospital</option>
+                                <select id="hospitalSelect" class="custom-select form-select" name="hospitalID" required>
+                                    <option value="" selected disabled>Please select the Hospital</option>
                                     {% for hos in data.hospitals %}
                                     <option value="{{hos.id}}">{{hos.name}}</option>
                                     {% endfor %}
@@ -126,8 +124,8 @@
 
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
-                                <select id="doctorSelect" class="custom-select form-select" name="doctorId">
-                                    <option value="N/A" selected disabled>Please select the Doctor</option>
+                                <select id="doctorSelect" class="custom-select form-select" name="doctorId" required>
+                                    <option value="" selected disabled>Please select the Doctor</option>
                                 </select>
                             </div>
                         </div>
@@ -135,8 +133,8 @@
 
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
-                                <select id="appointmentType" class="custom-select form-select" name="appointmentType">
-                                    <option value="N/A" selected disabled>Please select the type of Appointment</option>
+                                <select id="appointmentType" class="custom-select form-select" name="appointmentType" required>
+                                    <option value="" selected disabled>Please select the type of Appointment</option>
                                     {% for key, value in data.appointmentType.items %}
                                     <option value="{{key}}">{{value}}</option>
                                     {% endfor %}
@@ -148,10 +146,8 @@
                             <!-- Data filled dynamically -->
                         </div>
 
-                        {% csrf_token %}
                         <div class="col-12 submitButton">
-                            <button type="button" class="btn btn-primary" onclick="createNewRecord()">Save
-                                Changes</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
                         </div>
 
                     </form>
@@ -167,7 +163,7 @@
                 <!-- For placement of the submit card -->
             </div>
         </div>
-
+    </div>
 
         <script>
             function getDoctors(hospital_id) {
@@ -197,7 +193,6 @@
                     .catch((error) => {
                         console.error('Error:', error);
                     });
-
             }
 
             document.getElementById("hospitalSelect").addEventListener("change", function () {
@@ -306,14 +301,15 @@
                     props += `<div class="mb-3 ml-3 mr-3">                            
                             <div class="input-group">
                                 <span class="input-group-text labelProperties" id="basic-addon3">${value}</span>
-                                <input name="${key}" 
+                                <input name="${key}"
+                                    id="${key}"
                                     type="${inputType(key)}" 
                                     onkeydown="${key === 'date' ? 'return false;' : ''}" 
                                     onkeypress="${key === 'date' ? 'return false;' : ''}" 
                                     onpaste="${key === 'date' ? 'return false;' : ''}"  
                                     step="${stepSize(key)}" 
                                     class="form-control" id="exampleFormControlInput1"
-                                    placeholder="${setPlaceholder(key, value)}">
+                                    placeholder="${setPlaceholder(key, value)}" required>
                                 ${addingUnits(key)}                                
                             </div>
                           </div>`
@@ -327,127 +323,34 @@
             })
 
 
-            function validateData(jsonData) {
-                keys = Object.keys(jsonData)
-
-                if (!(keys.includes("hospitalID"))) {
-                    document.getElementById('message').innerHTML = ""
-                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                                    Please select a Hospital!
-                                    </div>`
-                    return false
-                }
-                else if (!(keys.includes("doctorId"))) {
-                    document.getElementById('message').innerHTML = ""
-                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                                    Please select a Doctor!
-                                    </div>`
-                    return false
-                }
-                else if (!(keys.includes("appointmentType"))) {
-                    document.getElementById('message').innerHTML = ""
-                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                                    Please select an Appointment Type!
-                                    </div>`
-                    return false
-                }
-                else {
-                    for (var i = 0; i < keys.length; i++) {
-                        if (keys[i] == "date") {
-                            var date = new Date(jsonData[keys[i]]);
-                            if (isNaN(date.getTime())) {
-                                document.getElementById('message').innerHTML = ""
-                                document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                                    Invalid Date Provided!
-                                    </div>`
-                                return false
-                            }
-
-                        }
-                        else if (keys[i] == "blood_group") {
-                            if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(jsonData[keys[i]])) {
-                                document.getElementById('message').innerHTML = ""
-                                document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                                    Invalid Blood Type Provided!
-                                    </div>`
-                                return false
-                            }
-                        }
-                        else if (keys[i] == "second_visit") {
-                            if (!['yes', 'no'].includes(jsonData[keys[i]].toLowerCase())) {
-                                document.getElementById('message').innerHTML = ""
-                                document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                                    Please Enter Yes/No for Second Visit!
-                                    </div>`
-                                return false
-                            }
-                        }
-                        else {
-                            switch (inputType(keys[i])) {
-                                case "text":
-                                case "number": {
-                                    if (jsonData[keys[i]] == "") {
-                                        document.getElementById('message').innerHTML = ""
-                                        document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                                            One or more properties empty!
-                                        </div>`
-                                        return false
-                                    }
-                                }
-
-                            }
-                        }
+            function validateRecordForm() {
+                var bloodGroupElement = document.getElementById("blood_group");
+                if (bloodGroupElement.length>0) {
+                    var bloodGroupValue = bloodGroupElement.value;
+                    // ensure only certain values can be entered 
+                    if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
+                        document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
+                            Invalid Blood Type Provided!
+                            </div>`;
+                        return false;
                     }
                 }
-                return true
-            }
 
-            function createNewRecord() {
-                const form = document.getElementById('submitRecord');
-
-                const formData = new FormData(form);
-                const jsonData = {};
-                formData.forEach((value, key) => { jsonData[key] = value; });
-                if (validateData(jsonData)) {
-                    document.getElementById('message').innerHTML = ""
-                    var appointmentType = `{{ data.appointmentProps|safe }}`;
-                    jsonified_appointmentTypes = JSON.parse(appointmentType)
-                    selected_appointment = jsonified_appointmentTypes[jsonData['appointmentType']]
-
-                    var newData = {
-                        hospitalID: jsonData.hospitalID,
-                        doctorId: jsonData.doctorId,
-                        appointmentType: jsonData.appointmentType,
-                        appointmentProperties: {}
-                    };
-
-                    Object.keys(jsonData).forEach(function (key) {
-                        if (key !== "hospitalID" && key !== "doctorId" && key !== "appointmentType" && key !== "csrfmiddlewaretoken") {
-                            newData.appointmentProperties[key] = jsonData[key];
-                        }
-                    });
-
-
-                    fetch('{% url "create_new_record" %}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        },
-                        body: JSON.stringify(newData),
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data)
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                        });
-
-                    
+                var secondVisitElement = document.getElementById("second_visit");
+                if (secondVisitElement.length>0){
+                    var secondVistValue = secondVisitElement.value;
+                    if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
+                        document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
+                            Please Enter Yes/No for Second Visit!
+                            </div>`;
+                        return false;
+                    }
                 }
+
+                document.getElementById('message').innerHTML = "";
+                return true;
             }
-        
         </script>
 </body>
+
 </html>
