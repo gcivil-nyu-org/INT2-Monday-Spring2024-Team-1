@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Sent</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+  }
+  h2 {
+    text-align: center;
+  }
+  .logo {
+      width: 350px;
+      height: 100px;
+  }
+  .header_subtext {
+    text-align: center;
+  }
+  button {
+        background-color: #5B0888;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+  }
+  button:hover {
+      background-color: #360451;
+      color:white;
+  }
+  .link_text_modified {
+    text-decoration: none;
+    color: #FFFFFF;
+  }
+</style>
+</head>
+
+<header>
+    <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
+</header>
+
+
+<body>
+  <h2>Your Request Sent</h2>
+  <p class="header_subtext">You have submitted a new health record.</p>
+  <p class="header_subtext">Once it is approved, you will be notified.</p>
+  <button><a class="link_text_modified" href="{% url 'view_requests' %}">View All Your Requests</a></button>
+  <br><br>
+  <a class="header_subtext" href="{% url 'new_health_record' %}">Add another health record?</a>
+</body>
+</html>
