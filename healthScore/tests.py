@@ -398,11 +398,6 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_edit_health_record_view(self):
         url = reverse("edit_record")
-
-        # request = HttpRequest()
-        # request.path = url
-
-        # request.method = "POST"
         body = {
             "recordId": "1",
             "appointmentId": "1",
@@ -411,13 +406,8 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             "doctorId": "1",
             "hospitalID": "1",
         }
-        # request = self.factory.post(url, body)
-        # request.user = self.user
-        # response = edit_health_record_view(request)
-        # self.assertEqual(response.status_code, 200)
-
         request = self.factory.post(
-            reverse("edit_record"),
+            url,
             data=body,
             content_type="application/json",
         )
