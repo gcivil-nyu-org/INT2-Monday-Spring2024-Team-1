@@ -6,7 +6,14 @@ from django.http import HttpRequest
 from datetime import datetime
 import json
 
-from healthScore.models import Hospital, User, HospitalStaff, HealthRecord, Appointment
+from healthScore.models import (
+    HealthRecord,
+    Hospital,
+    User,
+    HospitalStaff,
+    Appointment,
+    Post,
+)
 
 from healthScore.views import (
     edit_user_info,
@@ -18,12 +25,15 @@ from healthScore.views import (
     record_sent_view,
     activate_healthcare_staff,
     deactivate_healthcare_staff,
+    create_post,
+    view_posts,
+    view_one_topic,
+    create_comments,
     get_doctors,
     get_record,
     get_edit,
     edit_health_record_view,
 )
-
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -536,3 +546,43 @@ class HospitalStaffTests(TestCase):
         request.user = self.user
         response = deactivate_healthcare_staff(request)
         self.assertEqual(response.status_code, 200)
+
+class PostCommentTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user1 = User.objects.create(
+            id=5,
+            email="patient@example.com",
+            name="User 1",
+            password="patientpass",
+        )
+        self.post = Post.objects.create(
+            title="Test Post", description="Test Description", user=self.user1
+        )
+
+    def test_view_posts(self):
+        request = self.factory.get("/viewPosts")
+        response = view_posts(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_post(self):
+        request = self.factory.post(
+            "/createPost", {"title": "Test Title", "description": "Test Description"}
+        )
+        request.user = self.user1
+        response = create_post(request)
+        self.assertEqual(response.status_code, 302)
+
+    def test_view_one_topic(self):
+        request = self.factory.get(f"/view_one_topic/{self.post.id}/")
+        response = view_one_topic(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_comments(self):
+        comment_data = {"content": "Test Comment"}
+        request = self.factory.post(
+            f"/create_comments/{self.post.id}/comment/", comment_data
+        )
+        request.user = self.user1
+        response = create_comments(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
