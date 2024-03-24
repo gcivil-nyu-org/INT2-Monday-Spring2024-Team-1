@@ -193,7 +193,8 @@
     <div id="admin_role_section" class="role-section" onclick="selectRole('Healthcare Admin')">Healthcare Admin</div>
 </div>
 
-<form id="userForm" action="/hs/registration/" method="post" onsubmit="return validateUserForm()" style="display: none">
+<form id="userForm" action="{% url 'registration' %}" method="post" onsubmit="return validateUserForm()" style="display: none">
+  {% csrf_token %}
   <input type="hidden" name="role" id="selected_role" value="User">
 
   <div id="error_message" class="error-message">
@@ -305,7 +306,7 @@
     <input type="submit" value="Register">
 </form>
 
-<form id="adminForm" action="/hs/registration/" method="post" onsubmit="return validateForm()" style="display: none">
+<form id="adminForm" action="{% url 'registration' %}" method="post" onsubmit="return validateForm()" style="display: none">
     <input type="hidden" name="role" id="admin_selected_role" value="Healthcare Admin">
         
     <label for="admin_email">Email<span style="color: red;">*</span></label>

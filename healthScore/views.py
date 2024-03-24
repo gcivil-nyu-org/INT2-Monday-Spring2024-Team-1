@@ -24,7 +24,7 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    # Appointment,
+    Appointment,
     HealthRecord,
     Hospital,
     User,
@@ -35,6 +35,7 @@ from .models import (
 
 from .user_utils import get_health_history_details
 from .forms import PostForm, CommentForm
+
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -101,6 +102,7 @@ def homepage(request):
     return render(request, "homepage.html")
 
 
+@login_required
 def view_health_history(request):
     # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
     updated_params = request.GET.copy()
@@ -172,6 +174,7 @@ def edit_user_info(request):
             return JsonResponse({"message": "No data was changed."}, status=200)
 
 
+@login_required
 def view_report(request):
     if request.method == "POST":
         response = HttpResponse(content_type="application/pdf")
@@ -207,12 +210,9 @@ def view_report(request):
             )
         )
         story.append(logo_and_date)
-        user_id = 2
-        user_info = User.objects.get(id=user_id)
+        user_info = request.user
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
-        story.append(
-            Paragraph("DOB: " + user_info.dob.strftime(DATE_FORMAT), styles["Normal"])
-        )
+        story.append(Paragraph("DOB: " + user_info.dob, styles["Normal"]))
         story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
         story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
         story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
@@ -310,7 +310,6 @@ def view_report(request):
         return response
 
 
-@csrf_exempt
 def registration(request):
     if request.method == "POST":
         role = request.POST.get("role")
@@ -384,7 +383,7 @@ def login_view(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, email=email, password=password, is_active=True)
 
         if user is not None:
             login(request, user)
@@ -398,6 +397,7 @@ def login_view(request):
     return render(request, "login.html")
 
 
+@login_required
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
 
@@ -405,24 +405,119 @@ def view_health_history_requests(request):
 
 
 @login_required
-@csrf_exempt
-def get_hospitals(request):
+def record_sent_view(request):
+    return render(request, "record_submit_complete.html")
+
+
+def get_doctors(request, hos_id):
+    doctorList = list(
+        HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
+    )
+    return JsonResponse({"doctors": doctorList})
+
+
+def get_record(request, rec_id):
+    healthRecordList = list(HealthRecord.objects.filter(id=rec_id).values())
+
+    return JsonResponse({"data": json.dumps(healthRecordList[0], default=str)})
+
+
+def get_edit(request, rec_id):
+
+    selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
+    app = list(
+        Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
+    )
+
+    hospitalList = list(Hospital.objects.all().values())
+    unselectedHospitalList = []
+    for hospital in hospitalList:
+        if hospital["id"] == selected_record[0]["hospitalID"]:
+            selected_record[0]["hospital_name"] = hospital["name"]
+        else:
+            unselectedHospitalList.append(hospital)
+
+    doctorList = list(HospitalStaff.objects.filter(admin=False).values())
+
+    unselectedDoctorList = []
+    for docs in doctorList:
+        if docs["id"] == selected_record[0]["doctorID"]:
+            selected_record[0]["doctor_name"] = docs["name"]
+        else:
+            unselectedDoctorList.append(docs)
+
+    data = {
+        "appointment_props": app[0],
+        "record": selected_record[0],
+        "hospitals": unselectedHospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+        "doctors": unselectedDoctorList,
+    }
+
+    return render(request, "edit_health_record.html", {"data": data})
+
+
+@login_required
+def add_health_record_view(request):
     hospitalList = list(Hospital.objects.all().values())
     data = {
         "hospitals": hospitalList,
         "appointmentType": APPOINTMENT_TYPE,
         "appointmentProps": json.dumps(APPOINTMENT_PROPS),
     }
-    return render(request, "submit_health_record.html", {"data": data})
+    if request.method == "POST":
+        hospitalID = request.POST.get("hospitalID")
+        doctorID = request.POST.get("doctorId")
+        userID = request.user
+        # create a new appointment
+        appointmentType = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
+        appointmentProperties = dict()
+        all_fields = request.POST
+        for key, value in all_fields.items():
+            if (
+                key != "csrfmiddlewaretoken"
+                and key != "hospitalID"
+                and key != "doctorId"
+                and key != "appointmentType"
+            ):
+                appointmentProperties[key] = value
+        appointmentProperties = json.dumps(appointmentProperties)
+        new_appointment = Appointment.objects.create(
+            name=appointmentType, properties=appointmentProperties
+        )
+        appointmentID = new_appointment
+
+        HealthRecord.objects.create(
+            doctorID=doctorID,
+            userID=userID,
+            hospitalID=hospitalID,
+            appointmentId=appointmentID,
+        )
+        return redirect("new_health_record_sent")
+    return render(request, "record_submit.html", {"data": data})
 
 
 @login_required
-@csrf_exempt
-def get_doctors(request, hos_id):
-    doctorList = list(
-        HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
-    )
-    return JsonResponse({"doctors": doctorList})
+def edit_health_record_view(request):
+    if request.method == "POST":
+        rec = json.loads(request.body)
+        id = rec.get("recordId")
+        record = get_object_or_404(HealthRecord, id=id)
+        appID = rec.get("appointmentId")
+        appointment = get_object_or_404(Appointment, id=appID)
+
+        appointment.name = APPOINTMENT_TYPE[rec.get("appointmentType")]
+        appointment.properties = json.dumps(rec.get("appointmentProperties"))
+        appointment.save()
+
+        record.doctorID = rec.get("doctorId")
+        record.hospitalID = rec.get("hospitalID")
+        record.status = "pending"
+        record.appointmentId = appointment
+        record.save()
+
+        return JsonResponse({"message": "Updated succesfully"})
 
 
 def get_facility_doctors(request):
