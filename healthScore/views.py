@@ -310,6 +310,7 @@ def view_report(request):
         return response
 
 
+@csrf_exempt
 def registration(request):
     if request.method == "POST":
         role = request.POST.get("role")
