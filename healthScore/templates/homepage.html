@@ -23,40 +23,6 @@
       padding: 20px;
       text-align: center;
     }
-    .logo {
-      width: 350px;
-      height: 100px;
-    }
-    .buttons {
-      display: flex;
-      gap: 15px;
-      padding-right: 10px;
-    }
-    .register-button{
-      background-color: #6466A8;
-      font-size: 15px;
-      color: #FFFFFF;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .register-button:hover{
-      background-color: #7801a1;
-    }
-    .login-button{
-      background-color: transparent;
-      font-size: 15px;
-      color: #6466A8;
-      font-weight: bold;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-    .login-button:hover{
-      color: #7801a1;
-    }
     .welcome-text {
       font-family: Arial;
       font-weight: bold;
@@ -92,10 +58,6 @@
       font-weight: bold;
       margin-bottom: 40px;
     }
-    .user-dropdown {
-    position: relative;
-    display: inline-block;
-    }
     .feature-container {
       display: flex;
       flex-wrap: wrap;
@@ -106,21 +68,6 @@
       padding: 15px;
       box-sizing: border-box;
       background-color: #E5D2CE;
-    }
-    .user-button {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .user-dropdown-content {
-        display: none;
-        position: absolute;
-        right: 0;
-        background-color: #f9f9f9;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
     }
     
     .user-dropdown-content a {
@@ -140,27 +87,7 @@
   
   
 <body>
-  <header>
-    <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
-    
-    
-    
-    <div class="buttons">
-        {%  if user.is_authenticated %}
-            <div class="user-dropdown">
-                <button class="user-button"><i class="fas fa-user fa-2x"></i></button>
-                <div class="user-dropdown-content">
-                    <a class="dropdown-item" href="{% url 'user_info' %}">Account</a>
-                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                </div>
-            </div>
-        {% else %}
-            <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
-            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
-        {%  endif %}
-    </div>
-  </header>
-
+  {%  include 'header.html' %}
 
 
   <div class="welcome-text">

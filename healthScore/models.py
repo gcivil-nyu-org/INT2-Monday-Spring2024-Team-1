@@ -18,10 +18,7 @@ class Hospital(models.Model):  # Viewed by healthScoreAdmin and hospitalAdmin
     id = models.AutoField(primary_key=True)
     name = models.TextField(null=False)
     address = models.TextField(null=False)
-    email = models.EmailField(null=False)  # Super admin's account
-    password = models.TextField()  # Super admin's account
     contactInfo = models.TextField(null=False, max_length=10)
-    website = models.TextField(default="")
     status = models.TextField(choices=STATUS_CHOICES, default="pending")
 
 
@@ -30,10 +27,9 @@ class HospitalStaff(models.Model):  # Viewed by hospitalAdmin
     hospitalID = models.ForeignKey("hospital", to_field="id", on_delete=models.CASCADE)
     admin = models.BooleanField(default=False)  # True = hospitalAdmin, False = Doctor
     name = models.TextField(null=False)
-    email = models.EmailField(null=False)
-    password = models.TextField(null=False)
     specialization = models.TextField(default="")
     contactInfo = models.TextField(default="", max_length=10)
+    userID = models.IntegerField(null=False)
     securityQues = models.TextField(
         default=""
     )  # If we not doing email resetting password
@@ -45,20 +41,26 @@ class HospitalStaff(models.Model):  # Viewed by hospitalAdmin
 class CustomUserManager(BaseUserManager):
     def _create_user(self, email, password, **extra_fields):
         if not email:
-            raise ValueError("You have not provided a valid e-mail address")
+            raise ValueError("You have not provided a valid email address")
         user = self.model(email=self.normalize_email(email), **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, email=None, password=None, **extra_fields):
+    def create_patient(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
-        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("is_patient", True)
         return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, email=None, password=None, **extra_fields):
+    def create_staff(self, email=None, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_patient", False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_healthcare_worker(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_patient", False)
+        extra_fields.setdefault("is_healthcare_worker", True)
         return self._create_user(email, password, **extra_fields)
 
 
@@ -68,12 +70,12 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
     password = models.TextField(null=False)
 
     is_active = models.BooleanField(default=True)
-    is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_patient = models.BooleanField(default=False)
+    is_healthcare_worker = models.BooleanField(default=False)
 
     last_login = models.DateTimeField(blank=True, null=True)
 
-    username = models.CharField(max_length=50, unique=True)
     name = models.TextField(blank=True, max_length=255, default="")
     dob = models.DateField(blank=True, null=True)
     contactInfo = models.TextField(default="", max_length=10)
@@ -102,7 +104,7 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
-    REQUIRED_FIELDS = ["username"]
+    REQUIRED_FIELDS = ["name"]
 
     objects = CustomUserManager()
 
@@ -112,9 +114,6 @@ class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
 
     def get_full_name(self):
         return self.name
-
-    def get_short_name(self):
-        return self.username
 
 
 class HealthRecord(models.Model):  # Viewed by User and hospitalStaff who are doctors
@@ -161,3 +160,17 @@ class CommunityInteraction(models.Model):
     #     commentDownvotes
     #     userIdOfCommenter
     # }]
+
+
+class Post(models.Model):
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+    title = models.TextField(null=False)
+    description = models.TextField(default="")
+    createdAt = models.DateTimeField(auto_now_add=True)
+
+
+class Comment(models.Model):
+    post = models.ForeignKey("Post", related_name="comments", on_delete=models.CASCADE)
+    commenter = models.ForeignKey("User", on_delete=models.CASCADE)
+    content = models.TextField(default="")
+    createdAt = models.DateTimeField(auto_now_add=True)

@@ -1,10 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
 from datetime import datetime
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -25,22 +24,85 @@ from reportlab.lib.styles import ParagraphStyle
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
+    Appointment,
     HealthRecord,
     Hospital,
     User,
     HospitalStaff,
+    Post,
+    Comment,
 )
 
 from .user_utils import get_health_history_details
+from .forms import PostForm, CommentForm
 
 
 DATE_FORMAT = "%Y-%m-%d"
+APPOINTMENT_TYPE = {
+    "blood_test": "Blood Test",
+    "eye": "Eye Exams",
+    "general": "General Physical",
+    "dermatologist": "Dermatologist",
+    "diabetes_screening": "Diabetes Screening",
+    "dentist": "Dentist",
+    "gynecologist": "Gynecologist",
+    "vaccinations": "Vaccinations",
+}
+
+APPOINTMENT_PROPS = {
+    "blood_test": {
+        "blood_group": "Blood Group",
+        "hemoglobin_count": "Hemoglobin Count",
+        "date": "Date",
+        "platelet_count": "Platelet Count",
+    },
+    "eye": {
+        "cylindrical_power_right": "Cylindrical Power Right",
+        "cylindrical_power_left": "Cylindrical Power Left",
+        "spherical_power_left": "Spherical Power Left",
+        "spherical_power_right": "Spherical Power Right",
+        "date": "Date",
+    },
+    "general": {
+        "blood_pressure": "Blood Pressure",
+        "pulse_rate": "Pulse Rate",
+        "date": "Date",
+    },
+    "dermatologist": {
+        "care_received": "Care Received",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "diabetes_screening": {
+        "fasting_sugar_level": "Fasting Sugar Level",
+        "random_sugar_level": "Random Sugar Level",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "dentist": {
+        "care_received": "Care Received",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "gynecologist": {
+        "care_received": "Care Received",
+        "second_visit": "Second Visit Required",
+        "date": "Date",
+    },
+    "vaccinations": {
+        "name": "Name",
+        "type": "Vaccination Type",
+        "dose_2": "Dose 2",
+        "date": "Dose 2 Date",
+    },
+}
 
 
 def homepage(request):
     return render(request, "homepage.html")
 
 
+@login_required
 def view_health_history(request):
     # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
     updated_params = request.GET.copy()
@@ -60,7 +122,6 @@ def view_user_info(request):
         userInfo = {
             "email": current_user.email,
             "name": current_user.name,
-            "username": current_user.username,
             "dob": current_user.dob,
             "contactInfo": current_user.contactInfo,
             # dummy string for now. Needs to be replaced with the S3 string
@@ -113,6 +174,7 @@ def edit_user_info(request):
             return JsonResponse({"message": "No data was changed."}, status=200)
 
 
+@login_required
 def view_report(request):
     if request.method == "POST":
         response = HttpResponse(content_type="application/pdf")
@@ -148,12 +210,9 @@ def view_report(request):
             )
         )
         story.append(logo_and_date)
-        user_id = 2
-        user_info = User.objects.get(id=user_id)
+        user_info = request.user
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
-        story.append(
-            Paragraph("DOB: " + user_info.dob.strftime(DATE_FORMAT), styles["Normal"])
-        )
+        story.append(Paragraph("DOB: " + user_info.dob, styles["Normal"]))
         story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
         story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
         story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
@@ -253,60 +312,69 @@ def view_report(request):
 
 @csrf_exempt
 def registration(request):
-    context = {
-        "email": "",
-        "username": "",
-        "password": "",
-        "fullname": "",
-        "dob": "",
-        "gender": "",
-        "street_address": "",
-        "city": "",
-        "state": "",
-        "phone_number": "",
-        "error_message": "",
-    }
-
-    if request.method == "POST":  # when the form is submitted
-        context["email"] = email = request.POST.get("email")
-        context["username"] = username = request.POST.get("username")
-        context["password"] = password = request.POST.get("password")
-        context["fullname"] = fullname = request.POST.get("fullname")
-        context["dob"] = dob = request.POST.get("dob")
-        context["gender"] = gender = request.POST.get("gender")
-        context["street_address"] = street_address = request.POST.get("street_address")
-        context["city"] = city = request.POST.get("city")
-        context["state"] = state = request.POST.get("state")
-        context["phone_number"] = phone_number = request.POST.get("phone_number")
-        # identity_proof = request.POST.get("identity_proof")
+    if request.method == "POST":
+        role = request.POST.get("role")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        fullname = request.POST.get("fullname")
+        phone_number = request.POST.get("contactInfo")
+        context = {"error_message:": ""}
 
         if User.objects.filter(email=email).exists():
-            context["error_message"] = (
-                "An account already exists for this email address. Please log in."
-            )
+            user = User.objects.get(email=email)
+            if user.is_patient:
+                context["error_message"] = (
+                    "A patient account already exists with this email"
+                )
+            elif user.is_staff:
+                context["error_message"] = (
+                    "An admin account already exists with this email"
+                )
+            else:
+                context["error_message"] = (
+                    "A healthcare worker account already exists with this email"
+                )
+
             return render(request, "registration.html", context)
 
-        elif User.objects.filter(username=username).exists():
-            context["error_message"] = (
-                "Username already exists. Please choose a different one."
+        common_fields = {
+            "email": email,
+            "password": password,
+            "name": fullname,
+            "contactInfo": phone_number,
+        }
+
+        if role == "User":
+            user_specific_fields = {
+                "dob": request.POST.get("dob"),
+                "gender": request.POST.get("gender"),
+                "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
+                "proofOfIdentity": request.POST.get(
+                    "identity_proof"
+                ),  # This needs handling for file upload
+            }
+            User.objects.create_patient(**common_fields, **user_specific_fields)
+
+        elif role == "Healthcare Admin":
+            hospital_name = request.POST.get("hospital_name")
+            hospital_address = f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}"
+
+            user = User.objects.create_staff(**common_fields)
+
+            hospital, created = Hospital.objects.get_or_create(
+                name=hospital_name,
+                defaults={"address": hospital_address, "contactInfo": phone_number},
             )
-            return render(request, "registration.html", context)
 
-        else:
-            # hashed_password = make_password(request.POST.get("password"))
-
-            User.objects.create_user(
-                email=email,
-                username=username,
-                password=password,
+            HospitalStaff.objects.create(
+                hospitalID=hospital,
+                admin=True,
                 name=fullname,
-                dob=dob,
-                gender=gender,
-                address=f"{street_address}, {city}, {state}",
                 contactInfo=phone_number,
+                userID=user.id,
             )
 
-            return redirect("homepage")
+        return redirect("homepage")
 
     return render(request, "registration.html")
 
@@ -316,7 +384,7 @@ def login_view(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, email=email, password=password, is_active=True)
 
         if user is not None:
             login(request, user)
@@ -330,7 +398,350 @@ def login_view(request):
     return render(request, "login.html")
 
 
+@login_required
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
 
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
+
+
+@login_required
+def record_sent_view(request):
+    return render(request, "record_submit_complete.html")
+
+
+def get_doctors(request, hos_id):
+    doctorList = list(
+        HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
+    )
+    return JsonResponse({"doctors": doctorList})
+
+
+def get_record(request, rec_id):
+    healthRecordList = list(HealthRecord.objects.filter(id=rec_id).values())
+
+    return JsonResponse({"data": json.dumps(healthRecordList[0], default=str)})
+
+
+def get_edit(request, rec_id):
+
+    selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
+    app = list(
+        Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
+    )
+
+    hospitalList = list(Hospital.objects.all().values())
+    unselectedHospitalList = []
+    for hospital in hospitalList:
+        if hospital["id"] == selected_record[0]["hospitalID"]:
+            selected_record[0]["hospital_name"] = hospital["name"]
+        else:
+            unselectedHospitalList.append(hospital)
+
+    doctorList = list(HospitalStaff.objects.filter(admin=False).values())
+
+    unselectedDoctorList = []
+    for docs in doctorList:
+        if docs["id"] == selected_record[0]["doctorID"]:
+            selected_record[0]["doctor_name"] = docs["name"]
+        else:
+            unselectedDoctorList.append(docs)
+
+    data = {
+        "appointment_props": app[0],
+        "record": selected_record[0],
+        "hospitals": unselectedHospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+        "doctors": unselectedDoctorList,
+    }
+
+    return render(request, "edit_health_record.html", {"data": data})
+
+
+@login_required
+def add_health_record_view(request):
+    hospitalList = list(Hospital.objects.all().values())
+    data = {
+        "hospitals": hospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+    }
+    if request.method == "POST":
+        hospitalID = request.POST.get("hospitalID")
+        doctorID = request.POST.get("doctorId")
+        userID = request.user
+        # create a new appointment
+        appointmentType = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
+        appointmentProperties = dict()
+        all_fields = request.POST
+        for key, value in all_fields.items():
+            if (
+                key != "csrfmiddlewaretoken"
+                and key != "hospitalID"
+                and key != "doctorId"
+                and key != "appointmentType"
+            ):
+                appointmentProperties[key] = value
+        appointmentProperties = json.dumps(appointmentProperties)
+        new_appointment = Appointment.objects.create(
+            name=appointmentType, properties=appointmentProperties
+        )
+        appointmentID = new_appointment
+
+        HealthRecord.objects.create(
+            doctorID=doctorID,
+            userID=userID,
+            hospitalID=hospitalID,
+            appointmentId=appointmentID,
+        )
+        return redirect("new_health_record_sent")
+    return render(request, "record_submit.html", {"data": data})
+
+
+@login_required
+def edit_health_record_view(request):
+    if request.method == "POST":
+        rec = json.loads(request.body)
+        id = rec.get("recordId")
+        record = get_object_or_404(HealthRecord, id=id)
+        appID = rec.get("appointmentId")
+        appointment = get_object_or_404(Appointment, id=appID)
+
+        appointment.name = APPOINTMENT_TYPE[rec.get("appointmentType")]
+        appointment.properties = json.dumps(rec.get("appointmentProperties"))
+        appointment.save()
+
+        record.doctorID = rec.get("doctorId")
+        record.hospitalID = rec.get("hospitalID")
+        record.status = "pending"
+        record.appointmentId = appointment
+        record.save()
+
+        return JsonResponse({"message": "Updated succesfully"})
+
+
+def get_facility_doctors(request):
+    if request.user.is_authenticated:
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
+
+        staff_members = HospitalStaff.objects.filter(
+            hospitalID=hospital_id, admin=False
+        )
+
+        staff_data = []
+        for staff in staff_members:
+            try:
+                user = User.objects.get(id=staff.userID)
+                staff_data.append(
+                    {
+                        "id": user.id,
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                        "is_active": user.is_active,
+                    }
+                )
+            except User.DoesNotExist:
+                continue
+
+        return JsonResponse({"data": staff_data}, safe=False)
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+def get_facility_admins(request):
+    if request.user.is_authenticated:
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
+
+        staff_members = HospitalStaff.objects.filter(hospitalID=hospital_id, admin=True)
+
+        staff_data = []
+        for staff in staff_members:
+            try:
+                user = User.objects.get(id=staff.userID)
+                staff_data.append(
+                    {
+                        "id": user.id,
+                        "name": user.name,
+                        "email": user.email,
+                        "contactInfo": staff.contactInfo,
+                        "specialty": staff.specialization,
+                        "is_active": user.is_active,
+                    }
+                )
+            except User.DoesNotExist:
+
+                continue
+
+        return JsonResponse({"data": staff_data}, safe=False)
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+def hospital_staff_directory(request):
+    context = {
+        "get_facility_doctors_url": "api/get-facility-doctors/",
+        "get_facility_admins_url": "api/get-facility-admins/",
+    }
+    return render(request, "healthcare_facility.html", context)
+
+
+@login_required
+@csrf_exempt
+def add_healthcare_staff(request):
+    if request.user.is_authenticated and request.method == "POST":
+        email = request.POST.get("email")
+        fullname = request.POST.get("fullname")
+        contactInfo = request.POST.get("contactInfo")
+        is_admin = int(request.POST.get("is_admin"))
+        specialization = request.POST.get("specialization")
+
+        user_hospital_staff_entry = get_object_or_404(
+            HospitalStaff, userID=request.user.id
+        )
+        hospital_id = user_hospital_staff_entry.hospitalID.id
+
+        context = {"error_message:": ""}
+
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            if user.is_patient:
+                context["error_message"] = (
+                    "A patient account already exists with this email"
+                )
+            elif user.is_staff:
+                context["error_message"] = (
+                    "An admin account already exists with this email"
+                )
+            else:
+                context["error_message"] = (
+                    "A healthcare worker account already exists with this email"
+                )
+
+            return render(request, "healthcare_facility.html", context)
+
+        user_fields = {
+            "email": email,
+            "password": "dummy_password",  # healthcare worker will have to reset the password on first login
+            "name": fullname,
+            "contactInfo": contactInfo,
+        }
+
+        hospital = get_object_or_404(Hospital, id=hospital_id)
+
+        user = None
+        if is_admin:
+            user = User.objects.create_staff(**user_fields)
+        else:
+            user = User.objects.create_healthcare_worker(**user_fields)
+
+        HospitalStaff.objects.create(
+            hospitalID=hospital,
+            admin=is_admin,
+            name=fullname,
+            specialization=specialization,
+            contactInfo=contactInfo,
+            userID=user.id,
+        )
+
+        return redirect("hospital_staff_directory")
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def deactivate_healthcare_staff(request):
+    if request.user.is_authenticated and request.method == "PUT":
+        updated_data = json.loads(request.body)
+        user_ids = updated_data.get("user_ids", [])
+
+        for user_id in user_ids:
+            user = get_object_or_404(User, id=user_id)
+            if not user.is_patient:
+                user.is_active = False
+                user.save()
+
+        return JsonResponse(
+            {"message": "Healthcare staff deactivated successfully"}, status=200
+        )
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def activate_healthcare_staff(request):
+    if request.user.is_authenticated and request.method == "PUT":
+        updatedData = json.loads(request.body)
+        user_id = updatedData.get("user_id")
+
+        user = get_object_or_404(User, id=user_id)
+
+        if user.is_patient:
+            return JsonResponse(
+                {"error": "Patient's account cannot be edited"}, status=400
+            )
+
+        user.is_active = True
+        user.save()
+        return JsonResponse(
+            {"message": "Healthcare staff activated successfully"}, status=200
+        )
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            # user = User.objects.get(id=5)
+            post.save()
+            return redirect("view_posts")
+    else:
+        form = PostForm()
+    return render(request, "post_new_topic.html", {"form": form})
+
+
+def view_posts(request):
+    posts = Post.objects.all().order_by("-createdAt")
+    return render(request, "community_home.html", {"posts": posts})
+
+
+def view_one_topic(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = show_comments(post_id)
+    return render(request, "view_topic.html", {"post": post, "comments": comments})
+
+
+@login_required
+def create_comments(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.commenter = request.user
+            # comment.commenter = User.objects.get(id=5)
+            comment.save()
+
+    return redirect("view_one_topic", post_id=post.id)
+
+
+def show_comments(post_id):
+    comments = Comment.objects.filter(post__id=post_id).order_by("-createdAt")
+    return comments
+    # return render(request, "view_topic.html", {"comments": comments})

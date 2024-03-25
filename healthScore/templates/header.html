@@ -1,5 +1,5 @@
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Score</title>
@@ -16,92 +16,127 @@
           padding: 20px;
           background-color: #FFFFFF;
         }
-        .logo {
-          width: 350px;
-          height: 100px;
+        .logout-button{
+            background-color: transparent;
+            font-size: 15px;
+            color: #5B0888;
+            border: 2px solid #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
         }
-        .buttons {
-          display: flex;
-          gap: 15px;
-          padding-right: 10px;
+        .logout-button:hover{
+            color: white;
+            background-color: #5B0888;
+            text-decoration: none;
         }
         .register-button{
-          background-color: #6466A8;
+          background-color: #5B0888;
           font-size: 15px;
+            font-weight: bold;
           color: #FFFFFF;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 10px;
+          border: 2px solid #5B0888;
+          padding: 8px 15px;
+          border-radius: 5px;
           cursor: pointer;
         }
         .register-button:hover{
-          background-color: #7801a1;
+            background-color: #2d0444;
+            border: 2px solid #2d0444;
+            text-decoration: none;
+            color: white
         }
         .login-button{
           background-color: transparent;
           font-size: 15px;
-          color: #6466A8;
-          font-weight: bold;
+          color: #5B0888;
+          font-weight: bolder;
           border: none;
-          padding: 10px 20px;
-          border-radius: 20px;
+          padding: 8px 15px;
+          border-radius: 5px;
           cursor: pointer;
         }
         .login-button:hover{
-          color: #7801a1;
+          color: #2d0444;
         }
-        .user-dropdown {
-        position: relative;
-        display: inline-block;
+        .nav-link {
+            color: #222222;
+            padding: 10px;
+            font-weight: normal;
         }
-        .user-button {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .user-dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
+        .nav-link:hover {
+          color: #000;
         }
         
-        .user-dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        
-        .user-dropdown-content a:hover {background-color: #f1f1f1}
-        
-        .user-dropdown:hover .user-dropdown-content {
-            display: block;
+        .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .bd-mode-toggle .dropdown-menu .active .bi {
+        display: block !important;
         }
     </style>
 </head>
 
-<header>
-<a href="{% url 'homepage' %}">
-    <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
-</a>
-    
-    <div class="buttons">
-        {%  if user.is_authenticated %}
-            <div class="user-dropdown">
-                <button class="user-button"><i class="fas fa-user fa-2x"></i></button>
-                <div class="user-dropdown-content">
-                    <a class="dropdown-item" href="{% url 'user_info' %}">Account</a>
-                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                </div>
+<header class="p-3 text-bg-dark">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+              <img src="https://i.imgur.com/A0GOi7B.png" alt="Logo" width="267" height="80">
+              
+              {% if user.is_authenticated and user.is_patient %}
+                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/hs/viewHealthHistory" class="nav-link">Dashboard</a></li>
+                    <li><a href="#" class="nav-link">Appointments</a></li>
+                    <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
+                    <li><a href="/hs/viewRequests" class="nav-link">History</a></li>
+                    <li><a href="/hs/userInfo" class="nav-link">Profile</a></li>
+                </ul>
+                
+                <!-- Healthcare Worker Navigation -->
+                {% elif user.is_authenticated and user.is_healthcare_worker %}
+                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="#" class="nav-link">Dashboard</a></li>
+                    <li><a href="#" class="nav-link">Patients</a></li>
+                    <li><a href="#" class="nav-link">Schedule</a></li>
+                </ul>
+                
+                <!-- Staff Member Navigation -->
+                {% elif user.is_authenticated and user.is_staff %}
+                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="#" class="nav-link">Dashboard</a></li>
+                    <li><a href="/hs/healthcareFacility" class="nav-link">Facility</a></li>
+                    <li><a href="#" class="nav-link">Reports</a></li>
+                    <li><a href="/hs/userInfo" class="nav-link">Profile</a></li>
+                </ul>
+                
+                {% else %}
+                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="#" class="nav-link">Features</a></li>
+                    <li><a href="#" class="nav-link">FAQs</a></li>
+                    <li><a href="#" class="nav-link">About</a></li>
+                </ul>
+                {% endif %}
             </div>
-        {% else %}
-            <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
-            <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
-        {%  endif %}
+            <div class="text-end">
+                {% if not user.is_authenticated %}
+                    <a href="/hs/login" class="login-button">Login</a>
+                    <a href="/hs/registration" class="register-button">Register</a>
+                {% else %}
+                    <a href="/hs/logout" class="logout-button">Logout</a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </header>

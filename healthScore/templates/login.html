@@ -33,50 +33,21 @@
         border-radius: 4px;
         box-sizing: border-box;
       }
-      .logo {
-      width: 350px;
-      height: 100px;
-        }
-      .btn-primary {
-        background-color: #800080;
-        border-color: #800080;
+      form button.btn.btn-primary {
+        background-color: #5B0888;
+        border-color: #5B0888;
         width: 100%;
         padding: 14px 20px;
-        margin: 8px 0;
+        margin: 5px 0;
         border-radius: 4px;
       }
-      .btn-primary:hover {
-        background-color: #000000;
-        border-color: #000000;
+      form button.btn.btn-primary:hover {
+        background-color: #2d0444;
+        border-color: #2d0444;
       }
       h2 {
         text-align: center;
       }
-      .register-button{
-      background-color: #6466A8;
-      font-size: 15px;
-      color: #FFFFFF;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .register-button:hover{
-      background-color: #7801a1;
-    }
-    .login-button{
-      background-color: transparent;
-      font-size: 15px;
-      color: #6466A8;
-      font-weight: bold;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-    .login-button:hover{
-      color: #7801a1;
-    }
     .forgot-pass{
         text-align: left; 
         margin-top:20px;
@@ -87,17 +58,9 @@
     }
     </style>
 </head>
+<body>
 <div>
-    <header>
-    <a href="{% url 'homepage' %}">
-        <img src="https://i.imgur.com/puhJJpN.png" alt="Logo" class="logo">
-    </a>
-    
-    <div class="buttons">
-        <a href="{% url 'login' %}"><button class="login-button">Login</button></a>
-        <a href="{% url 'registration' %}"><button class="register-button">Register</button></a>
-    </div>
-  </header>
+    {%  include 'header.html' %}
     <div class="container">
     <br>
         <h2>Sign in to Your Health Score Account</h2>
