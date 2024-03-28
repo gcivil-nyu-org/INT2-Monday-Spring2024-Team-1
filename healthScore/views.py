@@ -31,6 +31,7 @@ from .models import (
     HospitalStaff,
     Post,
     Comment,
+    HealthHistoryRequest,
 )
 
 from .user_utils import get_health_history_details
@@ -745,3 +746,35 @@ def show_comments(post_id):
     comments = Comment.objects.filter(post__id=post_id).order_by("-createdAt")
     return comments
     # return render(request, "view_topic.html", {"comments": comments})
+
+
+@csrf_exempt
+def request_health_history(request):
+    if request.method == "POST":
+        requestorName = request.POST.get("requestorName")
+        requestorEmail = request.POST.get("requestorEmail")
+        purpose = request.POST.get("purpose")
+        userEmail = request.POST.get("userEmail")
+
+        context = {"error_message:": ""}
+
+        if not User.objects.filter(email=userEmail).exists():
+            context["error_message"] = "No user account exists with this email"
+            return render(request, "request_health_history.html", context)
+
+        user = User.objects.get(email=userEmail)
+
+        if not user.is_patient:
+            context["error_message"] = "No user account exists with this email"
+            return render(request, "request_health_history.html", context)
+
+        HealthHistoryRequest.objects.create(
+            userID=user,
+            requestorName=requestorName,
+            requestorEmail=requestorEmail,
+            purpose=purpose,
+        )
+
+        return redirect("homepage")
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)

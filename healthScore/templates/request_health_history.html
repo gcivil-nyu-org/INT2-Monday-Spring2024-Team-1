@@ -1,0 +1,10 @@
+<!-- myapp/templates/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+    {% csrf_token %}
+    {% if error_message %}
+    <div class="alert alert-danger" role="alert">
+        {{ error_message }}
+    </div>
+    {% endif %}
+</html>

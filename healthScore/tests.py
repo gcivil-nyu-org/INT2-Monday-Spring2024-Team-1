@@ -34,6 +34,7 @@ from healthScore.views import (
     get_edit,
     edit_health_record_view,
     add_healthcare_staff,
+    request_health_history,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -705,4 +706,73 @@ class AddHealthcareStaffTestCase(TestCase):
 
         response = add_healthcare_staff(request)
 
+        self.assertEqual(response.status_code, 302)
+
+
+class RequestHealthHistoryTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.patient = User.objects.create_patient(
+            id=1,
+            email="patient@example.com",
+            name="Patient 1",
+            password="patientpass",
+            is_patient=1,
+        )
+
+        self.admin = User.objects.create_staff(
+            id=2,
+            email="admin@example.com",
+            name="Admin 1",
+            password="adminpass",
+            is_staff=1,
+        )
+
+    def test_post_request_patient_does_not_exist(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "abcd@gmail.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertIn(
+            "No user account exists with this email",
+            response.content.decode(),
+        )
+
+    def test_post_request_admin_email_exists(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "admin@example.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertIn(
+            "No user account exists with this email",
+            response.content.decode(),
+        )
+
+    def test_valid_post_request(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "patient@example.com",
+            },
+        )
+
+        response = request_health_history(request)
         self.assertEqual(response.status_code, 302)

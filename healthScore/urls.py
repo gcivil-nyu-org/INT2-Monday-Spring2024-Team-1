@@ -74,4 +74,9 @@ urlpatterns = [
         views.create_comments,
         name="create_comments",
     ),
+    path(
+        "requestHealthHistory",
+        views.request_health_history,
+        name="request_health_history",
+    ),
 ]
