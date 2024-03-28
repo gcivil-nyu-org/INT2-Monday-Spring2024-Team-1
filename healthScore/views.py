@@ -31,7 +31,7 @@ from .models import (
     HospitalStaff,
     Post,
     Comment,
-    HealthHistoryRequest,
+    HealthHistoryAccessRequest,
 )
 
 from .user_utils import get_health_history_details
@@ -768,7 +768,7 @@ def request_health_history(request):
             context["error_message"] = "No user account exists with this email"
             return render(request, "request_health_history.html", context)
 
-        HealthHistoryRequest.objects.create(
+        HealthHistoryAccessRequest.objects.create(
             userID=user,
             requestorName=requestorName,
             requestorEmail=requestorEmail,
@@ -778,3 +778,18 @@ def request_health_history(request):
         return redirect("homepage")
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def view_health_history_access_requests(request):
+    if request.method == "GET":
+        user = request.user
+        access_requests = HealthHistoryAccessRequest.objects.filter(
+            userID=user
+        ).order_by("-createdAt")
+        return render(
+            request, "view_access_requests.html", {"access_requests": access_requests}
+        )
+
+    return JsonResponse({"error": "wrong access method"}, status=401)
