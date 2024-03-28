@@ -784,7 +784,7 @@ def request_health_history(request):
 @csrf_exempt
 def view_health_history_access_requests(request):
     if request.method == "GET":
-        user = 1
+        user = request.user
         access_requests = HealthHistoryAccessRequest.objects.filter(
             userID=user
         ).order_by("-createdAt")
