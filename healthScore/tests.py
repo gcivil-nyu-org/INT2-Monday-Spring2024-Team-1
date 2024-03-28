@@ -13,6 +13,7 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
     Post,
+    HealthHistoryAccessRequest,
 )
 
 from healthScore.views import (
@@ -35,6 +36,7 @@ from healthScore.views import (
     edit_health_record_view,
     add_healthcare_staff,
     request_health_history,
+    view_health_history_access_requests,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -776,3 +778,34 @@ class RequestHealthHistoryTestCase(TestCase):
 
         response = request_health_history(request)
         self.assertEqual(response.status_code, 302)
+
+
+class ViewHealthHistoryAccessTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+            dob="1990-01-01",
+            contactInfo="1234567890",
+            proofOfIdentity="Proof1",
+            address="Address1",
+            securityQues="",
+            securityAns="",
+            bloodGroup="A+",
+        )
+
+        HealthHistoryAccessRequest.objects.create(
+            requestorName="Test Requestor",
+            requestorEmail="testrequestor@gmail.com",
+            purpose="For onboarding process",
+            userID=self.user,
+        )
+
+    def test_view_health_history_access_requests(self):
+        url = reverse("view_health_history_access_requests")
+        request = self.factory.get(url)
+        request.user = self.user
+        response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 200)

@@ -79,4 +79,9 @@ urlpatterns = [
         views.request_health_history,
         name="request_health_history",
     ),
+    path(
+        "viewHealthHistoryAccessRequests",
+        views.view_health_history_access_requests,
+        name="view_health_history_access_requests",
+    ),
 ]
