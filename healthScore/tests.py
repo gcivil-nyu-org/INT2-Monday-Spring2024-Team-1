@@ -809,3 +809,10 @@ class ViewHealthHistoryAccessTestCase(TestCase):
         request.user = self.user
         response = view_health_history_access_requests(request)
         self.assertEqual(response.status_code, 200)
+
+    def test_wrong_request_method(self):
+        url = reverse("view_health_history_access_requests")
+        request = self.factory.put(url)
+        request.user = self.user
+        response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 401)

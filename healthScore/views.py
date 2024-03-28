@@ -784,10 +784,12 @@ def request_health_history(request):
 @csrf_exempt
 def view_health_history_access_requests(request):
     if request.method == "GET":
-        user = request.user
+        user = 1
         access_requests = HealthHistoryAccessRequest.objects.filter(
             userID=user
         ).order_by("-createdAt")
         return render(
             request, "view_access_requests.html", {"access_requests": access_requests}
         )
+
+    return JsonResponse({"error": "wrong access method"}, status=401)
