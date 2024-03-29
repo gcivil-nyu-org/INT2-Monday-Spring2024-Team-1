@@ -133,6 +133,13 @@ def view_user_info(request):
             "bloodGroup": current_user.bloodGroup,
             "requests": json.dumps(current_user.requests),
         }
+
+        try:
+            hospital_staff = HospitalStaff.objects.get(userID=current_user.id)
+            userInfo['specialization'] = hospital_staff.specialization
+        except HospitalStaff.DoesNotExist:
+            userInfo['specialization'] = 'None'
+
         return render(request, "user_profile.html", {"userInfo": userInfo})
 
 
@@ -165,6 +172,17 @@ def edit_user_info(request):
             if new_value and new_value != current_value:
                 setattr(current_user, field, new_value)
                 data_updated = True
+
+        new_specialization = updatedData.get("specialization")
+        if new_specialization:
+            try:
+                hospital_staff = HospitalStaff.objects.get(userID=current_user.id)
+                if hospital_staff.specialization != new_specialization:
+                    hospital_staff.specialization = new_specialization
+                    hospital_staff.save()
+                    data_updated = True
+            except HospitalStaff.DoesNotExist:
+                pass
 
         if data_updated:
             current_user.save()
