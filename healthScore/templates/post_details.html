@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.3/font/bootstrap-icons.css">
     <title>View Post</title>
     <style>
         body {
@@ -85,17 +86,23 @@
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #FFFFFF;
             border-radius: 5px;
         }
         .post {
             margin-bottom: 20px;
             padding: 10px;
-            border: 1px solid #ccc;
             border-radius: 5px;
         }
         .post h2 {
-            margin-top: 0;
+            text-align: center;
+        }
+        .post p {
+            text-align: left;
+        }
+        .post small {
+            display: block;
+            text-align: center;
+            color: gray;
         }
         .comment {
             margin-top: 20px;
@@ -125,12 +132,30 @@
         #new-comment-form button:hover {
             background-color: #2d0444;
         }
-        ul {
+        .post-container {
             list-style-type: none;
             padding: 0;
+            padding-left: 15%;
+            padding-right: 15%;
+        }
+        .comment-container {
+            list-style-type: none;
         }
         li {
             margin-bottom: 20px;
+        }
+        .social-icons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .icon-space {
+            margin-right: 8px;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            padding: 5px; /* Or any padding you wish */
+            cursor: pointer;
         }
     </style>
 </head>
@@ -138,28 +163,49 @@
 {% include 'header.html' %}
 <br><br>
 
-<ul>
+<ul class="post-container">
     <li class="post">
-        <h3>{{ post.title }}</h3>
+        <h2>{{ post.title }}</h3>
+        <small>{{ post.user.name }} published at {{ post.createdAt }}</small>
+        <hr>
         <p>{{ post.description }}</p>
-        <small>Date: {{ post.createdAt }}</small>
+        <div class="social-icons">
+            <div>
+                <button type="button" class="btn-icon" aria-label="Like">
+                    <i class="bi bi-heart-fill icon-space"></i> 24 Likes
+                </button>
+            </div>
+            <div>
+                <button type="button" class="btn-icon" aria-label="Collect">
+                    <i class="bi bi-bookmark-star-fill icon-space"></i> 
+                </button>
+                <button type="button" class="btn-icon" aria-label="Share">
+                    <i class="bi bi-share-fill"></i>
+                </button>
+            </div>
+          </div>
     </li>
 </ul>
 
 <div id="post-container">
     <h2>Comments</h2>
-    <div id="comments">
-        <ul>
+    <div>
+        <ul class="comment-container">
+            {% if comments %}
             {% for comment in comments %}
             <li class="comment">
-                <h3>{{ comment.commenter }}</h3>
+                <h6>{{ comment.commenter }}</h6>
                 <p>{{ comment.content }}</p>
                 <small>Date: {{ comment.createdAt }}</small>
             </li>
             {% endfor %}
+            {% else %}
+            <p>No comment yet</p>
+            {% endif %}
         </ul>
     </div>
-
+    <hr>
+    <h2>Leave your comment</h2>
     <form id="new-comment-form" method="POST" action="{% url 'create_comments' post.id %}">
         {% csrf_token %}
         <textarea id="comment-content" name="content" rows="4" placeholder="Add a Comment" required></textarea><br>

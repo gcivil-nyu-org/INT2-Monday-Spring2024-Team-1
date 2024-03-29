@@ -709,7 +709,7 @@ def create_post(request):
             post.user = request.user
             # user = User.objects.get(id=5)
             post.save()
-            return redirect("view_posts")
+            return redirect("community")
     else:
         form = PostForm()
     return render(request, "post_new_topic.html", {"form": form})
@@ -723,7 +723,7 @@ def view_posts(request):
 def view_one_topic(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = show_comments(post_id)
-    return render(request, "view_topic.html", {"post": post, "comments": comments})
+    return render(request, "post_details.html", {"post": post, "comments": comments})
 
 
 @login_required

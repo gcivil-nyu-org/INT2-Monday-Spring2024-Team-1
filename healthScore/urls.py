@@ -67,8 +67,8 @@ urlpatterns = [
         name="activate_healthcare_staff",
     ),
     path("createPost", views.create_post, name="create_post"),
-    path("viewPosts", views.view_posts, name="view_posts"),
-    path("view_one_topic/<int:post_id>/", views.view_one_topic, name="view_one_topic"),
+    path("community", views.view_posts, name="community"),
+    path("view-post/<int:post_id>/", views.view_one_topic, name="view_one_topic"),
     path(
         "create_comments/<int:post_id>/comment/",
         views.create_comments,
