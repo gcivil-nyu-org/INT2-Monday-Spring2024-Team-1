@@ -136,9 +136,9 @@ def view_user_info(request):
 
         try:
             hospital_staff = HospitalStaff.objects.get(userID=current_user.id)
-            userInfo['specialization'] = hospital_staff.specialization
+            userInfo["specialization"] = hospital_staff.specialization
         except HospitalStaff.DoesNotExist:
-            userInfo['specialization'] = 'None'
+            userInfo["specialization"] = "None"
 
         return render(request, "user_profile.html", {"userInfo": userInfo})
 
