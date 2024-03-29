@@ -36,7 +36,6 @@ from .models import (
 from .user_utils import get_health_history_details
 from .forms import PostForm, CommentForm
 
-
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
     "blood_test": "Blood Test",
@@ -424,7 +423,6 @@ def get_record(request, rec_id):
 
 
 def get_edit(request, rec_id):
-
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
     app = list(
         Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
@@ -722,7 +720,7 @@ def view_posts(request):
 
 def view_one_topic(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    comments = show_comments(post_id)
+    comments = post.comments.all()
     return render(request, "view_topic.html", {"post": post, "comments": comments})
 
 
@@ -735,13 +733,40 @@ def create_comments(request, post_id):
             comment = form.save(commit=False)
             comment.post = post
             comment.commenter = request.user
-            # comment.commenter = User.objects.get(id=5)
             comment.save()
 
     return redirect("view_one_topic", post_id=post.id)
 
 
-def show_comments(post_id):
-    comments = Comment.objects.filter(post__id=post_id).order_by("-createdAt")
-    return comments
-    # return render(request, "view_topic.html", {"comments": comments})
+@login_required
+def delete_post(request, post_id):
+    if request.method == "POST":
+        post = get_object_or_404(Post, id=post_id)
+        post.delete()
+    return redirect("view_posts")
+
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            comments = post.comments.all()
+            return render(
+                request, "view_topic.html", {"post": post, "comments": comments}
+            )
+
+    return redirect("view_posts")
+
+
+@login_required
+def delete_comment(request, comment_id, post_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    post = get_object_or_404(Post, id=post_id)
+    comments = post.comments.all()
+    if request.user == comment.commenter or request.user == comment.post.user:
+        comment.delete()
+
+    return render(request, "view_topic.html", {"post": post, "comments": comments})
