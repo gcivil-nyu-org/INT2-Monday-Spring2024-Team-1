@@ -50,7 +50,7 @@
   </div>
 
     <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
-      <form id="editUserForm">
+      <form id="editUserForm" action='{% url "edit_user_info" %}' method="post" enctype="multipart/form-data">
         <h4>Account Details</h4>
           
           <div id="formFeedback" class="mb-3"></div>
@@ -70,6 +70,10 @@
           <label for="userPhone">Phone Number</label>
           <input type="text" class="form-control custom-width" id="userPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
         </div>
+        <div class="form-group">
+          <label for="file">Profile Picture</label>
+          <input type="file" class="form-control-file" id="file" name="file">
+        </div>
           <!--
           <div class="form-group">
             <label for="userProfilePicture">Profile Picture</label>
@@ -79,7 +83,7 @@
           
           {% csrf_token %}
         
-        <button type="button" class="btn custom-save-btn" onclick="submitEditForm()">Save Changes</button>
+        <button type="submit" class="btn custom-save-btn">Save Changes</button>
           
       </form>
     </div>
@@ -87,32 +91,77 @@
 </div>
 
     <script>
-        function submitEditForm() {
-            const form = document.getElementById('editUserForm');
-            const formData = new FormData(form);
-            const jsonData = {};
-            formData.forEach((value, key) => {jsonData[key] = value;});
+      document.getElementById('editUserForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission behavior
+        
+        const form = event.target;
+        const formData = new FormData(form);
 
-            console.log(jsonData, "formData user profile")
-            fetch('{% url "edit_user_info" %}', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                },
-                body: JSON.stringify(jsonData),
-            })
-            .then(response => response.json())
-            .then(data => {
-                const feedbackElement = document.getElementById('formFeedback');
-                feedbackElement.innerHTML = '';
-                const message = data.error ? `<div class="alert alert-danger">${data.error}</div>` : `<div class="alert alert-success">${data.message}</div>`;
-                feedbackElement.innerHTML = message;
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+        const fileInput = document.getElementById('file');
+        // Check if a file is selected
+        if (fileInput.files.length > 0) {
+            // Append the file to the FormData object
+            formData.append('file', fileInput.files[0]);
         }
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            const feedbackElement = document.getElementById('formFeedback');
+            feedbackElement.innerHTML = '';
+            if (data.error) {
+                feedbackElement.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            } else {
+                feedbackElement.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                // If you want to update the UI with the new user information, you can do it here
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+
+        // function submitEditForm() {
+        //     const form = document.getElementById('editUserForm');
+        //     const formData = new FormData(form);
+        //     const jsonData = {};
+        //     formData.forEach((value, key) => {jsonData[key] = value;});
+
+        //     const fileInput = document.getElementById('file');
+        //     // Check if a file is selected
+        //     if (fileInput.files.length > 0) {
+        //         // Append the file to the FormData object
+        //         formData.append('file', fileInput.files[0]);
+        //     }
+
+        //     console.log(jsonData, "formData user profile")
+        //     fetch('{% url "edit_user_info" %}', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'multipart-formdata',
+        //             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        //         },
+        //         body: {'data': jsonData, "file": fileInput.files[0]},
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         const feedbackElement = document.getElementById('formFeedback');
+        //         feedbackElement.innerHTML = '';
+        //         const message = data.error ? `<div class="alert alert-danger">${data.error}</div>` : `<div class="alert alert-success">${data.message}</div>`;
+        //         feedbackElement.innerHTML = message;
+        //     })
+        //     .catch((error) => {
+        //         console.error('Error:', error);
+        //     });
+        // }
+    
+    
     </script>
 
 </body>
