@@ -758,6 +758,7 @@ def create_comments(request, post_id):
 
     return redirect("view_post", post_id=post.id)
 
+
 @login_required
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)

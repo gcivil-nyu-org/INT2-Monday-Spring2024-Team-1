@@ -66,9 +66,9 @@ urlpatterns = [
         views.activate_healthcare_staff,
         name="activate_healthcare_staff",
     ),
-   # community
+    # community
     path("community", views.view_posts, name="community"),
-     path("create-post", views.create_post, name="create_post"),
+    path("create-post", views.create_post, name="create_post"),
     path("edit-post/<int:post_id>/", views.edit_post, name="edit_post"),
     path("delete-post/<int:post_id>/", views.delete_post, name="delete_post"),
     path("view-post/<int:post_id>/", views.view_post, name="view_post"),

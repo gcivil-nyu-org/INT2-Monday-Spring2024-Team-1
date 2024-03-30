@@ -569,7 +569,8 @@ class PostCommentTestCase(TestCase):
 
     def test_create_post(self):
         request = self.factory.post(
-            reverse("create_post"), {"title": "Test Title", "description": "Test Description"}
+            reverse("create_post"),
+            {"title": "Test Title", "description": "Test Description"},
         )
         request.user = self.user1
         response = create_post(request)
