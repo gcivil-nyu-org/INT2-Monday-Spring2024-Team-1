@@ -27,7 +27,7 @@ from healthScore.views import (
     activate_healthcare_staff,
     deactivate_healthcare_staff,
     create_post,
-    view_posts,
+    view_all_posts,
     view_post,
     create_comments,
     get_doctors,
@@ -565,9 +565,9 @@ class PostCommentTestCase(TestCase):
             title="Test Post", description="Test Description", user=self.user1
         )
 
-    def test_view_posts(self):
-        request = self.factory.get("/viewPosts")
-        response = view_posts(request)
+    def test_view_all_posts(self):
+        request = self.factory.get(reversed("all_posts"))
+        response = view_all_posts(request)
         self.assertEqual(response.status_code, 200)
 
     def test_create_post(self):
