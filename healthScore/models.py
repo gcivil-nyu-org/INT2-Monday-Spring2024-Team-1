@@ -167,6 +167,7 @@ class Post(models.Model):
     title = models.TextField(null=False)
     description = models.TextField(default="")
     createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
 
 class Comment(models.Model):

@@ -27,8 +27,8 @@ from healthScore.views import (
     activate_healthcare_staff,
     deactivate_healthcare_staff,
     create_post,
-    view_posts,
-    view_one_topic,
+    view_all_posts,
+    view_post,
     create_comments,
     get_doctors,
     get_record,
@@ -566,28 +566,31 @@ class PostCommentTestCase(TestCase):
             title="Test Post", description="Test Description", user=self.user1
         )
 
-    def test_view_posts(self):
-        request = self.factory.get("/viewPosts")
-        response = view_posts(request)
+    def test_view_all_posts(self):
+        request = self.factory.get(reversed("all_posts"))
+        response = view_all_posts(request)
         self.assertEqual(response.status_code, 200)
 
     def test_create_post(self):
         request = self.factory.post(
-            "/createPost", {"title": "Test Title", "description": "Test Description"}
+            reverse("create_post"),
+            {"title": "Test Title", "description": "Test Description"},
         )
         request.user = self.user1
         response = create_post(request)
         self.assertEqual(response.status_code, 302)
 
-    def test_view_one_topic(self):
-        request = self.factory.get(f"/view_one_topic/{self.post.id}/")
-        response = view_one_topic(request, post_id=self.post.id)
+    def test_view_post(self):
+        request = self.factory.get(
+            reverse("view_post", kwargs={"post_id": self.post.id})
+        )
+        response = view_post(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 200)
 
     def test_create_comments(self):
         comment_data = {"content": "Test Comment"}
         request = self.factory.post(
-            f"/create_comments/{self.post.id}/comment/", comment_data
+            reverse("create_comments", kwargs={"post_id": self.post.id}), comment_data
         )
         request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
