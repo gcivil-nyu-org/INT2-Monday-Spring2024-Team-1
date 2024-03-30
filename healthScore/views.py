@@ -31,6 +31,7 @@ from .models import (
     HospitalStaff,
     Post,
     Comment,
+    HealthHistoryAccessRequest,
 )
 
 from .user_utils import get_health_history_details
@@ -766,3 +767,50 @@ def delete_comment(request, comment_id):
         comment.delete()
 
     return redirect("view_post", post_id=comment.post.id)
+
+
+@csrf_exempt
+def request_health_history(request):
+    if request.method == "POST":
+        requestorName = request.POST.get("requestorName")
+        requestorEmail = request.POST.get("requestorEmail")
+        purpose = request.POST.get("purpose")
+        userEmail = request.POST.get("userEmail")
+
+        context = {"error_message:": ""}
+
+        if not User.objects.filter(email=userEmail).exists():
+            context["error_message"] = "No user account exists with this email"
+            return render(request, "request_health_history.html", context)
+
+        user = User.objects.get(email=userEmail)
+
+        if not user.is_patient:
+            context["error_message"] = "No user account exists with this email"
+            return render(request, "request_health_history.html", context)
+
+        HealthHistoryAccessRequest.objects.create(
+            userID=user,
+            requestorName=requestorName,
+            requestorEmail=requestorEmail,
+            purpose=purpose,
+        )
+
+        return redirect("homepage")
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def view_health_history_access_requests(request):
+    if request.method == "GET":
+        user = request.user
+        access_requests = HealthHistoryAccessRequest.objects.filter(
+            userID=user
+        ).order_by("-createdAt")
+        return render(
+            request, "view_access_requests.html", {"access_requests": access_requests}
+        )
+
+    return JsonResponse({"error": "wrong access method"}, status=401)

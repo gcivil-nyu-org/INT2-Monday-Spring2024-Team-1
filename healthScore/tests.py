@@ -13,6 +13,7 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
     Post,
+    HealthHistoryAccessRequest,
 )
 
 from healthScore.views import (
@@ -34,6 +35,8 @@ from healthScore.views import (
     get_edit,
     edit_health_record_view,
     add_healthcare_staff,
+    request_health_history,
+    view_health_history_access_requests,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -707,3 +710,110 @@ class AddHealthcareStaffTestCase(TestCase):
         response = add_healthcare_staff(request)
 
         self.assertEqual(response.status_code, 302)
+
+
+class RequestHealthHistoryTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.patient = User.objects.create_patient(
+            id=1,
+            email="patient@example.com",
+            name="Patient 1",
+            password="patientpass",
+            is_patient=1,
+        )
+
+        self.admin = User.objects.create_staff(
+            id=2,
+            email="admin@example.com",
+            name="Admin 1",
+            password="adminpass",
+            is_staff=1,
+        )
+
+    def test_post_request_patient_does_not_exist(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "abcd@gmail.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertIn(
+            "No user account exists with this email",
+            response.content.decode(),
+        )
+
+    def test_post_request_admin_email_exists(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "admin@example.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertIn(
+            "No user account exists with this email",
+            response.content.decode(),
+        )
+
+    def test_valid_post_request(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "patient@example.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertEqual(response.status_code, 302)
+
+
+class ViewHealthHistoryAccessTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+            dob="1990-01-01",
+            contactInfo="1234567890",
+            proofOfIdentity="Proof1",
+            address="Address1",
+            securityQues="",
+            securityAns="",
+            bloodGroup="A+",
+        )
+
+        HealthHistoryAccessRequest.objects.create(
+            requestorName="Test Requestor",
+            requestorEmail="testrequestor@gmail.com",
+            purpose="For onboarding process",
+            userID=self.user,
+        )
+
+    def test_view_health_history_access_requests(self):
+        url = reverse("view_health_history_access_requests")
+        request = self.factory.get(url)
+        request.user = self.user
+        response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_wrong_request_method(self):
+        url = reverse("view_health_history_access_requests")
+        request = self.factory.put(url)
+        request.user = self.user
+        response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 401)
