@@ -14,6 +14,7 @@ from healthScore.models import (
     Appointment,
     Post,
     HealthHistoryAccessRequest,
+    Comment,
 )
 
 from healthScore.views import (
@@ -38,6 +39,9 @@ from healthScore.views import (
     request_health_history,
     view_health_history_access_requests,
     update_health_history_access_request_status,
+    delete_post,
+    edit_post,
+    delete_comment,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -553,17 +557,20 @@ class HospitalStaffTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class PostCommentTestCase(TestCase):
+class CommunityTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.user1 = User.objects.create(
-            id=5,
             email="patient@example.com",
             name="User 1",
             password="patientpass",
         )
         self.post = Post.objects.create(
             title="Test Post", description="Test Description", user=self.user1
+        )
+
+        self.comment = Comment.objects.create(
+            post=self.post, content="Test a comment", commenter=self.user1
         )
 
     def test_view_all_posts(self):
@@ -595,6 +602,34 @@ class PostCommentTestCase(TestCase):
         request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 302)
+
+    def test_delete_post(self):
+        request = self.factory.get(reverse("delete_post", args=[self.post.id]))
+        request.user = self.user1
+        old_count = Post.objects.count()
+        response = delete_post(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
+        new_count = Post.objects.count()
+        self.assertEqual(old_count - new_count, 1)
+
+    def test_delete_comment(self):
+        request = self.factory.get(reverse("delete_comment", args=[self.comment.id]))
+        request.user = self.user1
+        old_count = Comment.objects.count()
+        response = delete_comment(request, comment_id=self.comment.id)
+        self.assertEqual(response.status_code, 302)
+        new_count = Comment.objects.count()
+        self.assertEqual(old_count - new_count, 1)
+
+    def test_edit_post(self):
+        new_post = {"title": "Updated Title", "description": "Updated Description"}
+        request = self.factory.post(reverse("edit_post", args=[self.post.id]), new_post)
+        request.user = self.user1
+        response = edit_post(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.title, "Updated Title")
+        self.assertEqual(self.post.description, "Updated Description")
 
 
 class AddHealthcareStaffTestCase(TestCase):
