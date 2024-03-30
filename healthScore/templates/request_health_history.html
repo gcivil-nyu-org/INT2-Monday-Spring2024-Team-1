@@ -11,7 +11,7 @@
       margin: 0;
       padding: 0;
     }
-    .container {
+    .request_container {
       max-width: 500px;
       margin: 50px auto;
       padding: 20px;
@@ -68,7 +68,7 @@
   {%  include 'header.html' %}
 
   <br><br>
-  <div class="container">
+  <div class="request_container">
     <h2>Request a Patient's Health History</h2>
     <form id="health-history-form" method="post">
         {% csrf_token %}
