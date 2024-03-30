@@ -580,14 +580,16 @@ class PostCommentTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_view_post(self):
-        request = self.factory.get(reverse("view_post", post_id=self.post.id))
+        request = self.factory.get(
+            reverse("view_post", kwargs={"post_id": self.post.id})
+        )
         response = view_post(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 200)
 
     def test_create_comments(self):
         comment_data = {"content": "Test Comment"}
         request = self.factory.post(
-            reverse("create_comments", post_id=self.post.id), comment_data
+            reverse("create_comments", kwargs={"post_id": self.post.id}), comment_data
         )
         request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
