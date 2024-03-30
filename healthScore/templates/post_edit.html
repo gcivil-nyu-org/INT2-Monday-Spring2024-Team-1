@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post New Topic</title>
+<style>
+    #topics_container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        margin-top: 0;
+        color: #000000;
+    }
+    label {
+        font-weight: bold;
+    }
+    input[type="text"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        resize: none;
+    }
+    textarea{
+        height: 200px;
+    }
+    button[type="submit"] {
+        background-color: #5B0888;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button[type="submit"]:hover {
+        background-color: #2d0444;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #FFFFFF;
+    }
+    .logo {
+      width: 350px;
+      height: 100px;
+    }
+    .buttons {
+      display: flex;
+      gap: 15px;
+      padding-right: 10px;
+    }
+    .register-button{
+      background-color: #5B0888;
+      font-size: 15px;
+      color: #FFFFFF;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .register-button:hover{
+      background-color: #2d0444;
+    }
+    .login-button{
+      background-color: transparent;
+      font-size: 15px;
+      color: #5B0888;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .login-button:hover{
+      color: #2d0444;
+    }
+    .user-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .user-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .user-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #f9f9f9;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .user-dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .user-dropdown-content a:hover {background-color: #f1f1f1}
+
+    .user-dropdown:hover .user-dropdown-content {
+      display: block;
+    }
+</style>
+</head>
+
+  
+  
+<body>
+{%  include 'header.html' %}
+<br><br>
+
+{% block content %}
+<div id="topics_container">
+    <h1>Edit Your Post</h1>
+    <form id="new-post-form" method = "post">
+        {% csrf_token %}
+
+        <label for="id_title">Title:</label><br>
+        <input type="text" id="id_title" name="title" required value="{{form.title.value}}"><br>
+
+        <label for="id_description">Content:</label><br>
+        <textarea id="id_description" name="description" rows="4" required>{{form.description.value}}</textarea><br>
+
+        <button type="submit">Post</button>
+    </form>
+</div>
+{% endblock %}
+
+
+</body>
+</html>

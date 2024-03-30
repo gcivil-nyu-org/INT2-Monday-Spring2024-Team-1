@@ -698,6 +698,17 @@ def activate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
+def view_posts(request):
+    posts = Post.objects.all().order_by("-createdAt")
+    return render(request, "community_home.html", {"posts": posts})
+
+
+def view_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = post.comments.all()
+    return render(request, "post_details.html", {"post": post, "comments": comments})
+
+
 @login_required
 def create_post(request):
     if request.method == "POST":
@@ -705,23 +716,33 @@ def create_post(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
-            # user = User.objects.get(id=5)
             post.save()
             return redirect("community")
     else:
         form = PostForm()
-    return render(request, "post_new_topic.html", {"form": form})
+    return render(request, "post_create.html", {"form": form})
 
 
-def view_posts(request):
-    posts = Post.objects.all().order_by("-createdAt")
-    return render(request, "community_home.html", {"posts": posts})
-
-
-def view_one_topic(request, post_id):
+@login_required
+def edit_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    comments = show_comments(post_id)
-    return render(request, "post_details.html", {"post": post, "comments": comments})
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect("view_post", post_id=post.id)
+    else:
+        form = PostForm(instance=post)
+    return render(request, "post_edit.html", {"form": form})
+
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "GET":
+        post.delete()
+        return redirect("community")
+    return redirect("view_post", post_id=post_id)
 
 
 @login_required
@@ -735,38 +756,12 @@ def create_comments(request, post_id):
             comment.commenter = request.user
             comment.save()
 
-    return redirect("view_one_topic", post_id=post.id)
-
-
-@login_required
-def delete_post(request, post_id):
-    if request.method == "POST":
-        post = get_object_or_404(Post, id=post_id)
-        post.delete()
-    return redirect("view_posts")
-
+    return redirect("view_post", post_id=post.id)
 
 @login_required
-def edit_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    if request.method == "POST":
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            form.save()
-            comments = post.comments.all()
-            return render(
-                request, "view_topic.html", {"post": post, "comments": comments}
-            )
-
-    return redirect("view_posts")
-
-
-@login_required
-def delete_comment(request, comment_id, post_id):
+def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
-    post = get_object_or_404(Post, id=post_id)
-    comments = post.comments.all()
-    if request.user == comment.commenter or request.user == comment.post.user:
+    if request.method == "GET":
         comment.delete()
 
-    return render(request, "view_topic.html", {"post": post, "comments": comments})
+    return redirect("view_post", post_id=comment.post.id)
