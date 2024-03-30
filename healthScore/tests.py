@@ -14,6 +14,7 @@ from healthScore.models import (
     Appointment,
     Post,
     HealthHistoryAccessRequest,
+    Comment,
 )
 
 
@@ -28,8 +29,8 @@ from healthScore.views import (
     activate_healthcare_staff,
     deactivate_healthcare_staff,
     create_post,
-    view_posts,
-    view_one_topic,
+    view_all_posts,
+    view_post,
     create_comments,
     get_doctors,
     get_record,
@@ -38,6 +39,10 @@ from healthScore.views import (
     add_healthcare_staff,
     request_health_history,
     view_health_history_access_requests,
+    update_health_history_access_request_status,
+    delete_post,
+    edit_post,
+    delete_comment,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -553,11 +558,10 @@ class HospitalStaffTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class PostCommentTestCase(TestCase):
+class CommunityTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.user1 = User.objects.create(
-            id=5,
             email="patient@example.com",
             name="User 1",
             password="patientpass",
@@ -566,32 +570,67 @@ class PostCommentTestCase(TestCase):
             title="Test Post", description="Test Description", user=self.user1
         )
 
-    def test_view_posts(self):
-        request = self.factory.get("/viewPosts")
-        response = view_posts(request)
+        self.comment = Comment.objects.create(
+            post=self.post, content="Test a comment", commenter=self.user1
+        )
+
+    def test_view_all_posts(self):
+        request = self.factory.get(reversed("all_posts"))
+        response = view_all_posts(request)
         self.assertEqual(response.status_code, 200)
 
     def test_create_post(self):
         request = self.factory.post(
-            "/createPost", {"title": "Test Title", "description": "Test Description"}
+            reverse("create_post"),
+            {"title": "Test Title", "description": "Test Description"},
         )
         request.user = self.user1
         response = create_post(request)
         self.assertEqual(response.status_code, 302)
 
-    def test_view_one_topic(self):
-        request = self.factory.get(f"/view_one_topic/{self.post.id}/")
-        response = view_one_topic(request, post_id=self.post.id)
+    def test_view_post(self):
+        request = self.factory.get(
+            reverse("view_post", kwargs={"post_id": self.post.id})
+        )
+        response = view_post(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 200)
 
     def test_create_comments(self):
         comment_data = {"content": "Test Comment"}
         request = self.factory.post(
-            f"/create_comments/{self.post.id}/comment/", comment_data
+            reverse("create_comments", kwargs={"post_id": self.post.id}), comment_data
         )
         request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 302)
+
+    def test_delete_post(self):
+        request = self.factory.get(reverse("delete_post", args=[self.post.id]))
+        request.user = self.user1
+        old_count = Post.objects.count()
+        response = delete_post(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
+        new_count = Post.objects.count()
+        self.assertEqual(old_count - new_count, 1)
+
+    def test_delete_comment(self):
+        request = self.factory.get(reverse("delete_comment", args=[self.comment.id]))
+        request.user = self.user1
+        old_count = Comment.objects.count()
+        response = delete_comment(request, comment_id=self.comment.id)
+        self.assertEqual(response.status_code, 302)
+        new_count = Comment.objects.count()
+        self.assertEqual(old_count - new_count, 1)
+
+    def test_edit_post(self):
+        new_post = {"title": "Updated Title", "description": "Updated Description"}
+        request = self.factory.post(reverse("edit_post", args=[self.post.id]), new_post)
+        request.user = self.user1
+        response = edit_post(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.title, "Updated Title")
+        self.assertEqual(self.post.description, "Updated Description")
 
 
 class AddHealthcareStaffTestCase(TestCase):
@@ -816,4 +855,42 @@ class ViewHealthHistoryAccessTestCase(TestCase):
         request = self.factory.put(url)
         request.user = self.user
         response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 401)
+
+
+class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create(
+            email="admin@example.com", password="testpass123", is_patient=1, is_active=1
+        )
+        HealthHistoryAccessRequest.objects.create(
+            id=1,
+            status="pending",
+            requestorName="NYU",
+            requestorEmail="shc@nyu.edu",
+            purpose="For medical clearances",
+            userID=self.user,
+        )
+
+    def test_approve_request(self):
+        request = self.factory.put(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "approved"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_unauthorized_error(self):
+        request = self.factory.post(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "approved"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
         self.assertEqual(response.status_code, 401)
