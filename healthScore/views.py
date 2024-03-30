@@ -699,9 +699,22 @@ def activate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
-def view_posts(request):
+def community_home(request):
+    return redirect("all_posts")
+
+
+def view_all_posts(request):
     posts = Post.objects.all().order_by("-createdAt")
-    return render(request, "community_home.html", {"posts": posts})
+    return render(
+        request, "community_home.html", {"posts": posts, "headerTitle": "All the posts"}
+    )
+
+
+def view_my_posts(request):
+    posts = Post.objects.filter(user=request.user).order_by("-createdAt")
+    return render(
+        request, "community_home.html", {"posts": posts, "headerTitle": "My posts"}
+    )
 
 
 def view_post(request, post_id):
