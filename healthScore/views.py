@@ -36,6 +36,8 @@ from .models import (
 
 from .user_utils import get_health_history_details
 from .forms import PostForm, CommentForm
+from .file_upload import file_upload
+
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -139,11 +141,11 @@ def view_user_info(request):
 @login_required
 @csrf_exempt
 def edit_user_info(request):
-    if request.method == "PUT":
-        updatedData = json.loads(request.body)
+    if request.method == "POST":
         current_user = request.user
 
-        new_email = updatedData.get("email")
+        new_email = request.POST.get("email")
+        file_url = file_upload(request, "medicalHistory")
         if new_email and new_email != current_user.email:
             if (
                 User.objects.exclude(id=current_user.id)
@@ -160,9 +162,11 @@ def edit_user_info(request):
         data_updated = False
 
         for field in ["name", "email", "address", "contactInfo", "profilePic"]:
-            new_value = updatedData.get(field)
+            new_value = request.POST.get(field)
             current_value = getattr(current_user, field)
             if new_value and new_value != current_value:
+                if(field == "profilePic"):
+                    setattr(current_user, field, file_url)
                 setattr(current_user, field, new_value)
                 data_updated = True
 
@@ -173,7 +177,8 @@ def edit_user_info(request):
             )
         else:
             return JsonResponse({"message": "No data was changed."}, status=200)
-
+    else:
+        view_user_info(request)
 
 @login_required
 def view_report(request):
@@ -346,13 +351,12 @@ def registration(request):
         }
 
         if role == "User":
+            file_url = file_upload(request, "identity_proof")
             user_specific_fields = {
                 "dob": request.POST.get("dob"),
                 "gender": request.POST.get("gender"),
                 "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
-                "proofOfIdentity": request.POST.get(
-                    "identity_proof"
-                ),  # This needs handling for file upload
+                "proofOfIdentity": file_url,  # This needs handling for file upload
             }
             User.objects.create_patient(**common_fields, **user_specific_fields)
 
@@ -425,7 +429,6 @@ def get_record(request, rec_id):
 
 
 def get_edit(request, rec_id):
-
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
     app = list(
         Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
