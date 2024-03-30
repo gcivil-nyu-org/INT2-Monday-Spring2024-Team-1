@@ -37,6 +37,7 @@ from healthScore.views import (
     add_healthcare_staff,
     request_health_history,
     view_health_history_access_requests,
+    update_health_history_access_request_status,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -815,4 +816,42 @@ class ViewHealthHistoryAccessTestCase(TestCase):
         request = self.factory.put(url)
         request.user = self.user
         response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 401)
+
+
+class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create(
+            email="admin@example.com", password="testpass123", is_patient=1, is_active=1
+        )
+        HealthHistoryAccessRequest.objects.create(
+            id=1,
+            status="pending",
+            requestorName="NYU",
+            requestorEmail="shc@nyu.edu",
+            purpose="For medical clearances",
+            userID=self.user,
+        )
+
+    def test_approve_request(self):
+        request = self.factory.put(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "approved"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_unauthorized_error(self):
+        request = self.factory.post(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "approved"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
         self.assertEqual(response.status_code, 401)
