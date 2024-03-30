@@ -74,12 +74,10 @@
                 <label for="userPhone">Phone Number</label>
                 <input type="text" class="form-control custom-width" id="userPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
             </div>
-          <!--
-          <div class="form-group">
-            <label for="userProfilePicture">Profile Picture</label>
-            <input type="file" class="form-control-file" id="userProfilePicture" name="profile_picture">
-          </div>
-          -->
+            <div class="form-group">
+                <label for="userProfilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="userProfilePicture" name="profile_picture">
+            </div>
         {% elif user.is_authenticated and user.is_healthcare_worker %}
             <div id="formFeedback" class="mb-3"></div>
             <div class="form-group">
@@ -97,6 +95,10 @@
             <div class="form-group">
                 <label for="workerDepartment">Department</label>
                 <input type="text" class="form-control custom-width" id="workerDepartment" name="specialization" value="{{ userInfo.specialization }}">
+            </div>
+            <div class="form-group">
+                <label for="workerProfilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="workerProfilePicture" name="profile_picture">
             </div>
         
         {% elif user.is_authenticated and user.is_staff %}
@@ -116,6 +118,10 @@
             <div class="form-group">
                 <label for="adminDepartment">Department</label>
                 <input type="text" class="form-control custom-width" id="adminDepartment" name="specialization" value="{{ userInfo.specialization }}">
+            </div>
+            <div class="form-group">
+                <label for="adminProfilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="adminProfilePicture" name="profile_picture">
             </div>
           
         {% endif %}
