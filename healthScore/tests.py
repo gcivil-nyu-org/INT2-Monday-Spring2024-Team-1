@@ -16,6 +16,7 @@ from healthScore.models import (
     HealthHistoryAccessRequest,
 )
 
+
 from healthScore.views import (
     edit_user_info,
     view_health_history,
