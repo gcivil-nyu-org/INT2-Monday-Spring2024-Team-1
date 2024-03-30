@@ -793,3 +793,22 @@ def view_health_history_access_requests(request):
         )
 
     return JsonResponse({"error": "wrong access method"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def update_health_history_access_request_status(request):
+    if request.user.is_authenticated and request.method == "PUT":
+        updatedData = json.loads(request.body)
+        request_id = updatedData.get("request_id")
+        status = updatedData.get("status")
+
+        request = get_object_or_404(HealthHistoryAccessRequest, id=request_id)
+
+        request.status = status
+        request.save()
+        return JsonResponse(
+            {"message": "Request status updated successfully"}, status=200
+        )
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
