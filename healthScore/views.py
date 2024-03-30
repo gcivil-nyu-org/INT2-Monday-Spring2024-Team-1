@@ -777,7 +777,7 @@ def request_health_history(request):
 
         return redirect("homepage")
 
-    return JsonResponse({"error": "Unauthorized"}, status=401)
+    return render(request, "request_health_history.html")
 
 
 @login_required
