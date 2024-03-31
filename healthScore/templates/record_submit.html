@@ -13,16 +13,16 @@
         
         .error-message {
             color: darkred;
-            background-color: #f8d7da; /* Light red background */
-            border-color: #f5c6cb; /* Slightly darker border for some depth, optional */
-            padding: 10px; /* Padding to ensure content has space */
-            margin-bottom: 20px; /* Space below the error message */
-            border-radius: 4px; /* Optional: rounded corners */
-            border: 1px solid transparent; /* Adds a subtle border */
-            width: 95%; /* Adjust the width as needed to fit your form's design */
-            margin-left: 15px; /* Center align the error message box */
-            margin-right: auto; /* Center align the error message box */
-            box-sizing: border-box; /* Ensures padding doesn't affect overall width */
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            width: 95%;
+            margin-left: 15px;
+            margin-right: auto;
+            box-sizing: border-box;
         }
 
         .custom-select select {
@@ -53,6 +53,26 @@
 
         .submitButton {
             text-align: center !important;
+            background-color: #5B0888;
+            font-size: 15px;
+            color: white;
+            border: 2px solid #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .submitButton:hover {
+            color: white;
+            background-color: #2d0444;
+            border: 2px solid #2d0444;
+            text-decoration: none;
+        }
+        
+        .submit-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -111,8 +131,8 @@
                                 <!-- Data filled dynamically -->
                             </div>
     
-                            <div class="col-12 submitButton">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <div class="col-12 submit-button-container">
+                                <button type="submit" class="submitButton">Submit</button>
                             </div>
     
                         </form>
@@ -168,8 +188,8 @@
                                 <!-- Data filled dynamically -->
                             </div>
     
-                            <div class="col-12 submitButton">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                            <div class="col-12 submit-button-container">
+                                <button type="submit" class="submitButton">Submit</button>
                             </div>
     
                         </form>
