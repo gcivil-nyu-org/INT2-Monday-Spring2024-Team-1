@@ -488,8 +488,10 @@ def add_health_record_view(request):
     # Add hospital id to data if user is an admin
     try:
         hospital_staff = HospitalStaff.objects.get(userID=request.user.id)
-        hospitalID = hospital_staff.hospitalID  # Assuming hospitalID is a ForeignKey to Hospital
-        data['hospitalID'] = hospitalID.id
+        hospitalID = (
+            hospital_staff.hospitalID
+        )  # Assuming hospitalID is a ForeignKey to Hospital
+        data["hospitalID"] = hospitalID.id
     except HospitalStaff.DoesNotExist:
         pass
 
