@@ -489,12 +489,33 @@ def add_health_record_view(request):
         "appointmentType": APPOINTMENT_TYPE,
         "appointmentProps": json.dumps(APPOINTMENT_PROPS),
     }
+
+    # Add hospital id to data if user is an admin
+    try:
+        hospital_staff = HospitalStaff.objects.get(userID=request.user.id)
+        hospitalID = hospital_staff.hospitalID
+        data["hospitalID"] = hospitalID.id
+    except HospitalStaff.DoesNotExist:
+        pass
+
     if request.method == "POST":
 
         medicalDocUrl = file_upload(request, "medicalHistory")
         hospitalID = request.POST.get("hospitalID")
         doctorID = request.POST.get("doctorId")
-        userID = request.user
+        userEmail = request.POST.get("userEmail")
+        # update userID to be either request.user or the userID of the email provided by the admin
+        # if userEmail is populated then get the user id of that email else it'll be request.user
+        if userEmail:
+            try:
+                userID = User.objects.get(email=userEmail)
+            except User.DoesNotExist:
+                context = {
+                    "error_message": "No patient exists with this email address. Please try again."
+                }
+                return render(request, "record_submit.html", context)
+        else:
+            userID = request.user
         # create a new appointment
         appointmentType = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
         appointmentProperties = dict()
