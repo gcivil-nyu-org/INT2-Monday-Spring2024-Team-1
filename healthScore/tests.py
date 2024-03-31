@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 import os
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from datetime import datetime
