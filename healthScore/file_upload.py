@@ -28,7 +28,7 @@ def medical_or_profile(file, loc, request):
             )
 
             file_name = loc + "/" + user + "/" + file.name
-            file_url = f"https://{bucket_name}.{settings.AWS_S3_REGION_NAME}.s3.amazonaws.com/documents-health-score/{file_name}"
+            file_url = f"https://{bucket_name}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/documents-health-score/{file_name}"
             os.remove(file_path)
 
             return file_url

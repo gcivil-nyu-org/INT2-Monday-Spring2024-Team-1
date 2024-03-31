@@ -2,6 +2,9 @@ from django.test import RequestFactory, TransactionTestCase, TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
+import os
+from unittest.mock import patch, Mock
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from datetime import datetime
 import json
@@ -17,6 +20,8 @@ from healthScore.models import (
     Comment,
 )
 
+
+from healthScore.file_upload import file_upload
 
 from healthScore.views import (
     edit_user_info,
@@ -894,3 +899,92 @@ class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
         request.user = self.user
         response = update_health_history_access_request_status(request)
         self.assertEqual(response.status_code, 401)
+
+
+# Testing the function for file upload directly. So the 'url' used is relevant
+class TestFileUpload(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create(
+            email="myUser@example.com", password="testpass123", is_patient=1, is_active=1
+        )
+        os.environ["AWS_ACCESS_KEY_ID"]="RandomKey"
+        os.environ["AWS_SECRET_ACCESS_KEY"]="RandomSecretKey"
+        os.environ["AWS_S3_REGION_NAME"]="RandomRegion"
+
+
+    @patch("boto3.resource")
+    def test_file_upload_profile_pic(self, mock_boto3_resource):
+
+        mock_s3_resource = mock_boto3_resource.return_value
+        mock_bucket = mock_s3_resource.Bucket.return_value
+
+        mock_bucket.upload_file.return_value = None
+
+        file_path = 'healthScore/static/mock-data.txt'
+
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+            file = SimpleUploadedFile('example.txt', file_data, content_type='text/plain')
+
+        request = self.factory.post(
+            reverse("edit_user_info"), 
+            data={'profile_picture': file}, 
+            format='multipart'
+        )
+        request.user = self.user
+        
+        profile_url = file_upload(request, "userProfile")
+        mock_bucket.upload_file.assert_called_once()
+        self.assertEqual(profile_url, 'https://None.s3.us-west-2.amazonaws.com/documents-health-score/userProfile/myUser/example.txt')
+
+
+    @patch("boto3.resource")
+    def test_file_upload_medical_document(self, mock_boto3_resource):
+
+        mock_s3_resource = mock_boto3_resource.return_value
+        mock_bucket = mock_s3_resource.Bucket.return_value
+
+        mock_bucket.upload_file.return_value = None
+
+        file_path = 'healthScore/static/mock-data.txt'
+
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+            file = SimpleUploadedFile('example.txt', file_data, content_type='text/plain')
+
+        request = self.factory.post(
+            reverse("edit_user_info"), 
+            data={'medical_document': file}, 
+            format='multipart'
+        )
+        request.user = self.user
+        
+        profile_url = file_upload(request, "medicalHistory")
+        mock_bucket.upload_file.assert_called_once()
+
+        self.assertEqual(profile_url, 'https://None.s3.us-west-2.amazonaws.com/documents-health-score/medicalHistory/myUser/example.txt')
+    
+
+    @patch("boto3.resource")
+    def test_file_upload_identity_proof(self, mock_boto3_resource):
+
+        mock_s3_resource = mock_boto3_resource.return_value
+        mock_bucket = mock_s3_resource.Bucket.return_value
+
+        mock_bucket.upload_file.return_value = None
+
+        file_path = 'healthScore/static/mock-data.txt'
+
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+            file = SimpleUploadedFile('example.txt', file_data, content_type='text/plain')
+
+        request = self.factory.post(
+            reverse("edit_user_info"), 
+            data={'identity_proof': file, "email": "myUser@example.com"}, 
+            format='multipart'
+        )
+        profile_url = file_upload(request, "identityProof")
+        mock_bucket.upload_file.assert_called_once()
+        self.assertEqual(profile_url, 'https://None.s3.us-west-2.amazonaws.com/documents-health-score/identityProof/myUser/example.txt')
