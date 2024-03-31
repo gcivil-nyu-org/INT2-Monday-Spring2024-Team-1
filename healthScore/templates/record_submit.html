@@ -10,7 +10,7 @@
             position: relative;
             font-family: Arial;
         }
-        
+
         .error-message {
             color: darkred;
             background-color: #f8d7da;
@@ -61,14 +61,14 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        
+
         .submitButton:hover {
             color: white;
             background-color: #2d0444;
             border: 2px solid #2d0444;
             text-decoration: none;
         }
-        
+
         .submit-button-container {
             display: flex;
             justify-content: center;
@@ -105,8 +105,8 @@
                                     </select>
                                 </div>
                             </div>
-    
-    
+
+
                             <div class="mb-3 ml-3 mr-3">
                                 <div class="dropdown">
                                     <select id="doctorSelect" class="custom-select form-select" name="doctorId" required>
@@ -114,8 +114,8 @@
                                     </select>
                                 </div>
                             </div>
-    
-    
+
+
                             <div class="mb-3 ml-3 mr-3">
                                 <div class="dropdown">
                                     <select id="appointmentType" class="custom-select form-select" name="appointmentType" required>
@@ -126,22 +126,22 @@
                                     </select>
                                 </div>
                             </div>
-    
+
                             <div id="apppointmentProps">
                                 <!-- Data filled dynamically -->
                             </div>
-    
+
                             <div class="col-12 submit-button-container">
                                 <button type="submit" class="submitButton">Submit</button>
                             </div>
-    
+
                         </form>
-    
+
                         <div class="col-12" id="message">
-    
+
                         </div>
                     </div>
-                    
+
                 {% elif user.is_authenticated and user.is_staff %}
                     <div class="card cardStyles">
                         <div class="card-body">
@@ -151,19 +151,19 @@
                         <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" id="staffHospitalId" name="hospitalID" value="{{ data.hospitalID }}">
-                        
+
                             {% if error_message %}
                                 <div id="error_message" class="error-message">
                                     {{ error_message }}
                                 </div>
                             {% endif %}
-                        
+
                             <div class="mb-3 ml-3 mr-3">
                                 <label for="userEmail" class="form-label"></label>
                                 <input type="email" class="form-control" id="userEmail" name="userEmail" placeholder="Please enter the patient's email" required>
                             </div>
-    
-    
+
+
                             <div class="mb-3 ml-3 mr-3">
                                 <div class="dropdown">
                                     <select id="doctorSelect" class="custom-select form-select" name="doctorId" required>
@@ -171,8 +171,8 @@
                                     </select>
                                 </div>
                             </div>
-    
-    
+
+
                             <div class="mb-3 ml-3 mr-3">
                                 <div class="dropdown">
                                     <select id="appointmentType" class="custom-select form-select" name="appointmentType" required>
@@ -183,23 +183,23 @@
                                     </select>
                                 </div>
                             </div>
-    
+
                             <div id="apppointmentProps">
                                 <!-- Data filled dynamically -->
                             </div>
-    
+
                             <div class="col-12 submit-button-container">
                                 <button type="submit" class="submitButton">Submit</button>
                             </div>
-    
+
                         </form>
-    
+
                         <div class="col-12" id="message">
-    
+
                         </div>
                     </div>
-                    
-                
+
+
                 {% endif %}
 
             </div>
@@ -213,7 +213,7 @@
             document.addEventListener('DOMContentLoaded', function () {
                 var hospitalSelect = document.getElementById("hospitalSelect");
                 var staffHospitalIdElement = document.getElementById("staffHospitalId")
-            
+
                 function getDoctors(hospital_id) {
                     fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospital_id)
                         , {
@@ -226,7 +226,7 @@
                         .then(data => {
                             var selectElement = document.getElementById("doctorSelect");
                             selectElement.innerHTML = '<option value="" selected disabled>Please select the Doctor</option>';
-    
+
                             data['doctors'].forEach(function (doctor) {
                                 var option = new Option(doctor.name, doctor.id);
                                 selectElement.add(option);
@@ -236,17 +236,17 @@
                             console.error('Error:', error);
                         });
                 }
-    
+
                 if (hospitalSelect) {
                     hospitalSelect.addEventListener("change", function () {
                         getDoctors(this.value);
                     });
                 }
-            
+
                 if (staffHospitalIdElement && staffHospitalIdElement.value) {
                     getDoctors(staffHospitalIdElement.value);
                 }
-                
+
                 });
 
             function inputType(keyName) {
