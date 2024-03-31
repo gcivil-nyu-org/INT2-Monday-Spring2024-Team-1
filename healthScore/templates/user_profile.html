@@ -75,8 +75,8 @@
                 <input type="text" class="form-control custom-width" id="userPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
             </div>
             <div class="form-group">
-                <label for="userProfilePicture">Profile Picture</label>
-                <input type="file" class="form-control-file" id="userProfilePicture" name="profile_picture">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
             </div>
         {% elif user.is_authenticated and user.is_healthcare_worker %}
             <div id="formFeedback" class="mb-3"></div>
@@ -97,8 +97,8 @@
                 <input type="text" class="form-control custom-width" id="workerDepartment" name="specialization" value="{{ userInfo.specialization }}">
             </div>
             <div class="form-group">
-                <label for="workerProfilePicture">Profile Picture</label>
-                <input type="file" class="form-control-file" id="workerProfilePicture" name="profile_picture">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
             </div>
         
         {% elif user.is_authenticated and user.is_staff %}
@@ -120,8 +120,8 @@
                 <input type="text" class="form-control custom-width" id="adminDepartment" name="specialization" value="{{ userInfo.specialization }}">
             </div>
             <div class="form-group">
-                <label for="adminProfilePicture">Profile Picture</label>
-                <input type="file" class="form-control-file" id="adminProfilePicture" name="profile_picture">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
             </div>
           
         {% endif %}
@@ -142,7 +142,7 @@
         const form = event.target;
         const formData = new FormData(form);
 
-        const fileInput = document.getElementById('file');
+        const fileInput = document.getElementById('profilePicture');
         // Check if a file is selected
         if (fileInput.files.length > 0) {
             // Append the file to the FormData object
@@ -171,42 +171,6 @@
             console.error('Error:', error);
         });
     });
-
-        // function submitEditForm() {
-        //     const form = document.getElementById('editUserForm');
-        //     const formData = new FormData(form);
-        //     const jsonData = {};
-        //     formData.forEach((value, key) => {jsonData[key] = value;});
-
-        //     const fileInput = document.getElementById('file');
-        //     // Check if a file is selected
-        //     if (fileInput.files.length > 0) {
-        //         // Append the file to the FormData object
-        //         formData.append('file', fileInput.files[0]);
-        //     }
-
-        //     console.log(jsonData, "formData user profile")
-        //     fetch('{% url "edit_user_info" %}', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'multipart-formdata',
-        //             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-        //         },
-        //         body: {'data': jsonData, "file": fileInput.files[0]},
-        //     })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         const feedbackElement = document.getElementById('formFeedback');
-        //         feedbackElement.innerHTML = '';
-        //         const message = data.error ? `<div class="alert alert-danger">${data.error}</div>` : `<div class="alert alert-success">${data.message}</div>`;
-        //         feedbackElement.innerHTML = message;
-        //     })
-        //     .catch((error) => {
-        //         console.error('Error:', error);
-        //     });
-        // }
-    
-    
     </script>
 
 </body>

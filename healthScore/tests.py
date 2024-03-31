@@ -125,7 +125,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
-        request = self.factory.put(
+        request = self.factory.post(
             url,
             data={"userId": "6", "update": {"address": "test", "city": "test"}},
             content_type="application/json",
@@ -136,7 +136,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_edit_user_info_pass(self):
         url = reverse("edit_user_info")
-        request = self.factory.put(
+        request = self.factory.post(
             url,
             data={"userId": "1", "update": {"address": "test", "city": "test"}},
             content_type="application/json",

@@ -151,7 +151,7 @@ def edit_user_info(request):
         current_user = request.user
 
         new_email = request.POST.get("email")
-        file_url = file_upload(request, "medicalHistory")
+        file_url = file_upload(request, "userProfile")
         if new_email and new_email != current_user.email:
             if (
                 User.objects.exclude(id=current_user.id)
@@ -176,7 +176,7 @@ def edit_user_info(request):
                 setattr(current_user, field, new_value)
                 data_updated = True
 
-        new_specialization = updatedData.get("specialization")
+        new_specialization = request.POST.get("specialization")
         if new_specialization:
             try:
                 hospital_staff = HospitalStaff.objects.get(userID=current_user.id)
@@ -368,7 +368,7 @@ def registration(request):
         }
 
         if role == "User":
-            file_url = file_upload(request, "identity_proof")
+            file_url = file_upload(request, "identityProof")
             user_specific_fields = {
                 "dob": request.POST.get("dob"),
                 "gender": request.POST.get("gender"),
@@ -489,6 +489,8 @@ def add_health_record_view(request):
         "appointmentProps": json.dumps(APPOINTMENT_PROPS),
     }
     if request.method == "POST":
+
+        medicalDocUrl = file_upload(request, "medicalHistory")
         hospitalID = request.POST.get("hospitalID")
         doctorID = request.POST.get("doctorId")
         userID = request.user
@@ -496,6 +498,8 @@ def add_health_record_view(request):
         appointmentType = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
         appointmentProperties = dict()
         all_fields = request.POST
+
+        medicalDocs = {request.POST.get("appointmentType"): medicalDocUrl}
         for key, value in all_fields.items():
             if (
                 key != "csrfmiddlewaretoken"
@@ -515,6 +519,7 @@ def add_health_record_view(request):
             userID=userID,
             hospitalID=hospitalID,
             appointmentId=appointmentID,
+            healthDocuments=medicalDocs
         )
         return redirect("new_health_record_sent")
     return render(request, "record_submit.html", {"data": data})
