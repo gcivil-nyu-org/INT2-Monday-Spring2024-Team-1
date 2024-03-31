@@ -171,7 +171,7 @@ def edit_user_info(request):
             new_value = request.POST.get(field)
             current_value = getattr(current_user, field)
             if new_value and new_value != current_value:
-                if(field == "profilePic"):
+                if field == "profilePic":
                     setattr(current_user, field, file_url)
                 setattr(current_user, field, new_value)
                 data_updated = True
@@ -196,6 +196,7 @@ def edit_user_info(request):
             return JsonResponse({"message": "No data was changed."}, status=200)
     else:
         view_user_info(request)
+
 
 @login_required
 def view_report(request):
@@ -519,7 +520,7 @@ def add_health_record_view(request):
             userID=userID,
             hospitalID=hospitalID,
             appointmentId=appointmentID,
-            healthDocuments=medicalDocs
+            healthDocuments=medicalDocs,
         )
         return redirect("new_health_record_sent")
     return render(request, "record_submit.html", {"data": data})
