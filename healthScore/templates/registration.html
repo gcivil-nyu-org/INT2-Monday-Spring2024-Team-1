@@ -193,7 +193,7 @@
     <div id="admin_role_section" class="role-section" onclick="selectRole('Healthcare Admin')">Healthcare Admin</div>
 </div>
 
-<form id="userForm" action="{% url 'registration' %}" method="post" onsubmit="return validateUserForm()" style="display: none">
+<form id="userForm" action="{% url 'registration' %}" method="post" enctype="multipart/form-data" onsubmit="return validateUserForm()" style="display: none">
   {% csrf_token %}
   <input type="hidden" name="role" id="selected_role" value="User">
 

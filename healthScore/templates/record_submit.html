@@ -108,7 +108,7 @@
                         <h4 class="card-title">Submit a Health Request</h4>
                         <hr />
                     </div>
-                    <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()">
+                    <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" enctype="multipart/form-data" onsubmit="validateRecordForm()">
                         {% csrf_token %}
                         <div class="mb-3 ml-3 mr-3">
                             <div class="dropdown">
@@ -144,6 +144,11 @@
 
                         <div id="apppointmentProps">
                             <!-- Data filled dynamically -->
+                        </div>
+
+                        <div id="documents" class="mb-3 ml-3 mr-3">
+                            <label for="medical_document">Medical Document (If any)</label>
+                            <input type="file" id="medical_document" name="medical_document" accept=".jpg, .jpeg, .png, .pdf" required><br>
                         </div>
 
                         <div class="col-12 submitButton">
