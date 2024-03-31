@@ -937,7 +937,7 @@ class TestFileUpload(TestCase):
             format="multipart",
         )
         request.user = self.user
-        
+
         # Checking number of urls returned below because once the "Actual" keys are picked up from the pipeline, the url format changes
         url = [file_upload(request, "userProfile")]
         mock_bucket.upload_file.assert_called_once()
