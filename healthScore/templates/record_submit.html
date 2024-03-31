@@ -10,6 +10,20 @@
             position: relative;
             font-family: Arial;
         }
+        
+        .error-message {
+            color: darkred;
+            background-color: #f8d7da; /* Light red background */
+            border-color: #f5c6cb; /* Slightly darker border for some depth, optional */
+            padding: 10px; /* Padding to ensure content has space */
+            margin-bottom: 20px; /* Space below the error message */
+            border-radius: 4px; /* Optional: rounded corners */
+            border: 1px solid transparent; /* Adds a subtle border */
+            width: 95%; /* Adjust the width as needed to fit your form's design */
+            margin-left: 15px; /* Center align the error message box */
+            margin-right: auto; /* Center align the error message box */
+            box-sizing: border-box; /* Ensures padding doesn't affect overall width */
+        }
 
         .custom-select select {
             display: none;
@@ -117,6 +131,12 @@
                         <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" id="staffHospitalId" name="hospitalID" value="{{ data.hospitalID }}">
+                        
+                            {% if error_message %}
+                                <div id="error_message" class="error-message">
+                                    {{ error_message }}
+                                </div>
+                            {% endif %}
                         
                             <div class="mb-3 ml-3 mr-3">
                                 <label for="userEmail" class="form-label"></label>
