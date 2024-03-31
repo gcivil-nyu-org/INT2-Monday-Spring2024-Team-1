@@ -13,6 +13,7 @@ coverage==6.5.0
 coveralls==3.3.1
 distlib==0.3.8
 Django==4.2
+django-storages==1.14.2
 docopt==0.6.2
 filelock==3.13.1
 flake8==7.0.0
