@@ -488,7 +488,7 @@ def add_health_record_view(request):
     # Add hospital id to data if user is an admin
     try:
         hospital_staff = HospitalStaff.objects.get(userID=request.user.id)
-        hospitalID = (hospital_staff.hospitalID)
+        hospitalID = hospital_staff.hospitalID
         data["hospitalID"] = hospitalID.id
     except HospitalStaff.DoesNotExist:
         pass
@@ -503,7 +503,9 @@ def add_health_record_view(request):
             try:
                 userID = User.objects.get(email=userEmail)
             except User.DoesNotExist:
-                context = {"error_message": "No patient exists with this email address. Please try again."}
+                context = {
+                    "error_message": "No patient exists with this email address. Please try again."
+                }
                 return render(request, "record_submit.html", context)
         else:
             userID = request.user
