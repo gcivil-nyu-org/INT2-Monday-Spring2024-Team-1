@@ -988,3 +988,48 @@ class TestFileUpload(TestCase):
         profile_url = file_upload(request, "identityProof")
         mock_bucket.upload_file.assert_called_once()
         self.assertEqual(profile_url, 'https://None.s3.us-west-2.amazonaws.com/documents-health-score/identityProof/myUser/example.txt')
+
+    
+    # Test Upload failure and exception blocks
+    def test_file_upload_failure(self):
+        request = self.factory.post(
+            reverse("edit_user_info"), 
+        )
+        profile_url = file_upload(request, "TEST")
+        self.assertEqual(profile_url, '')
+
+
+    def test_file_upload_profile_pic_failure_exception(self):
+        file_path = 'healthScore/static/mock-data.txt'
+
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+            file = SimpleUploadedFile('example.txt', file_data, content_type='text/plain')
+
+        request = self.factory.post(
+            reverse("edit_user_info"), 
+            data={'profile_picture': file}, 
+            format='multipart'
+        )
+        request.user = self.user
+        
+        profile_url = file_upload(request, "userProfile")
+        self.assertEqual(profile_url, '')
+
+
+    def test_file_upload_identity_proof_failure_exception(self):
+        file_path = 'healthScore/static/mock-data.txt'
+
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+            file = SimpleUploadedFile('example.txt', file_data, content_type='text/plain')
+
+        request = self.factory.post(
+            reverse("edit_user_info"), 
+            data={'identity_proof': file}, 
+            format='multipart'
+        )
+        request.user = self.user
+        
+        profile_url = file_upload(request, "identityProof")
+        self.assertEqual(profile_url, '')
