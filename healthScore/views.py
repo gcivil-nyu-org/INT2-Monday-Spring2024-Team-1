@@ -502,7 +502,6 @@ def add_health_record_view(request):
         if userEmail:
             try:
                 userID = User.objects.get(email=userEmail)
-                print(request.user)
             except User.DoesNotExist:
                 # return arn error message
                 userID = request.user
@@ -525,8 +524,6 @@ def add_health_record_view(request):
             name=appointmentType, properties=appointmentProperties
         )
         appointmentID = new_appointment
-
-        print("doctorID: " + str(doctorID) + "userID: " + str(userID) + "appointmentID: " + str(appointmentID) + "hosptialID: " + str(hospitalID))
 
         HealthRecord.objects.create(
             doctorID=doctorID,
