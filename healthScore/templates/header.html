@@ -17,9 +17,9 @@
           background-color: #FFFFFF;
         }
         .logout-button{
-            background-color: transparent;
+            background-color: #5B0888;
             font-size: 15px;
-            color: #5B0888;
+            color: white;
             border: 2px solid #5B0888;
             padding: 8px 15px;
             border-radius: 5px;
@@ -27,7 +27,8 @@
         }
         .logout-button:hover{
             color: white;
-            background-color: #5B0888;
+            background-color: #2d0444;
+            border: 2px solid #2d0444;
             text-decoration: none;
         }
         .register-button{
@@ -98,6 +99,7 @@
                     <li><a href="#" class="nav-link">Appointments</a></li>
                     <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
                     <li><a href="/hs/viewRequests" class="nav-link">History</a></li>
+                    <li><a href="{% url "community" %}" class="nav-link">Community</a></li>
                     <li><a href="/hs/userInfo" class="nav-link">Profile</a></li>
                 </ul>
                 
@@ -108,6 +110,7 @@
                     <li><a href="#" class="nav-link">Dashboard</a></li>
                     <li><a href="#" class="nav-link">Patients</a></li>
                     <li><a href="#" class="nav-link">Schedule</a></li>
+                    <li><a href="/hs/userInfo" class="nav-link">Profile</a></li>
                 </ul>
                 
                 <!-- Staff Member Navigation -->
@@ -124,6 +127,7 @@
                 <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="/" class="nav-link">Home</a></li>
                     <li><a href="#" class="nav-link">Features</a></li>
+                    <li><a href="/hs/requestHealthHistory" class="nav-link">Request</a></li>
                     <li><a href="#" class="nav-link">FAQs</a></li>
                     <li><a href="#" class="nav-link">About</a></li>
                 </ul>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .request_container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #FFFFFF;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: bold;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #CCC;
+      border-radius: 5px;
+    }
+    .form-group textarea {
+      height: 100px;
+    }
+    .form-group button {
+      padding: 10px 20px;
+      background-color: #5B0888;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .form-group button:hover {
+      background-color: #2d0444;
+    }
+    .error-message {
+      color: #ff0000;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .centered{
+      text-align: center;
+    }
+    </style>
+  </style>
+</head>
+  
+  
+<body>
+  {%  include 'header.html' %}
+
+  <br><br>
+  <div class="request_container">
+    <h2>Request a Patient's Health History</h2>
+    <form id="health-history-form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="userEmail">Patient's Email:</label>
+            <input type="email" id="userEmail" name="userEmail" required>
+        </div>
+        <div class="form-group">
+            <label for="userName">Patient's Name:</label>
+            <input type="text" id="userName" name="userName" required>
+        </div>
+        <div class="form-group">
+            <label for="dob">Patient's Date of Birth:</label>
+            <input type="date" id="dob" name="dob" required>
+        </div>
+        <div class="form-group">
+            <label for="purpose">Purpose of Request:</label>
+            <textarea id="purpose" name="purpose" rows=6 required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="requestorName">Your Name:</label>
+            <input type="text" id="requestorName" name="requestorName" required>
+        </div>
+        <div class="form-group">
+            <label for="requestorEmail">Your Email:</label>
+            <input type="email" id="requestorEmail" name="requestorEmail" required>
+        </div>
+        <div class = "centered"><div class="form-group">
+            <button type="submit">Submit Request</button>
+        </div></div>
+    </form>
+    <div class="error-message">{{ error_message }}</div>
+</div>
+  
+</body>
+</html>

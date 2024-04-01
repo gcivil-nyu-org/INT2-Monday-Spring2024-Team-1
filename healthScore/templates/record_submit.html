@@ -11,32 +11,25 @@
             font-family: Arial;
         }
 
+        .error-message {
+            color: darkred;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            width: 95%;
+            margin-left: 15px;
+            margin-right: auto;
+            box-sizing: border-box;
+        }
+
         .custom-select select {
             display: none;
         }
 
-        .select-selected {
-            background-color: DodgerBlue;
-        }
-
-        .select-selected:after {
-            position: absolute;
-            content: "";
-            top: 14px;
-            right: 10px;
-            width: 0;
-            height: 0;
-            border: 6px solid transparent;
-            border-color: #fff transparent transparent transparent;
-        }
-
-        .select-selected.select-arrow-active:after {
-            border-color: transparent transparent #fff transparent;
-            top: 7px;
-        }
-
-        .select-items div,
-        .select-selected {
+        .select-items div {
             color: #ffffff;
             padding: 8px 16px;
             border: 1px solid transparent;
@@ -44,21 +37,7 @@
             cursor: pointer;
         }
 
-        .select-items {
-            position: absolute;
-            background-color: DodgerBlue;
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 99;
-        }
-
-        .select-hide {
-            display: none;
-        }
-
-        .select-items div:hover,
-        .same-as-selected {
+        .select-items div:hover {
             background-color: rgba(0, 0, 0, 0.1);
         }
 
@@ -74,21 +53,26 @@
 
         .submitButton {
             text-align: center !important;
+            background-color: #5B0888;
+            font-size: 15px;
+            color: white;
+            border: 2px solid #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        .appointmentProperties {
-            width: 6rem;
-            border-radius: 0rem 0.25rem 0.25rem 0rem !important;
+        .submitButton:hover {
+            color: white;
+            background-color: #2d0444;
+            border: 2px solid #2d0444;
+            text-decoration: none;
         }
 
-        .labelProperties {
-            width: 12rem;
-            border-radius: 0.25rem 0px 0px 0.25rem !important;
-        }
-
-        .dropdownStyle {
-            width: 100% !important;
-            text-align: center;
+        .submit-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -103,60 +87,130 @@
                 <!-- For placement of the submit card -->
             </div>
             <div class="col-md-8">
-                <div class="card cardStyles">
-                    <div class="card-body">
-                        <h4 class="card-title">Submit a Health Request</h4>
-                        <hr />
+                {% if user.is_authenticated and user.is_patient %}
+                    <div class="card cardStyles">
+                        <div class="card-body">
+                            <h4 class="card-title">Submit a Health Request</h4>
+                            <hr />
+                        </div>
+                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3 ml-3 mr-3">
+                                <div class="dropdown">
+                                    <select id="hospitalSelect" class="custom-select form-select" name="hospitalID" required>
+                                        <option value="" selected disabled>Please select the Hospital</option>
+                                        {% for hos in data.hospitals %}
+                                        <option value="{{hos.id}}">{{hos.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+
+                            <div class="mb-3 ml-3 mr-3">
+                                <div class="dropdown">
+                                    <select id="doctorSelect" class="custom-select form-select" name="doctorId" required>
+                                        <option value="" selected disabled>Please select the Doctor</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                            <div class="mb-3 ml-3 mr-3">
+                                <div class="dropdown">
+                                    <select id="appointmentType" class="custom-select form-select" name="appointmentType" required>
+                                        <option value="" selected disabled>Please select the type of Appointment</option>
+                                        {% for key, value in data.appointmentType.items %}
+                                        <option value="{{key}}">{{value}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="apppointmentProps">
+                                <!-- Data filled dynamically -->
+                            </div>
+                        
+                            <div id="documents" class="mb-3 ml-3 mr-3">
+                                <label for="medical_document">Medical Document (If any)</label>
+                                <input type="file" id="medical_document" name="medical_document" accept=".jpg, .jpeg, .png, .pdf" required><br>
+                            </div>
+
+                            <div class="col-12 submit-button-container">
+                                <button type="submit" class="submitButton">Submit</button>
+                            </div>
+
+                        </form>
+
+                        <div class="col-12" id="message">
+
+                        </div>
                     </div>
-                    <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()">
-                        {% csrf_token %}
-                        <div class="mb-3 ml-3 mr-3">
-                            <div class="dropdown">
-                                <select id="hospitalSelect" class="custom-select form-select" name="hospitalID" required>
-                                    <option value="" selected disabled>Please select the Hospital</option>
-                                    {% for hos in data.hospitals %}
-                                    <option value="{{hos.id}}">{{hos.name}}</option>
-                                    {% endfor %}
-                                </select>
+
+                {% elif user.is_authenticated and user.is_staff %}
+                    <div class="card cardStyles">
+                        <div class="card-body">
+                            <h4 class="card-title">Submit a Health Request</h4>
+                            <hr />
+                        </div>
+                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" id="staffHospitalId" name="hospitalID" value="{{ data.hospitalID }}">
+
+                            {% if error_message %}
+                                <div id="error_message" class="error-message">
+                                    {{ error_message }}
+                                </div>
+                            {% endif %}
+
+                            <div class="mb-3 ml-3 mr-3">
+                                <label for="userEmail" class="form-label"></label>
+                                <input type="email" class="form-control" id="userEmail" name="userEmail" placeholder="Please enter the patient's email" required>
                             </div>
-                        </div>
 
 
-                        <div class="mb-3 ml-3 mr-3">
-                            <div class="dropdown">
-                                <select id="doctorSelect" class="custom-select form-select" name="doctorId" required>
-                                    <option value="" selected disabled>Please select the Doctor</option>
-                                </select>
+                            <div class="mb-3 ml-3 mr-3">
+                                <div class="dropdown">
+                                    <select id="doctorSelect" class="custom-select form-select" name="doctorId" required>
+                                        <option value="" selected disabled>Please select the Doctor</option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
 
-                        <div class="mb-3 ml-3 mr-3">
-                            <div class="dropdown">
-                                <select id="appointmentType" class="custom-select form-select" name="appointmentType" required>
-                                    <option value="" selected disabled>Please select the type of Appointment</option>
-                                    {% for key, value in data.appointmentType.items %}
-                                    <option value="{{key}}">{{value}}</option>
-                                    {% endfor %}
-                                </select>
+                            <div class="mb-3 ml-3 mr-3">
+                                <div class="dropdown">
+                                    <select id="appointmentType" class="custom-select form-select" name="appointmentType" required>
+                                        <option value="" selected disabled>Please select the type of Appointment</option>
+                                        {% for key, value in data.appointmentType.items %}
+                                        <option value="{{key}}">{{value}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
+
+                            <div id="apppointmentProps">
+                                <!-- Data filled dynamically -->
+                            </div>
+                        
+                            <div id="documents" class="mb-3 ml-3 mr-3">
+                                <label for="medical_document">Medical Document (If any)</label>
+                                <input type="file" id="medical_document" name="medical_document" accept=".jpg, .jpeg, .png, .pdf" required><br>
+                            </div>
+
+                            <div class="col-12 submit-button-container">
+                                <button type="submit" class="submitButton">Submit</button>
+                            </div>
+
+                        </form>
+
+                        <div class="col-12" id="message">
+
                         </div>
-
-                        <div id="apppointmentProps">
-                            <!-- Data filled dynamically -->
-                        </div>
-
-                        <div class="col-12 submitButton">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-
-                    </form>
-
-                    <div class="col-12" id="message">
-
                     </div>
-                </div>
 
+
+                {% endif %}
 
             </div>
             <div class="col-md-2">
@@ -166,39 +220,44 @@
     </div>
 
         <script>
-            function getDoctors(hospital_id) {
-                fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospital_id)
-                    , {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        var selectElement = document.getElementById("doctorSelect");
-                        if (selectElement.options.length > 1) {
-                            for (var i = selectElement.options.length - 1; i >= 1; i--) {
-                                selectElement.remove(i);
-                            }
-                        }
+            document.addEventListener('DOMContentLoaded', function () {
+                var hospitalSelect = document.getElementById("hospitalSelect");
+                var staffHospitalIdElement = document.getElementById("staffHospitalId")
 
-                        data['doctors'].forEach(function (optionValue) {
-                            var option = document.createElement("option");
-                            option.text = optionValue.name;
-                            option.value = optionValue.id;
-                            selectElement.appendChild(option);
+                function getDoctors(hospital_id) {
+                    fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospital_id)
+                        , {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
                         })
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                    });
-            }
+                        .then(response => response.json())
+                        .then(data => {
+                            var selectElement = document.getElementById("doctorSelect");
+                            selectElement.innerHTML = '<option value="" selected disabled>Please select the Doctor</option>';
 
-            document.getElementById("hospitalSelect").addEventListener("change", function () {
-                var selectedValue = this.value;
-                getDoctors(selectedValue);
-            });
+                            data['doctors'].forEach(function (doctor) {
+                                var option = new Option(doctor.name, doctor.id);
+                                selectElement.add(option);
+                            });
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                }
+
+                if (hospitalSelect) {
+                    hospitalSelect.addEventListener("change", function () {
+                        getDoctors(this.value);
+                    });
+                }
+
+                if (staffHospitalIdElement && staffHospitalIdElement.value) {
+                    getDoctors(staffHospitalIdElement.value);
+                }
+
+                });
 
             function inputType(keyName) {
                 switch (keyName) {
@@ -309,7 +368,7 @@
                                     onpaste="${key === 'date' ? 'return false;' : ''}"  
                                     step="${stepSize(key)}" 
                                     class="form-control" id="exampleFormControlInput1"
-                                    placeholder="${setPlaceholder(key, value)}" required>
+                                    placeholder="${setPlaceholder(key, value)}">
                                 ${addingUnits(key)}                                
                             </div>
                           </div>`

@@ -2,6 +2,9 @@ from django.test import RequestFactory, TransactionTestCase, TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
+import os
+from unittest.mock import patch
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from datetime import datetime
 import json
@@ -13,7 +16,12 @@ from healthScore.models import (
     HospitalStaff,
     Appointment,
     Post,
+    HealthHistoryAccessRequest,
+    Comment,
 )
+
+
+from healthScore.file_upload import file_upload
 
 from healthScore.views import (
     edit_user_info,
@@ -26,14 +34,20 @@ from healthScore.views import (
     activate_healthcare_staff,
     deactivate_healthcare_staff,
     create_post,
-    view_posts,
-    view_one_topic,
+    view_all_posts,
+    view_post,
     create_comments,
     get_doctors,
     get_record,
     get_edit,
     edit_health_record_view,
     add_healthcare_staff,
+    request_health_history,
+    view_health_history_access_requests,
+    update_health_history_access_request_status,
+    delete_post,
+    edit_post,
+    delete_comment,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -116,7 +130,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_edit_user_info_exception(self):
         url = reverse("edit_user_info")
-        request = self.factory.put(
+        request = self.factory.post(
             url,
             data={"userId": "6", "update": {"address": "test", "city": "test"}},
             content_type="application/json",
@@ -127,7 +141,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_edit_user_info_pass(self):
         url = reverse("edit_user_info")
-        request = self.factory.put(
+        request = self.factory.post(
             url,
             data={"userId": "1", "update": {"address": "test", "city": "test"}},
             content_type="application/json",
@@ -549,11 +563,10 @@ class HospitalStaffTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class PostCommentTestCase(TestCase):
+class CommunityTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.user1 = User.objects.create(
-            id=5,
             email="patient@example.com",
             name="User 1",
             password="patientpass",
@@ -562,32 +575,67 @@ class PostCommentTestCase(TestCase):
             title="Test Post", description="Test Description", user=self.user1
         )
 
-    def test_view_posts(self):
-        request = self.factory.get("/viewPosts")
-        response = view_posts(request)
+        self.comment = Comment.objects.create(
+            post=self.post, content="Test a comment", commenter=self.user1
+        )
+
+    def test_view_all_posts(self):
+        request = self.factory.get(reversed("all_posts"))
+        response = view_all_posts(request)
         self.assertEqual(response.status_code, 200)
 
     def test_create_post(self):
         request = self.factory.post(
-            "/createPost", {"title": "Test Title", "description": "Test Description"}
+            reverse("create_post"),
+            {"title": "Test Title", "description": "Test Description"},
         )
         request.user = self.user1
         response = create_post(request)
         self.assertEqual(response.status_code, 302)
 
-    def test_view_one_topic(self):
-        request = self.factory.get(f"/view_one_topic/{self.post.id}/")
-        response = view_one_topic(request, post_id=self.post.id)
+    def test_view_post(self):
+        request = self.factory.get(
+            reverse("view_post", kwargs={"post_id": self.post.id})
+        )
+        response = view_post(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 200)
 
     def test_create_comments(self):
         comment_data = {"content": "Test Comment"}
         request = self.factory.post(
-            f"/create_comments/{self.post.id}/comment/", comment_data
+            reverse("create_comments", kwargs={"post_id": self.post.id}), comment_data
         )
         request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 302)
+
+    def test_delete_post(self):
+        request = self.factory.get(reverse("delete_post", args=[self.post.id]))
+        request.user = self.user1
+        old_count = Post.objects.count()
+        response = delete_post(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
+        new_count = Post.objects.count()
+        self.assertEqual(old_count - new_count, 1)
+
+    def test_delete_comment(self):
+        request = self.factory.get(reverse("delete_comment", args=[self.comment.id]))
+        request.user = self.user1
+        old_count = Comment.objects.count()
+        response = delete_comment(request, comment_id=self.comment.id)
+        self.assertEqual(response.status_code, 302)
+        new_count = Comment.objects.count()
+        self.assertEqual(old_count - new_count, 1)
+
+    def test_edit_post(self):
+        new_post = {"title": "Updated Title", "description": "Updated Description"}
+        request = self.factory.post(reverse("edit_post", args=[self.post.id]), new_post)
+        request.user = self.user1
+        response = edit_post(request, post_id=self.post.id)
+        self.assertEqual(response.status_code, 302)
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.title, "Updated Title")
+        self.assertEqual(self.post.description, "Updated Description")
 
 
 class AddHealthcareStaffTestCase(TestCase):
@@ -706,3 +754,298 @@ class AddHealthcareStaffTestCase(TestCase):
         response = add_healthcare_staff(request)
 
         self.assertEqual(response.status_code, 302)
+
+
+class RequestHealthHistoryTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.patient = User.objects.create_patient(
+            id=1,
+            email="patient@example.com",
+            name="Patient 1",
+            password="patientpass",
+            is_patient=1,
+        )
+
+        self.admin = User.objects.create_staff(
+            id=2,
+            email="admin@example.com",
+            name="Admin 1",
+            password="adminpass",
+            is_staff=1,
+        )
+
+    def test_post_request_patient_does_not_exist(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "abcd@gmail.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertIn(
+            "No user account exists with this email",
+            response.content.decode(),
+        )
+
+    def test_post_request_admin_email_exists(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "admin@example.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertIn(
+            "No user account exists with this email",
+            response.content.decode(),
+        )
+
+    def test_valid_post_request(self):
+        request = self.factory.post(
+            reverse("request_health_history"),
+            {
+                "requestorName": "Aman Jain",
+                "requestorEmail": "requestor@gmail.com",
+                "purpose": "For onboarding process",
+                "userEmail": "patient@example.com",
+            },
+        )
+
+        response = request_health_history(request)
+        self.assertEqual(response.status_code, 302)
+
+
+class ViewHealthHistoryAccessTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+            dob="1990-01-01",
+            contactInfo="1234567890",
+            proofOfIdentity="Proof1",
+            address="Address1",
+            securityQues="",
+            securityAns="",
+            bloodGroup="A+",
+        )
+
+        HealthHistoryAccessRequest.objects.create(
+            requestorName="Test Requestor",
+            requestorEmail="testrequestor@gmail.com",
+            purpose="For onboarding process",
+            userID=self.user,
+        )
+
+    def test_view_health_history_access_requests(self):
+        url = reverse("view_health_history_access_requests")
+        request = self.factory.get(url)
+        request.user = self.user
+        response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_wrong_request_method(self):
+        url = reverse("view_health_history_access_requests")
+        request = self.factory.put(url)
+        request.user = self.user
+        response = view_health_history_access_requests(request)
+        self.assertEqual(response.status_code, 401)
+
+
+class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create(
+            email="admin@example.com", password="testpass123", is_patient=1, is_active=1
+        )
+        HealthHistoryAccessRequest.objects.create(
+            id=1,
+            status="pending",
+            requestorName="NYU",
+            requestorEmail="shc@nyu.edu",
+            purpose="For medical clearances",
+            userID=self.user,
+        )
+
+    def test_approve_request(self):
+        request = self.factory.put(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "approved"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_unauthorized_error(self):
+        request = self.factory.post(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "approved"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
+        self.assertEqual(response.status_code, 401)
+
+
+# Testing the function for file upload directly. So the 'url' used is relevant
+class TestFileUpload(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create(
+            email="myUser@example.com",
+            password="testpass123",
+            is_patient=1,
+            is_active=1,
+        )
+        os.environ["AWS_ACCESS_KEY_ID"] = "RandomKey"
+        os.environ["AWS_SECRET_ACCESS_KEY"] = "RandomSecretKey"
+        os.environ["AWS_S3_REGION_NAME"] = "RandomRegion"
+
+    @patch("boto3.resource")
+    def test_file_upload_profile_pic(self, mock_boto3_resource):
+
+        mock_s3_resource = mock_boto3_resource.return_value
+        mock_bucket = mock_s3_resource.Bucket.return_value
+
+        mock_bucket.upload_file.return_value = None
+
+        file_path = "healthScore/static/mock-data.txt"
+
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+            file = SimpleUploadedFile(
+                "example.txt", file_data, content_type="text/plain"
+            )
+
+        request = self.factory.post(
+            reverse("edit_user_info"),
+            data={"profile_picture": file},
+            format="multipart",
+        )
+        request.user = self.user
+
+        # Checking number of urls returned below because once the "Actual" keys are picked up from the pipeline, the url format changes
+        url = [file_upload(request, "userProfile")]
+        mock_bucket.upload_file.assert_called_once()
+        self.assertEqual(
+            len(url),
+            1,
+        )
+
+    @patch("boto3.resource")
+    def test_file_upload_medical_document(self, mock_boto3_resource):
+
+        mock_s3_resource = mock_boto3_resource.return_value
+        mock_bucket = mock_s3_resource.Bucket.return_value
+
+        mock_bucket.upload_file.return_value = None
+
+        file_path = "healthScore/static/mock-data.txt"
+
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+            file = SimpleUploadedFile(
+                "example.txt", file_data, content_type="text/plain"
+            )
+
+        request = self.factory.post(
+            reverse("edit_user_info"),
+            data={"medical_document": file},
+            format="multipart",
+        )
+        request.user = self.user
+
+        # Checking number of urls returned below because once the "Actual" keys are picked up from the pipeline, the url format changes
+        url = [file_upload(request, "medicalHistory")]
+        mock_bucket.upload_file.assert_called_once()
+
+        self.assertEqual(
+            len(url),
+            1,
+        )
+
+    @patch("boto3.resource")
+    def test_file_upload_identity_proof(self, mock_boto3_resource):
+
+        mock_s3_resource = mock_boto3_resource.return_value
+        mock_bucket = mock_s3_resource.Bucket.return_value
+
+        mock_bucket.upload_file.return_value = None
+
+        file_path = "healthScore/static/mock-data.txt"
+
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+            file = SimpleUploadedFile(
+                "example.txt", file_data, content_type="text/plain"
+            )
+
+        request = self.factory.post(
+            reverse("edit_user_info"),
+            data={"identity_proof": file, "email": "myUser@example.com"},
+            format="multipart",
+        )
+
+        # Checking number of urls returned below because once the "Actual" keys are picked up from the pipeline, the url format changes
+        url = [file_upload(request, "identityProof")]
+        mock_bucket.upload_file.assert_called_once()
+        self.assertEqual(
+            len(url),
+            1,
+        )
+
+    # Test Upload failure and exception blocks
+    def test_file_upload_failure(self):
+        request = self.factory.post(
+            reverse("edit_user_info"),
+        )
+        url = file_upload(request, "TEST")
+        self.assertEqual(url, "")
+
+    def test_file_upload_profile_pic_failure_exception(self):
+        file_path = "healthScore/static/mock-data.txt"
+
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+            file = SimpleUploadedFile(
+                "example.txt", file_data, content_type="text/plain"
+            )
+
+        request = self.factory.post(
+            reverse("edit_user_info"),
+            data={"profile_picture": file},
+            format="multipart",
+        )
+
+        url = file_upload(request, "userProfile")
+        self.assertEqual(url, "")
+
+    def test_file_upload_identity_proof_failure_exception(self):
+        file_path = "healthScore/static/mock-data.txt"
+
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+            file = SimpleUploadedFile(
+                "example.txt", file_data, content_type="text/plain"
+            )
+
+        request = self.factory.post(
+            reverse("edit_user_info"), data={"identity_proof": file}, format="multipart"
+        )
+
+        url = file_upload(request, "identityProof")
+        self.assertEqual(url, "")

@@ -6,15 +6,19 @@
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <style>
     .list-group-item-action.active {
-        background-color: #9D76C1;
-        border-color: lightgray;
+        background-color: #5B0888 !important;
+        border-color: lightgray !important;
     }
     .custom-save-btn {
-        background-color: #9D76C1;
+        background-color: #5B0888;
+        border-color: transparent;
         color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
     }
     .custom-save-btn:hover {
-        background-color: #7749A2;
+        background-color: #2d0444;
         color: white;
     }
     .profile-pic {
@@ -50,36 +54,81 @@
   </div>
 
     <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4 py-4">
-      <form id="editUserForm">
+      <form id="editUserForm" action='{% url "edit_user_info" %}' method="post" enctype="multipart/form-data">
         <h4>Account Details</h4>
-          
-          <div id="formFeedback" class="mb-3"></div>
-        <div class="form-group">
-          <label for="userName">Name</label>
-          <input type="text" class="form-control custom-width" id="userName" name="name" value="{{ userInfo.name }}">
-        </div>
-        <div class="form-group">
-          <label for="userEmail">Email address</label>
-          <input type="email" class="form-control custom-width" id="userEmail" name="email" value="{{ userInfo.email }}">
-        </div>
-        <div class="form-group">
-          <label for="userAddress">Address</label>
-          <input type="text" class="form-control custom-width" id="userAddress" name="address" value="{{ userInfo.address }}">
-        </div>
-        <div class="form-group">
-          <label for="userPhone">Phone Number</label>
-          <input type="text" class="form-control custom-width" id="userPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
-        </div>
-          <!--
-          <div class="form-group">
-            <label for="userProfilePicture">Profile Picture</label>
-            <input type="file" class="form-control-file" id="userProfilePicture" name="profile_picture">
-          </div>
-          -->
-          
-          {% csrf_token %}
+          {% if user.is_authenticated and user.is_patient %}
+            <div id="formFeedback" class="mb-3"></div>
+            <div class="form-group">
+                <label for="userName">Name</label>
+                <input type="text" class="form-control custom-width" id="userName" name="name" value="{{ userInfo.name }}">
+            </div>
+            <div class="form-group">
+                <label for="userEmail">Email address</label>
+                <input type="email" class="form-control custom-width" id="userEmail" name="email" value="{{ userInfo.email }}">
+            </div>
+            <div class="form-group">
+                <label for="userAddress">Address</label>
+                <input type="text" class="form-control custom-width" id="userAddress" name="address" value="{{ userInfo.address }}">
+            </div>
+            <div class="form-group">
+                <label for="userPhone">Phone Number</label>
+                <input type="text" class="form-control custom-width" id="userPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
+            </div>
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
+            </div>
+        {% elif user.is_authenticated and user.is_healthcare_worker %}
+            <div id="formFeedback" class="mb-3"></div>
+            <div class="form-group">
+                <label for="workerUserName">Name</label>
+                <input type="text" class="form-control custom-width" id="workerUserName" name="name" value="{{ userInfo.name }}">
+            </div>
+            <div class="form-group">
+                <label for="workerUserEmail">Email address</label>
+                <input type="email" class="form-control custom-width" id="workerUserEmail" name="email" value="{{ userInfo.email }}">
+            </div>
+            <div class="form-group">
+                <label for="workerUserPhone">Phone Number</label>
+                <input type="text" class="form-control custom-width" id="workerUserPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
+            </div>
+            <div class="form-group">
+                <label for="workerDepartment">Department</label>
+                <input type="text" class="form-control custom-width" id="workerDepartment" name="specialization" value="{{ userInfo.specialization }}">
+            </div>
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
+            </div>
         
-        <button type="button" class="btn custom-save-btn" onclick="submitEditForm()">Save Changes</button>
+        {% elif user.is_authenticated and user.is_staff %}
+            <div id="formFeedback" class="mb-3"></div>
+            <div class="form-group">
+                <label for="adminName">Name</label>
+                <input type="text" class="form-control custom-width" id="adminName" name="name" value="{{ userInfo.name }}">
+            </div>
+            <div class="form-group">
+                <label for="adminEmail">Email address</label>
+                <input type="email" class="form-control custom-width" id="adminEmail" name="email" value="{{ userInfo.email }}">
+            </div>
+            <div class="form-group">
+                <label for="adminPhone">Phone Number</label>
+                <input type="text" class="form-control custom-width" id="adminPhone" name="contactInfo" value="{{ userInfo.contactInfo }}">
+            </div>
+            <div class="form-group">
+                <label for="adminDepartment">Department</label>
+                <input type="text" class="form-control custom-width" id="adminDepartment" name="specialization" value="{{ userInfo.specialization }}">
+            </div>
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
+            </div>
+          
+        {% endif %}
+          
+      {% csrf_token %}
+        
+      <button type="submit" class="btn custom-save-btn">Save Changes</button>
           
       </form>
     </div>
@@ -87,32 +136,41 @@
 </div>
 
     <script>
-        function submitEditForm() {
-            const form = document.getElementById('editUserForm');
-            const formData = new FormData(form);
-            const jsonData = {};
-            formData.forEach((value, key) => {jsonData[key] = value;});
+      document.getElementById('editUserForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission behavior
+        
+        const form = event.target;
+        const formData = new FormData(form);
 
-            console.log(jsonData, "formData user profile")
-            fetch('{% url "edit_user_info" %}', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                },
-                body: JSON.stringify(jsonData),
-            })
-            .then(response => response.json())
-            .then(data => {
-                const feedbackElement = document.getElementById('formFeedback');
-                feedbackElement.innerHTML = '';
-                const message = data.error ? `<div class="alert alert-danger">${data.error}</div>` : `<div class="alert alert-success">${data.message}</div>`;
-                feedbackElement.innerHTML = message;
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+        const fileInput = document.getElementById('profilePicture');
+        // Check if a file is selected
+        if (fileInput.files.length > 0) {
+            // Append the file to the FormData object
+            formData.append('file', fileInput.files[0]);
         }
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            const feedbackElement = document.getElementById('formFeedback');
+            feedbackElement.innerHTML = '';
+            if (data.error) {
+                feedbackElement.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+            } else {
+                feedbackElement.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                // If you want to update the UI with the new user information, you can do it here
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
     </script>
 
 </body>

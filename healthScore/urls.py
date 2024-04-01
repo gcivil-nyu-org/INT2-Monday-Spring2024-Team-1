@@ -66,12 +66,37 @@ urlpatterns = [
         views.activate_healthcare_staff,
         name="activate_healthcare_staff",
     ),
-    path("createPost", views.create_post, name="create_post"),
-    path("viewPosts", views.view_posts, name="view_posts"),
-    path("view_one_topic/<int:post_id>/", views.view_one_topic, name="view_one_topic"),
+    # community
+    path("community/", views.community_home, name="community"),
+    path("community/all-posts/", views.view_all_posts, name="all_posts"),
+    path("community/my-posts/", views.view_my_posts, name="my_posts"),
+    path("create-post", views.create_post, name="create_post"),
+    path("edit-post/<int:post_id>/", views.edit_post, name="edit_post"),
+    path("delete-post/<int:post_id>/", views.delete_post, name="delete_post"),
+    path("view-post/<int:post_id>/", views.view_post, name="view_post"),
     path(
-        "create_comments/<int:post_id>/comment/",
+        "create-comments/<int:post_id>/comment/",
         views.create_comments,
         name="create_comments",
+    ),
+    path(
+        "delete-comment/<int:comment_id>/",
+        views.delete_comment,
+        name="delete_comment",
+    ),
+    path(
+        "requestHealthHistory",
+        views.request_health_history,
+        name="request_health_history",
+    ),
+    path(
+        "viewHealthHistoryAccessRequests",
+        views.view_health_history_access_requests,
+        name="view_health_history_access_requests",
+    ),
+    path(
+        "updateHealthHistoryAccessRequestStatus",
+        views.update_health_history_access_request_status,
+        name="update_health_history_access_request_status",
     ),
 ]

@@ -31,10 +31,12 @@ from .models import (
     HospitalStaff,
     Post,
     Comment,
+    HealthHistoryAccessRequest,
 )
 
 from .user_utils import get_health_history_details
 from .forms import PostForm, CommentForm
+from .file_upload import file_upload
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -132,17 +134,24 @@ def view_user_info(request):
             "bloodGroup": current_user.bloodGroup,
             "requests": json.dumps(current_user.requests),
         }
+
+        try:
+            hospital_staff = HospitalStaff.objects.get(userID=current_user.id)
+            userInfo["specialization"] = hospital_staff.specialization
+        except HospitalStaff.DoesNotExist:
+            userInfo["specialization"] = "None"
+
         return render(request, "user_profile.html", {"userInfo": userInfo})
 
 
 @login_required
 @csrf_exempt
 def edit_user_info(request):
-    if request.method == "PUT":
-        updatedData = json.loads(request.body)
+    if request.method == "POST":
         current_user = request.user
 
-        new_email = updatedData.get("email")
+        new_email = request.POST.get("email")
+        file_url = file_upload(request, "userProfile")
         if new_email and new_email != current_user.email:
             if (
                 User.objects.exclude(id=current_user.id)
@@ -159,11 +168,24 @@ def edit_user_info(request):
         data_updated = False
 
         for field in ["name", "email", "address", "contactInfo", "profilePic"]:
-            new_value = updatedData.get(field)
+            new_value = request.POST.get(field)
             current_value = getattr(current_user, field)
             if new_value and new_value != current_value:
+                if field == "profilePic":
+                    setattr(current_user, field, file_url)
                 setattr(current_user, field, new_value)
                 data_updated = True
+
+        new_specialization = request.POST.get("specialization")
+        if new_specialization:
+            try:
+                hospital_staff = HospitalStaff.objects.get(userID=current_user.id)
+                if hospital_staff.specialization != new_specialization:
+                    hospital_staff.specialization = new_specialization
+                    hospital_staff.save()
+                    data_updated = True
+            except HospitalStaff.DoesNotExist:
+                pass
 
         if data_updated:
             current_user.save()
@@ -172,6 +194,8 @@ def edit_user_info(request):
             )
         else:
             return JsonResponse({"message": "No data was changed."}, status=200)
+    else:
+        view_user_info(request)
 
 
 @login_required
@@ -345,13 +369,12 @@ def registration(request):
         }
 
         if role == "User":
+            file_url = file_upload(request, "identityProof")
             user_specific_fields = {
                 "dob": request.POST.get("dob"),
                 "gender": request.POST.get("gender"),
                 "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
-                "proofOfIdentity": request.POST.get(
-                    "identity_proof"
-                ),  # This needs handling for file upload
+                "proofOfIdentity": file_url,  # This needs handling for file upload
             }
             User.objects.create_patient(**common_fields, **user_specific_fields)
 
@@ -424,7 +447,6 @@ def get_record(request, rec_id):
 
 
 def get_edit(request, rec_id):
-
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
     app = list(
         Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
@@ -467,14 +489,39 @@ def add_health_record_view(request):
         "appointmentType": APPOINTMENT_TYPE,
         "appointmentProps": json.dumps(APPOINTMENT_PROPS),
     }
+
+    # Add hospital id to data if user is an admin
+    try:
+        hospital_staff = HospitalStaff.objects.get(userID=request.user.id)
+        hospitalID = hospital_staff.hospitalID
+        data["hospitalID"] = hospitalID.id
+    except HospitalStaff.DoesNotExist:
+        pass
+
     if request.method == "POST":
+
+        medicalDocUrl = file_upload(request, "medicalHistory")
         hospitalID = request.POST.get("hospitalID")
         doctorID = request.POST.get("doctorId")
-        userID = request.user
+        userEmail = request.POST.get("userEmail")
+        # update userID to be either request.user or the userID of the email provided by the admin
+        # if userEmail is populated then get the user id of that email else it'll be request.user
+        if userEmail:
+            try:
+                userID = User.objects.get(email=userEmail)
+            except User.DoesNotExist:
+                context = {
+                    "error_message": "No patient exists with this email address. Please try again."
+                }
+                return render(request, "record_submit.html", context)
+        else:
+            userID = request.user
         # create a new appointment
         appointmentType = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
         appointmentProperties = dict()
         all_fields = request.POST
+
+        medicalDocs = {request.POST.get("appointmentType"): medicalDocUrl}
         for key, value in all_fields.items():
             if (
                 key != "csrfmiddlewaretoken"
@@ -494,6 +541,7 @@ def add_health_record_view(request):
             userID=userID,
             hospitalID=hospitalID,
             appointmentId=appointmentID,
+            healthDocuments=medicalDocs,
         )
         return redirect("new_health_record_sent")
     return render(request, "record_submit.html", {"data": data})
@@ -700,6 +748,30 @@ def activate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
+def community_home(request):
+    return redirect("all_posts")
+
+
+def view_all_posts(request):
+    posts = Post.objects.all().order_by("-createdAt")
+    return render(
+        request, "community_home.html", {"posts": posts, "headerTitle": "All the posts"}
+    )
+
+
+def view_my_posts(request):
+    posts = Post.objects.filter(user=request.user).order_by("-createdAt")
+    return render(
+        request, "community_home.html", {"posts": posts, "headerTitle": "My posts"}
+    )
+
+
+def view_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = post.comments.all()
+    return render(request, "post_details.html", {"post": post, "comments": comments})
+
+
 @login_required
 def create_post(request):
     if request.method == "POST":
@@ -707,23 +779,33 @@ def create_post(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
-            # user = User.objects.get(id=5)
             post.save()
-            return redirect("view_posts")
+            return redirect("community")
     else:
         form = PostForm()
-    return render(request, "post_new_topic.html", {"form": form})
+    return render(request, "post_create.html", {"form": form})
 
 
-def view_posts(request):
-    posts = Post.objects.all().order_by("-createdAt")
-    return render(request, "community_home.html", {"posts": posts})
-
-
-def view_one_topic(request, post_id):
+@login_required
+def edit_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    comments = show_comments(post_id)
-    return render(request, "view_topic.html", {"post": post, "comments": comments})
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect("view_post", post_id=post.id)
+    else:
+        form = PostForm(instance=post)
+    return render(request, "post_edit.html", {"form": form})
+
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == "GET":
+        post.delete()
+        return redirect("community")
+    return redirect("view_post", post_id=post_id)
 
 
 @login_required
@@ -735,13 +817,81 @@ def create_comments(request, post_id):
             comment = form.save(commit=False)
             comment.post = post
             comment.commenter = request.user
-            # comment.commenter = User.objects.get(id=5)
             comment.save()
 
-    return redirect("view_one_topic", post_id=post.id)
+    return redirect("view_post", post_id=post.id)
 
 
-def show_comments(post_id):
-    comments = Comment.objects.filter(post__id=post_id).order_by("-createdAt")
-    return comments
-    # return render(request, "view_topic.html", {"comments": comments})
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.method == "GET":
+        comment.delete()
+
+    return redirect("view_post", post_id=comment.post.id)
+
+
+@csrf_exempt
+def request_health_history(request):
+    if request.method == "POST":
+        requestorName = request.POST.get("requestorName")
+        requestorEmail = request.POST.get("requestorEmail")
+        purpose = request.POST.get("purpose")
+        userEmail = request.POST.get("userEmail")
+
+        context = {"error_message:": ""}
+
+        if not User.objects.filter(email=userEmail).exists():
+            context["error_message"] = "No user account exists with this email"
+            return render(request, "request_health_history.html", context)
+
+        user = User.objects.get(email=userEmail)
+
+        if not user.is_patient:
+            context["error_message"] = "No user account exists with this email"
+            return render(request, "request_health_history.html", context)
+
+        HealthHistoryAccessRequest.objects.create(
+            userID=user,
+            requestorName=requestorName,
+            requestorEmail=requestorEmail,
+            purpose=purpose,
+        )
+
+        return redirect("homepage")
+
+    return render(request, "request_health_history.html")
+
+
+@login_required
+@csrf_exempt
+def view_health_history_access_requests(request):
+    if request.method == "GET":
+        user = request.user
+        access_requests = HealthHistoryAccessRequest.objects.filter(
+            userID=user
+        ).order_by("-createdAt")
+        return render(
+            request, "view_access_requests.html", {"access_requests": access_requests}
+        )
+
+    return JsonResponse({"error": "wrong access method"}, status=401)
+
+
+@login_required
+@csrf_exempt
+def update_health_history_access_request_status(request):
+    if request.user.is_authenticated and request.method == "PUT":
+        updatedData = json.loads(request.body)
+        request_id = updatedData.get("request_id")
+        status = updatedData.get("status")
+
+        request = get_object_or_404(HealthHistoryAccessRequest, id=request_id)
+
+        request.status = status
+        request.save()
+        return JsonResponse(
+            {"message": "Request status updated successfully"}, status=200
+        )
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)

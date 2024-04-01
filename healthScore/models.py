@@ -167,6 +167,7 @@ class Post(models.Model):
     title = models.TextField(null=False)
     description = models.TextField(default="")
     createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
 
 
 class Comment(models.Model):
@@ -174,3 +175,14 @@ class Comment(models.Model):
     commenter = models.ForeignKey("User", on_delete=models.CASCADE)
     content = models.TextField(default="")
     createdAt = models.DateTimeField(auto_now_add=True)
+
+
+class HealthHistoryAccessRequest(models.Model):
+    id = models.AutoField(primary_key=True)
+    userID = models.ForeignKey("user", to_field="id", on_delete=models.CASCADE)
+    status = models.TextField(choices=STATUS_CHOICES, default="pending")
+    requestorName = models.TextField(null=False)
+    requestorEmail = models.EmailField(null=False)
+    purpose = models.TextField(null=False)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now_add=True)
