@@ -37,6 +37,7 @@ from .models import (
 from .user_utils import get_health_history_details
 from .forms import PostForm, CommentForm
 from .file_upload import file_upload
+from django.core.mail import send_mail
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -885,13 +886,38 @@ def update_health_history_access_request_status(request):
         updatedData = json.loads(request.body)
         request_id = updatedData.get("request_id")
         status = updatedData.get("status")
+        user_info = request.user
 
         request = get_object_or_404(HealthHistoryAccessRequest, id=request_id)
 
         request.status = status
         request.save()
-        return JsonResponse(
-            {"message": "Request status updated successfully"}, status=200
-        )
+
+        send_mail_response = 0
+
+        if status == "approved":
+            send_mail_response = send_mail(
+                f"Update on Health History Access of: {user_info.name}",
+                f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
+                "from@example.com",
+                [request.requestorEmail],
+            )
+        else:
+            send_mail_response = send_mail(
+                f"Update on Health History Access of: {user_info.name}",
+                f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been rejected.\n\nRegards,\nHealth Score Team",
+                "from@example.com",
+                [request.requestorEmail],
+            )
+
+        message_response = ""
+        if send_mail_response:
+            message_response = "Email sent and request status updated successfully"
+        else:
+            message_response = (
+                "Email could not be sent, but request status updated successfully"
+            )
+
+        return JsonResponse({"message": message_response}, status=200)
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
