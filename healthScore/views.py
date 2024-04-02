@@ -893,23 +893,31 @@ def update_health_history_access_request_status(request):
         request.status = status
         request.save()
 
+        send_mail_response = 0
+
         if status == "approved":
-            send_mail(
+            send_mail_response = send_mail(
                 f"Update on Health History Access of: {user_info.name}",
                 f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
                 "from@example.com",
                 [request.requestorEmail],
             )
         else:
-            send_mail(
+            send_mail_response = send_mail(
                 f"Update on Health History Access of: {user_info.name}",
                 f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been rejected.\n\nRegards,\nHealth Score Team",
                 "from@example.com",
                 [request.requestorEmail],
             )
 
-        return JsonResponse(
-            {"message": "Request status updated successfully"}, status=200
-        )
+        message_response = ""
+        if send_mail_response:
+            message_response = "Email sent and request status updated successfully"
+        else:
+            message_response = (
+                "Email could not be sent, but request status updated successfully"
+            )
+
+        return JsonResponse({"message": message_response}, status=200)
 
     return JsonResponse({"error": "Unauthorized"}, status=401)

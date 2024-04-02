@@ -877,6 +877,14 @@ class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
             purpose="For medical clearances",
             userID=self.user,
         )
+        HealthHistoryAccessRequest.objects.create(
+            id=2,
+            status="pending",
+            requestorName="NYU",
+            requestorEmail="",
+            purpose="For medical clearances",
+            userID=self.user,
+        )
 
     def test_approve_request(self):
         request = self.factory.put(
@@ -899,6 +907,36 @@ class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
         request.user = self.user
         response = update_health_history_access_request_status(request)
         self.assertEqual(response.status_code, 200)
+
+    def test_email_sent(self):
+        request = self.factory.put(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "approved"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Email sent and request status updated successfully",
+            response.content.decode(),
+        )
+
+    def test_email_not_sent(self):
+        request = self.factory.put(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 2, "status": "rejected"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Email could not be sent, but request status updated successfully",
+            response.content.decode(),
+        )
 
     def test_unauthorized_error(self):
         request = self.factory.post(
