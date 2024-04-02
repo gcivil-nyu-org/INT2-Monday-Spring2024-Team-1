@@ -889,6 +889,17 @@ class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
         response = update_health_history_access_request_status(request)
         self.assertEqual(response.status_code, 200)
 
+    def test_reject_request(self):
+        request = self.factory.put(
+            reverse("update_health_history_access_request_status"),
+            data={"request_id": 1, "status": "rejected"},
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = update_health_history_access_request_status(request)
+        self.assertEqual(response.status_code, 200)
+
     def test_unauthorized_error(self):
         request = self.factory.post(
             reverse("update_health_history_access_request_status"),
