@@ -812,7 +812,7 @@ class RequestHealthHistoryTestCase(TestCase):
 
         response = request_health_history(request)
         self.assertIn(
-            "No user account exists with this email",
+            "No user account exists with these details",
             response.content.decode(),
         )
 

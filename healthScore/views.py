@@ -854,7 +854,7 @@ def request_health_history(request):
         user = User.objects.get(email=userEmail, dob=userDob)
 
         if not user.is_patient:
-            context["error_message"] = "No user account exists with this email"
+            context["error_message"] = "No user account exists with these details"
             return render(request, "request_health_history.html", context)
 
         HealthHistoryAccessRequest.objects.create(
