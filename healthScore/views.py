@@ -843,14 +843,15 @@ def request_health_history(request):
         requestorEmail = request.POST.get("requestorEmail")
         purpose = request.POST.get("purpose")
         userEmail = request.POST.get("userEmail")
+        userDob = request.POST.get("dob")
 
         context = {"error_message:": ""}
 
-        if not User.objects.filter(email=userEmail).exists():
-            context["error_message"] = "No user account exists with this email"
+        if not User.objects.filter(email=userEmail, dob=userDob).exists():
+            context["error_message"] = "No user account exists with these details"
             return render(request, "request_health_history.html", context)
 
-        user = User.objects.get(email=userEmail)
+        user = User.objects.get(email=userEmail, dob=userDob)
 
         if not user.is_patient:
             context["error_message"] = "No user account exists with this email"

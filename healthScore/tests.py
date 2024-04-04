@@ -768,6 +768,7 @@ class RequestHealthHistoryTestCase(TestCase):
             name="Patient 1",
             password="patientpass",
             is_patient=1,
+            dob="1997-12-30",
         )
 
         self.admin = User.objects.create_staff(
@@ -776,6 +777,7 @@ class RequestHealthHistoryTestCase(TestCase):
             name="Admin 1",
             password="adminpass",
             is_staff=1,
+            dob="1997-12-30",
         )
 
     def test_post_request_patient_does_not_exist(self):
@@ -786,12 +788,13 @@ class RequestHealthHistoryTestCase(TestCase):
                 "requestorEmail": "requestor@gmail.com",
                 "purpose": "For onboarding process",
                 "userEmail": "abcd@gmail.com",
+                "dob": "1997-12-28",
             },
         )
 
         response = request_health_history(request)
         self.assertIn(
-            "No user account exists with this email",
+            "No user account exists with these details",
             response.content.decode(),
         )
 
@@ -803,6 +806,7 @@ class RequestHealthHistoryTestCase(TestCase):
                 "requestorEmail": "requestor@gmail.com",
                 "purpose": "For onboarding process",
                 "userEmail": "admin@example.com",
+                "dob": "1997-12-30",
             },
         )
 
@@ -820,6 +824,7 @@ class RequestHealthHistoryTestCase(TestCase):
                 "requestorEmail": "requestor@gmail.com",
                 "purpose": "For onboarding process",
                 "userEmail": "patient@example.com",
+                "dob": "1997-12-30",
             },
         )
 
