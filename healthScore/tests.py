@@ -1,4 +1,4 @@
-from django.test import RequestFactory, TransactionTestCase, TestCase, Client
+from django.test import RequestFactory, TransactionTestCase, TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
