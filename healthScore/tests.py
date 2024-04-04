@@ -1,4 +1,4 @@
-from django.test import RequestFactory, TransactionTestCase, TestCase
+from django.test import RequestFactory, TransactionTestCase, TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
@@ -581,6 +581,7 @@ class CommunityTestCase(TestCase):
 
     def test_view_all_posts(self):
         request = self.factory.get(reversed("all_posts"))
+        request.user = self.user1
         response = view_all_posts(request)
         self.assertEqual(response.status_code, 200)
 
@@ -597,6 +598,7 @@ class CommunityTestCase(TestCase):
         request = self.factory.get(
             reverse("view_post", kwargs={"post_id": self.post.id})
         )
+        request.user = self.user1
         response = view_post(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 200)
 
