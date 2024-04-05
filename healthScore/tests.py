@@ -48,7 +48,6 @@ from healthScore.views import (
     delete_post,
     edit_post,
     delete_comment,
-    update_request_status,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
