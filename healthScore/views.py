@@ -933,14 +933,14 @@ def update_health_history_access_request_status(request):
 def update_request_status(request):
     if request.method == "POST" and request.user.is_healthcare_worker:
         update = json.loads(request.body)
-        record_id = update['recordID']
-        decision = update['status']
+        record_id = update["recordID"]
+        decision = update["status"]
         health_record = get_object_or_404(HealthRecord, id=record_id)
         if decision == "approved":
             health_record.status = "approved"
         else:
             health_record.status = "rejected"
-            health_record.rejectedReason = update['reason']
+            health_record.rejectedReason = update["reason"]
 
         health_record.save()
         return JsonResponse(
@@ -1021,9 +1021,8 @@ def view_healthworkers_user_record(request):
 
         zipped_details = detailed_history_list
         # return zipped_details
-        return render(request, "view_records_doctors.html", {"docs_records": zipped_details})
+        return render(
+            request, "view_records_doctors.html", {"docs_records": zipped_details}
+        )
 
     return homepage(request)
-
-
-

@@ -107,6 +107,6 @@ urlpatterns = [
     path(
         "recordDecision/",
         views.view_healthworkers_user_record,
-        name="view_healthworkers_user_record"
-    )
+        name="view_healthworkers_user_record",
+    ),
 ]
