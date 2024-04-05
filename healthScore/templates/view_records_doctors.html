@@ -77,7 +77,7 @@
 
         .appointmentName {
             text-decoration: underline;
-            color: blue!important;
+            color: blue !important;
         }
 
         .rejectionError {
@@ -145,17 +145,19 @@
                         </thead>
                         <tbody>
                             {% for record in docs_records %}
-                            
+
                             <tr>
                                 <td class="appointmentName"
-                                onclick="getProperties(`{{ record.appointment_properties }}|{{record.appointment_name}}`)"
-                                data-toggle="modal" data-target="#myModal">{{record.user_id}}</td>
+                                    onclick="getProperties(`{{ record.appointment_properties }}|{{record.appointment_name}}`)"
+                                    data-toggle="modal" data-target="#myModal">{{record.user_id}}</td>
                                 <td>{{ record.appointment_name }}</td>
                                 <td>{{ record.appointment_type }}</td>
                                 <td>
-                                    <button onclick="sendAccept(`{{ record.record_id }}|{{ 'approved' }}`)" type="button" class="btn btn-success">Approve</button>
+                                    <button onclick="sendAccept(`{{ record.record_id }}|{{ 'approved' }}`)"
+                                        type="button" class="btn btn-success">Approve</button>
                                     <button onclick="rejectModal(`{{ record.record_id }}|{{ 'rejected' }}`)"
-                                    data-toggle="modal" data-target="#rejectModal" type="button" class="btn btn-danger">Reject</button>
+                                        data-toggle="modal" data-target="#rejectModal" type="button"
+                                        class="btn btn-danger">Reject</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -175,7 +177,8 @@
                     <button type="button" class="close" data-dismiss="modal"></button>
                 </div>
                 <div class="modal-body modalHeight" id="modal-reject-body">
-                    <textarea class="form-control" id="rejectionReason" value="rejectionReason" name="rejectionReason" rows="3"></textarea>
+                    <textarea class="form-control" id="rejectionReason" value="rejectionReason" name="rejectionReason"
+                        rows="3"></textarea>
                 </div>
 
                 <div class="rejectionError" id="error-reject"></div>
@@ -234,7 +237,7 @@
                 reason: rejectionReason
             };
 
-            
+
             fetch('{% url "update_request_status" %}', {
                 method: 'POST',
                 headers: {
@@ -263,10 +266,10 @@
         }
 
 
-        function sendAccept(acceptedRecord){
+        function sendAccept(acceptedRecord) {
             var record = acceptedRecord.split("|")[0]
             var status = acceptedRecord.split("|")[1]
-            
+
             var newData = {
                 recordID: record,
                 status: status,
