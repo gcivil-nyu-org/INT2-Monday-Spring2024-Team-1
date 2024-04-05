@@ -424,7 +424,6 @@ def login_view(request):
 @login_required
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
-
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
 
@@ -895,3 +894,24 @@ def update_health_history_access_request_status(request):
         )
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
+
+@login_required()
+def update_request_status(request):
+    if request.method == "POST":
+        record_id = request.POST.get("record_id")
+        decision = request.POST.get("decision")
+        health_record = get_object_or_404(HealthRecord, id=record_id)
+        if decision == "Approve":
+            health_record.status = "approved"
+        else:
+            health_record.status = "rejected"
+            health_record.rejectedReason = request.POST.get("reason")
+
+        health_record.save()
+        return JsonResponse(
+            {"message": "Request status updated successfully"}, status=200
+        )
+
+    return redirect("manage_request")
+
+

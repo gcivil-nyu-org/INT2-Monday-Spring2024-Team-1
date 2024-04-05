@@ -128,6 +128,7 @@ class HealthRecord(models.Model):  # Viewed by User and hospitalStaff who are do
         "appointment", to_field="id", on_delete=models.CASCADE
     )
     healthDocuments = models.JSONField(null=True)
+    rejectedReason = models.TextField(default="N/A")
 
 
 class Appointment(models.Model):  # Viewed by User and hospitalStaff who are doctors

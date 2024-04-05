@@ -48,6 +48,7 @@ from healthScore.views import (
     delete_post,
     edit_post,
     delete_comment,
+    update_request_status,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -1049,3 +1050,63 @@ class TestFileUpload(TestCase):
 
         url = file_upload(request, "identityProof")
         self.assertEqual(url, "")
+
+class TestRequestDecision(TestCase):
+    def setUp(self):
+        # self.factory = RequestFactory()
+        self.hospital = Hospital.objects.create(name="Test Hospital")
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+        )
+        self.client.login(email="user1@example.com", password="userpass1")
+        self.doctor = User.objects.create(
+            # id=2,
+            email="doctor@example.com",
+            password="testpass123",
+            is_healthcare_worker=1,
+            is_active=1,
+        )
+
+        self.appointment = Appointment.objects.create(
+            name="Eye Test",
+            properties=json.dumps(
+                {
+                    "cylindrical_power_right": 1.25,
+                    "cylindrical_power_left": 0.75,
+                    "spherical_power_left": -2.00,
+                    "spherical_power_right": -1.50,
+                    "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                }
+            ),
+        )
+        self.health_record = HealthRecord.objects.create(
+            doctorID=self.doctor.id,
+            userID=self.user,
+            hospitalID=self.hospital.id,
+            appointmentId=self.appointment,
+        )
+
+    def test_approval(self):
+        url = reverse('update_request_status')
+        response = self.client.post(url, {
+            'record_id': self.health_record.id,
+            'decision': 'Approve'
+        })
+        self.health_record.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.health_record.status, "approved")
+
+    def test_reject_with_reason(self):
+        reason = "Test Reason"
+        url = reverse('update_request_status')
+        response = self.client.post(url, {
+            'record_id': self.health_record.id,
+            'decision': 'Reject',
+            'reason': reason
+        })
+        self.health_record.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.health_record.status, "rejected")
+        self.assertEqual(self.health_record.rejectedReason, reason)
