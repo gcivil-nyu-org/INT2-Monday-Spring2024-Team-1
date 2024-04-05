@@ -954,11 +954,7 @@ def update_request_status(request):
 def view_healthworkers_user_record(request):
     if request.method == "GET" and request.user.is_healthcare_worker:
         current_user = request.user
-        print( current_user.is_healthcare_worker)
-        print(current_user.id)
         doc_id = HospitalStaff.objects.get(userID=current_user.id).id
-        # history_list = HealthRecord.objects.filter(doctorID=doc_id)
-        # history_list = list(HealthRecord.objects.filter(doctorID=2).values())
         history_list = HealthRecord.objects.filter(doctorID=2)
 
         appointment_name = request.GET.get("appointment_name")
@@ -966,13 +962,6 @@ def view_healthworkers_user_record(request):
             history_list = history_list.filter(
                 appointmentId__name__icontains=appointment_name
             )
-
-        healthcare_worker = request.GET.get("healthcare_worker")
-        if healthcare_worker:
-            doctor_ids = HospitalStaff.objects.filter(
-                name__icontains=healthcare_worker
-            ).values_list("id", flat=True)
-            history_list = history_list.filter(doctorID__in=doctor_ids)
 
         filter_date = request.GET.get("date")
         if filter_date:
@@ -986,21 +975,10 @@ def view_healthworkers_user_record(request):
                 createdAt__range=(start_of_day, end_of_day)
             )
 
-        healthcare_facility = request.GET.get("healthcare_facility")
-        if healthcare_facility:
-            hospital_ids = Hospital.objects.filter(
-                name__icontains=healthcare_facility
-            ).values_list("id", flat=True)
-            history_list = history_list.filter(hospitalID__in=hospital_ids)
-
-        # Filter records by status
-        # record_status = request.GET.get("record_status")
-        # if record_status:
         history_list = history_list.filter(status="pending")
 
         detailed_history_list = []
         each_details = []
-        print(history_list)
         for h in history_list:
             h_details = model_to_dict(h)
             each_details.append(h_details)
