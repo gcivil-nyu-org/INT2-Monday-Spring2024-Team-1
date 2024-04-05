@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
-from datetime import datetime
+from django.utils import timezone
+from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.forms.models import model_to_dict
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -944,18 +946,110 @@ def update_request_status(request):
             {"message": "Request status updated successfully"}, status=200
         )
 
-    return redirect("manage_request")
+    return view_healthworkers_user_record(request)
+
+
 @login_required
 def view_healthworkers_user_record(request):
-    if(request.method=="GET"):
+    # if(request.method=="GET"):
+        
+        
+    #     try:
+    #         # docs_records = HealthRecord.objects.get(doctorID=doc_id)
+    #         docs_records = list(HealthRecord.objects.filter(doctorID=2).values())
+    #     except Exception as e:
+    #         print(e)
+        
+    
+
+    if request.method == "GET":
         current_user = request.user
         print(current_user.id)
         doc_id = HospitalStaff.objects.get(userID=current_user.id).id
-        try:
-            # docs_records = HealthRecord.objects.get(doctorID=doc_id)
-            docs_records = list(HealthRecord.objects.filter(doctorID=2).values())
-        except Exception as e:
-            print(e)
-        return render(request, "view_records_doctors.html", {"docs_records": docs_records})
+        # history_list = HealthRecord.objects.filter(doctorID=doc_id)
+        history_list = HealthRecord.objects.filter(doctorID=2)
+
+        appointment_name = request.GET.get("appointment_name")
+        if appointment_name:
+            history_list = history_list.filter(
+                appointmentId__name__icontains=appointment_name
+            )
+
+        healthcare_worker = request.GET.get("healthcare_worker")
+        if healthcare_worker:
+            doctor_ids = HospitalStaff.objects.filter(
+                name__icontains=healthcare_worker
+            ).values_list("id", flat=True)
+            history_list = history_list.filter(doctorID__in=doctor_ids)
+
+        filter_date = request.GET.get("date")
+        if filter_date:
+            filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
+            current_tz = timezone.get_current_timezone()
+            start_of_day = timezone.make_aware(
+                datetime.combine(filter_date, datetime.min.time()), current_tz
+            )
+            end_of_day = start_of_day + timedelta(days=1)
+            history_list = history_list.filter(
+                createdAt__range=(start_of_day, end_of_day)
+            )
+
+        healthcare_facility = request.GET.get("healthcare_facility")
+        if healthcare_facility:
+            hospital_ids = Hospital.objects.filter(
+                name__icontains=healthcare_facility
+            ).values_list("id", flat=True)
+            history_list = history_list.filter(hospitalID__in=hospital_ids)
+
+        # Filter records by status
+        record_status = request.GET.get("record_status")
+        if record_status:
+            history_list = history_list.filter(status=record_status)
+
+        detailed_history_list = []
+        each_details = []
+        print(history_list)
+        for h in history_list:
+            h_details = model_to_dict(h)
+            each_details.append(h_details)
+            # Fetch related appointment details
+            appointment_details = Appointment.objects.get(id=h.appointmentId_id)
+            appointment_name = appointment_details.name
+            appointment_properties = json.loads(h.appointmentId.properties)
+            appointment_type = (
+                appointment_details.name
+                if appointment_details.name is not None
+                else "Unknown"
+            )
+
+            # Fetch healthcare worker details by Dr. ID
+            doctor_details = HospitalStaff.objects.get(id=h.doctorID)
+            doctor_name = doctor_details.name
+
+            # Fetch hospital details by hospitalID
+            hospital_details = Hospital.objects.get(id=h.hospitalID)
+            hospital_name = hospital_details.name
+            hospital_address = hospital_details.address
+
+            # Append a dictionary for each record with all the details needed
+            detailed_history_list.append(
+                {
+                    "record_id": h.id,
+                    "doctor_name": doctor_name,
+                    "hospital_name": hospital_name,
+                    "hospital_address": hospital_address,
+                    "createdAt": datetime.date(h.createdAt),
+                    "updatedAt": datetime.date(h.updatedAt),
+                    "appointment_name": appointment_name,
+                    "appointment_type": appointment_type,
+                    "record_status": h_details["status"],
+                    "appointment_properties": json.dumps(appointment_properties),
+                }
+            )
+
+        zipped_details = detailed_history_list
+        # return zipped_details
+        return render(request, "view_records_doctors.html", {"docs_records": zipped_details})
+
 
 
