@@ -1051,6 +1051,7 @@ class TestFileUpload(TestCase):
         url = file_upload(request, "identityProof")
         self.assertEqual(url, "")
 
+
 class TestRequestDecision(TestCase):
     def setUp(self):
         # self.factory = RequestFactory()
@@ -1089,23 +1090,25 @@ class TestRequestDecision(TestCase):
         )
 
     def test_approval(self):
-        url = reverse('update_request_status')
-        response = self.client.post(url, {
-            'record_id': self.health_record.id,
-            'decision': 'Approve'
-        })
+        url = reverse("update_request_status")
+        response = self.client.post(
+            url, {"record_id": self.health_record.id, "decision": "Approve"}
+        )
         self.health_record.refresh_from_db()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.health_record.status, "approved")
 
     def test_reject_with_reason(self):
         reason = "Test Reason"
-        url = reverse('update_request_status')
-        response = self.client.post(url, {
-            'record_id': self.health_record.id,
-            'decision': 'Reject',
-            'reason': reason
-        })
+        url = reverse("update_request_status")
+        response = self.client.post(
+            url,
+            {
+                "record_id": self.health_record.id,
+                "decision": "Reject",
+                "reason": reason,
+            },
+        )
         self.health_record.refresh_from_db()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.health_record.status, "rejected")

@@ -895,6 +895,7 @@ def update_health_history_access_request_status(request):
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
+
 @login_required()
 def update_request_status(request):
     if request.method == "POST":
@@ -913,5 +914,3 @@ def update_request_status(request):
         )
 
     return redirect("manage_request")
-
-

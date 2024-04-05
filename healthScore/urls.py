@@ -103,5 +103,5 @@ urlpatterns = [
         "update_request_status",
         views.update_request_status,
         name="update_request_status",
-    )
+    ),
 ]
