@@ -945,3 +945,17 @@ def update_request_status(request):
         )
 
     return redirect("manage_request")
+@login_required
+def view_healthworkers_user_record(request):
+    if(request.method=="GET"):
+        current_user = request.user
+        print(current_user.id)
+        doc_id = HospitalStaff.objects.get(userID=current_user.id).id
+        try:
+            # docs_records = HealthRecord.objects.get(doctorID=doc_id)
+            docs_records = list(HealthRecord.objects.filter(doctorID=2).values())
+        except Exception as e:
+            print(e)
+        return render(request, "view_records_doctors.html", {"docs_records": docs_records})
+
+
