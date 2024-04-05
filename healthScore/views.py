@@ -932,10 +932,11 @@ def update_health_history_access_request_status(request):
 @login_required()
 def update_request_status(request):
     if request.method == "POST":
-        record_id = request.POST.get("record_id")
-        decision = request.POST.get("decision")
+        update = json.loads(request.body)
+        record_id = update.recordID
+        decision = update.status
         health_record = get_object_or_404(HealthRecord, id=record_id)
-        if decision == "Approve":
+        if decision == "approved":
             health_record.status = "approved"
         else:
             health_record.status = "rejected"
@@ -951,22 +952,12 @@ def update_request_status(request):
 
 @login_required
 def view_healthworkers_user_record(request):
-    # if(request.method=="GET"):
-        
-        
-    #     try:
-    #         # docs_records = HealthRecord.objects.get(doctorID=doc_id)
-    #         docs_records = list(HealthRecord.objects.filter(doctorID=2).values())
-    #     except Exception as e:
-    #         print(e)
-        
-    
-
     if request.method == "GET":
         current_user = request.user
         print(current_user.id)
         doc_id = HospitalStaff.objects.get(userID=current_user.id).id
         # history_list = HealthRecord.objects.filter(doctorID=doc_id)
+        # history_list = list(HealthRecord.objects.filter(doctorID=2).values())
         history_list = HealthRecord.objects.filter(doctorID=2)
 
         appointment_name = request.GET.get("appointment_name")
@@ -1002,9 +993,9 @@ def view_healthworkers_user_record(request):
             history_list = history_list.filter(hospitalID__in=hospital_ids)
 
         # Filter records by status
-        record_status = request.GET.get("record_status")
-        if record_status:
-            history_list = history_list.filter(status=record_status)
+        # record_status = request.GET.get("record_status")
+        # if record_status:
+        history_list = history_list.filter(status="pending")
 
         detailed_history_list = []
         each_details = []
@@ -1031,10 +1022,12 @@ def view_healthworkers_user_record(request):
             hospital_name = hospital_details.name
             hospital_address = hospital_details.address
 
+            user_email = User.objects.get(id=h.userID_id).email
             # Append a dictionary for each record with all the details needed
             detailed_history_list.append(
                 {
                     "record_id": h.id,
+                    "user_id": user_email,
                     "doctor_name": doctor_name,
                     "hospital_name": hospital_name,
                     "hospital_address": hospital_address,
