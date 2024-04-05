@@ -955,7 +955,7 @@ def view_healthworkers_user_record(request):
     if request.method == "GET" and request.user.is_healthcare_worker:
         current_user = request.user
         doc_id = HospitalStaff.objects.get(userID=current_user.id).id
-        history_list = HealthRecord.objects.filter(doctorID=2)
+        history_list = HealthRecord.objects.filter(doctorID=doc_id)
 
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
