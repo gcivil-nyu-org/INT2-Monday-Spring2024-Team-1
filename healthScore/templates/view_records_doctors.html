@@ -216,17 +216,10 @@
     <script>
 
         function sendReject() {
-            // Retrieve rejection reason
             var rejectionReason = document.getElementById('rejectionReason').value;
 
-            // Retrieve recordID and status from data attributes
             var record = document.getElementById('rejectModal').getAttribute('data-record');
             var status = document.getElementById('rejectModal').getAttribute('data-status');
-
-            // Do something with recordID, status, and rejection reason
-            console.log("Record ID:", record);
-            console.log("Status:", status);
-            console.log("Rejection Reason:", rejectionReason);
 
             if (!rejectionReason) {
                 document.getElementById("error-reject").innerHTML = `<div class='alert alert-danger' role='alert'>
@@ -252,7 +245,6 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Status Updated")
                     window.location.reload(true)
                 })
                 .catch((error) => {
@@ -272,7 +264,6 @@
 
 
         function sendAccept(acceptedRecord){
-            console.log(acceptedRecord)
             var record = acceptedRecord.split("|")[0]
             var status = acceptedRecord.split("|")[1]
             
@@ -291,11 +282,7 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("Status Updated")
                     window.location.reload(true)
-                    // var view_requests = window.location.pathname.split("/")[1]
-                    // const baseUrl = window.location.origin + "/" + view_requests + "/";
-                    // window.location.href = baseUrl + "viewRequests"
                 })
                 .catch((error) => {
                     console.error('Error:', error);
@@ -303,15 +290,12 @@
         }
 
         function rejectModal(rejectModal) {
-            console.log(rejectModal);
             var record = rejectModal.split("|")[0];
             var status = rejectModal.split("|")[1];
 
-            // Set data attributes
             document.getElementById('rejectModal').setAttribute('data-record', record);
             document.getElementById('rejectModal').setAttribute('data-status', status);
 
-            // Show the modal
             document.getElementById('rejectModal').classList.add('show');
             document.getElementById('rejectModal').setAttribute('aria-hidden', 'false');
             document.getElementById('rejectModal').removeAttribute('style');
