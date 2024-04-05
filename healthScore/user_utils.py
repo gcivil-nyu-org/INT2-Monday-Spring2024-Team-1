@@ -90,6 +90,7 @@ def get_health_history_details(request):
                     "updatedAt": datetime.date(h.updatedAt),
                     "appointment_name": appointment_name,
                     "appointment_type": appointment_type,
+                    "rejectedReason": h.rejectedReason,
                     "record_status": h_details["status"],
                     "appointment_properties": json.dumps(appointment_properties),
                 }

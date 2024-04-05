@@ -115,16 +115,6 @@
                             placeholder="Reason for Visit" value="{{ request.GET.appointment_name }}">
                     </div>
                     <div class="form-group mx-sm-3 mb-2">
-                        <label for="healthcare_worker" class="sr-only">User Name:</label>
-                        <input type="text" class="form-control" id="healthcare_worker" name="healthcare_worker"
-                            placeholder="Healthcare Worker" value="{{ request.GET.healthcare_worker }}">
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <label for="healthcare_facility" class="sr-only">Healthcare Facility:</label>
-                        <input type="text" class="form-control" id="healthcare_facility" name="healthcare_facility"
-                            placeholder="Healthcare Facility" value="{{ request.GET.healthcare_facility }}">
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
                         <label for="date" class="sr-only">Date:</label>
                         <input type="date" class="form-control" id="date" name="date" value="{{ request.GET.date }}">
                     </div>
@@ -225,32 +215,61 @@
 
     <script>
 
-        function sendReject(){
+        function sendReject() {
             // Retrieve rejection reason
             var rejectionReason = document.getElementById('rejectionReason').value;
 
-
             // Retrieve recordID and status from data attributes
-            var record = $('#rejectModal').attr('data-record');
-            var status = $('#rejectModal').attr('data-status');
+            var record = document.getElementById('rejectModal').getAttribute('data-record');
+            var status = document.getElementById('rejectModal').getAttribute('data-status');
 
             // Do something with recordID, status, and rejection reason
             console.log("Record ID:", record);
             console.log("Status:", status);
             console.log("Rejection Reason:", rejectionReason);
 
-            if(!rejectionReason){
-                document.getElementById("error-reject").innerHTML=`<div class='alert alert-danger' role='alert'>
-                                    Reason cannot be empty!
-                                    </div>`
-                return
+            if (!rejectionReason) {
+                document.getElementById("error-reject").innerHTML = `<div class='alert alert-danger' role='alert'>
+                                        Reason cannot be empty!
+                                        </div>`;
+                return;
             }
-            
 
-            // Reset the modal
-            $('#rejectionReason').val('');
-            $('#rejectModal').modal('hide');
+            var newData = {
+                recordID: record,
+                status: status,
+                reason: rejectionReason
+            };
+
+            
+            fetch('{% url "update_request_status" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: JSON.stringify(newData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Status Updated")
+                    window.location.reload(true)
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+
+
+
+            // Close the modal
+            document.getElementById('rejectionReason').value = '';
+            document.getElementById('rejectModal').classList.remove('show');
+            document.getElementById('rejectModal').setAttribute('aria-hidden', 'true');
+            document.getElementById('rejectModal').setAttribute('style', 'display: none');
+            document.getElementById('rejectModal').setAttribute('aria-modal', 'false');
+            document.querySelector('.modal-backdrop').remove();
         }
+
 
         function sendAccept(acceptedRecord){
             console.log(acceptedRecord)
@@ -273,6 +292,7 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log("Status Updated")
+                    window.location.reload(true)
                     // var view_requests = window.location.pathname.split("/")[1]
                     // const baseUrl = window.location.origin + "/" + view_requests + "/";
                     // window.location.href = baseUrl + "viewRequests"
@@ -282,17 +302,20 @@
                 });
         }
 
-        function rejectModal(rejectModal){
-            console.log(rejectModal)
-            var record = rejectModal.split("|")[0]
-            var status = rejectModal.split("|")[1]
+        function rejectModal(rejectModal) {
+            console.log(rejectModal);
+            var record = rejectModal.split("|")[0];
+            var status = rejectModal.split("|")[1];
 
-            $('#rejectModal').attr('data-record', record);
-            $('#rejectModal').attr('data-status', status);
+            // Set data attributes
+            document.getElementById('rejectModal').setAttribute('data-record', record);
+            document.getElementById('rejectModal').setAttribute('data-status', status);
 
             // Show the modal
-            $('#rejectModal').modal('show');
-        
+            document.getElementById('rejectModal').classList.add('show');
+            document.getElementById('rejectModal').setAttribute('aria-hidden', 'false');
+            document.getElementById('rejectModal').removeAttribute('style');
+            document.getElementById('rejectModal').setAttribute('aria-modal', 'true');
         }
 
         function openNav() {

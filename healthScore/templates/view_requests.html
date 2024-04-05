@@ -123,6 +123,7 @@
                     <th scope="col">Address</th>
                     <th scope="col">Created Date</th>
                     <th scope="col">Updated Date</th>
+                    <th scope="col">Rejected Reason</th>
                     <th scope="col">Status</th>
                 </tr>
                 </thead>
@@ -142,6 +143,7 @@
                         <td>{{ request.hospital_address }}</td>
                         <td>{{ request.createdAt }}</td>
                         <td>{{ request.updatedAt }}</td>
+                        <td>{{ request.rejectedReason|capfirst }}</td>
                         <td class="{% if request.record_status == 'approved' %}text-success
                             {% elif request.record_status == 'rejected' %}text-danger
                             {% else %}text-warning{% endif %}">
