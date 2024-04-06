@@ -950,22 +950,23 @@ def send_rejection_emails(request):
 
 @login_required()
 def update_request_status(request):
-    if request.method == "POST":
-        record_id = request.POST.get("record_id")
-        decision = request.POST.get("decision")
+    if request.method == "POST" and request.user.is_healthcare_worker:
+        update = json.loads(request.body)
+        record_id = update["recordID"]
+        decision = update["status"]
         health_record = get_object_or_404(HealthRecord, id=record_id)
-        if decision == "Approve":
+        if decision == "approved":
             health_record.status = "approved"
         else:
             health_record.status = "rejected"
-            health_record.rejectedReason = request.POST.get("reason")
+            health_record.rejectedReason = update["reason"]
 
         health_record.save()
         return JsonResponse(
             {"message": "Request status updated successfully"}, status=200
         )
 
-    return redirect("manage_request")
+    return view_healthworkers_user_record(request)
 
 
 @login_required
