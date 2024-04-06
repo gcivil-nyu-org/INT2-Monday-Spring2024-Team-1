@@ -905,7 +905,7 @@ def send_approval_emails(request):
     for email in emails:
         email_msg = EmailMessage(
             f"Update on Health History Access of: {request.user.email}",
-            f"Hi {request.requestorName},\n\nYour request to access health history of {request.user.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
+            f"Hi,\n\nYour request to access health history of {request.user.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
             EMAIL_HOST_USER,
             [email],
         )
@@ -935,8 +935,8 @@ def send_rejection_emails(request):
 
     for email in emails:
         send_mail(
-           f"Update on Health History Access of: {request.user.email}",
-            f"Hi {request.requestorName},\n\nYour request to access health history of {request.user.name} has been rejected.\n\nRegards,\nHealth Score Team",
+            f"Update on Health History Access of: {request.user.email}",
+            f"Hi,\n\nYour request to access health history of {request.user.name} has been rejected.\n\nRegards,\nHealth Score Team",
             EMAIL_HOST_USER,
             [email],
         )
