@@ -873,40 +873,47 @@ class ViewHealthHistoryAccessTestCase(TestCase):
 class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_patient(email='test@example.com', password='password123', dob=datetime.now().date())
-        self.client.login(email='test@example.com', password='password123')
+        self.user = User.objects.create_patient(
+            email="test@example.com", password="password123", dob=datetime.now().date()
+        )
+        self.client.login(email="test@example.com", password="password123")
         # Create test health history access requests
-        self.hhars = [HealthHistoryAccessRequest.objects.create(userID=self.user, status='pending') for _ in range(2)]
+        self.hhars = [
+            HealthHistoryAccessRequest.objects.create(
+                userID=self.user, status="pending"
+            )
+            for _ in range(2)
+        ]
 
     def test_send_approval_emails(self):
-        url = reverse('send_approval_emails') 
+        url = reverse("send_approval_emails")
         data = {
             "emails": ["test1@example.com", "test2@example.com"],
-            "requestIds": [hhar.id for hhar in self.hhars]
+            "requestIds": [hhar.id for hhar in self.hhars],
         }
 
-        response = self.client.post(url, data, content_type='application/json')
+        response = self.client.post(url, data, content_type="application/json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(mail.outbox), 2) 
+        self.assertEqual(len(mail.outbox), 2)
         for hhar in self.hhars:
             hhar.refresh_from_db()
-            self.assertEqual(hhar.status, 'approved')
+            self.assertEqual(hhar.status, "approved")
 
     def test_send_rejection_emails(self):
-        url = reverse('send_reject_emails')
+        url = reverse("send_reject_emails")
         data = {
             "emails": ["test3@example.com", "test4@example.com"],
-            "requestIds": [hhar.id for hhar in self.hhars]
+            "requestIds": [hhar.id for hhar in self.hhars],
         }
 
-        response = self.client.post(url, data, content_type='application/json')
+        response = self.client.post(url, data, content_type="application/json")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(mail.outbox), 2) 
+        self.assertEqual(len(mail.outbox), 2)
         for hhar in self.hhars:
             hhar.refresh_from_db()
-            self.assertEqual(hhar.status, 'rejected')
+            self.assertEqual(hhar.status, "rejected")
 
 
 # Testing the function for file upload directly. So the 'url' used is relevant
