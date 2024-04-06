@@ -357,15 +357,16 @@
                             <hr/>
                         </div>`
                 for (var [key, value] of Object.entries(selected_appointment)) {
+                    
+                    var today = new Date().toISOString().split('T')[0];
+                    
                     props += `<div class="mb-3 ml-3 mr-3">                            
                             <div class="input-group">
                                 <span class="input-group-text labelProperties" id="basic-addon3">${value}</span>
                                 <input name="${key}"
                                     id="${key}"
-                                    type="${inputType(key)}" 
-                                    onkeydown="${key === 'date' ? 'return false;' : ''}" 
-                                    onkeypress="${key === 'date' ? 'return false;' : ''}" 
-                                    onpaste="${key === 'date' ? 'return false;' : ''}"  
+                                    type="${inputType(key)}"
+                                    ${key === 'date' ? `min="1910-01-01" max="${today}"` : ''}
                                     step="${stepSize(key)}" 
                                     class="form-control" id="exampleFormControlInput1"
                                     placeholder="${setPlaceholder(key, value)}">

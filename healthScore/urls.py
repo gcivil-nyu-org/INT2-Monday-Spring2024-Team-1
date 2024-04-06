@@ -99,4 +99,9 @@ urlpatterns = [
         views.update_health_history_access_request_status,
         name="update_health_history_access_request_status",
     ),
+    path(
+        "update_request_status",
+        views.update_request_status,
+        name="update_request_status",
+    ),
 ]
