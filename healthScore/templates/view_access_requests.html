@@ -41,18 +41,18 @@
         margin-bottom: 10px;
         color: #666;
     }
-    .btn {
+    .card-btn {
         margin-right: 5px;
         cursor: pointer;
     }
-    .btn-accept {
+    .btn-accept-green {
         background-color: #28a745;
         color: #FFFFFF;
         border: none;
         padding: 8px 12px;
         border-radius: 3px;
     }
-    .btn-reject {
+    .btn-reject-red {
         background-color: #dc3545;
         color: #FFFFFF;
         border: none;
@@ -69,7 +69,7 @@
     {% include 'header.html' %}
 
     <div class="overall_page">
-        <h2>Incoming Health History Requests</h2>
+        <h2>Incoming Health History Requests</h2><br>
 
         <div class="row">
             {% if access_requests %}
@@ -84,8 +84,8 @@
                         <form method="POST" id="updateForm{{ request.id }}">
                             {% csrf_token %}
                             <input type="hidden" name="request_id" value="{{ request.id }}">
-                            <button type="button" class="btn btn-accept" onclick="updateStatus({{ request.id }}, 'approved')">Approve</button>
-                            <button type="button" class="btn btn-reject" onclick="updateStatus({{ request.id }}, 'rejected')">Reject</button>
+                            <button type="button" class="card-btn btn-accept-green" onclick="updateStatus({{ request.id }}, 'approved')">Approve</button>
+                            <button type="button" class="card-btn btn-reject-red" onclick="updateStatus({{ request.id }}, 'rejected')">Reject</button>
                         </form>
                     </div>
                 </div>
