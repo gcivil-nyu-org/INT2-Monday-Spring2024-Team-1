@@ -59,7 +59,7 @@
         padding: 8px 12px;
         border-radius: 3px;
     }
-    .btn-accept:hover, .btn-reject:hover {
+    .btn-accept-green:hover, .btn-reject-red:hover {
         filter: brightness(90%);
     }
 </style>
@@ -100,5 +100,27 @@
         </div>
     </div>
 
+
+    <script>
+        function updateStatus(requestId, status) {
+            var formData = new FormData(document.getElementById('updateForm' + requestId));
+            formData.append('status', status);
+            fetch('{% url 'update_health_history_access_request_status' %}', {
+                method: 'PUT',
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </body>
 </html >
