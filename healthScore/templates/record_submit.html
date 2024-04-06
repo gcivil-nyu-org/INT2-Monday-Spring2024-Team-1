@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthScore</title>
+    <title>Health Score</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .custom-select {
@@ -133,7 +133,7 @@
                         
                             <div id="documents" class="mb-3 ml-3 mr-3">
                                 <label for="medical_document">Medical Document (If any)</label>
-                                <input type="file" id="medical_document" name="medical_document" accept=".jpg, .jpeg, .png, .pdf" required><br>
+                                <input type="file" id="medical_document" name="medical_document" accept=".jpg, .jpeg, .png, .pdf"><br>
                             </div>
 
                             <div class="col-12 submit-button-container">
@@ -195,7 +195,7 @@
                         
                             <div id="documents" class="mb-3 ml-3 mr-3">
                                 <label for="medical_document">Medical Document (If any)</label>
-                                <input type="file" id="medical_document" name="medical_document" accept=".jpg, .jpeg, .png, .pdf" required><br>
+                                <input type="file" id="medical_document" name="medical_document" accept=".jpg, .jpeg, .png, .pdf"><br>
                             </div>
 
                             <div class="col-12 submit-button-container">
@@ -357,15 +357,16 @@
                             <hr/>
                         </div>`
                 for (var [key, value] of Object.entries(selected_appointment)) {
+                    
+                    var today = new Date().toISOString().split('T')[0];
+                    
                     props += `<div class="mb-3 ml-3 mr-3">                            
                             <div class="input-group">
                                 <span class="input-group-text labelProperties" id="basic-addon3">${value}</span>
                                 <input name="${key}"
                                     id="${key}"
-                                    type="${inputType(key)}" 
-                                    onkeydown="${key === 'date' ? 'return false;' : ''}" 
-                                    onkeypress="${key === 'date' ? 'return false;' : ''}" 
-                                    onpaste="${key === 'date' ? 'return false;' : ''}"  
+                                    type="${inputType(key)}"
+                                    ${key === 'date' ? `min="1910-01-01" max="${today}"` : ''}
                                     step="${stepSize(key)}" 
                                     class="form-control" id="exampleFormControlInput1"
                                     placeholder="${setPlaceholder(key, value)}">

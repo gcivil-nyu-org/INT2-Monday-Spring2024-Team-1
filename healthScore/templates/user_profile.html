@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Account Settings</title>
+<title>Health Score</title>
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <style>
     .list-group-item-action.active {
@@ -48,7 +48,7 @@
     </div>
       <div class="list-group mt-4">
         <a href="#" class="list-group-item list-group-item-action active" aria-current="true">Account Details</a>
-        <a href="#" class="list-group-item list-group-item-action">Change Password</a>
+        <a href="{% url 'password_reset' %}" class="list-group-item list-group-item-action">Change Password</a>
         <a href="{% url 'logout' %}" class="list-group-item list-group-item-action">Logout</a>
       </div>
   </div>
@@ -128,7 +128,7 @@
           
       {% csrf_token %}
         
-      <button type="submit" class="btn custom-save-btn">Save Changes</button>
+      <button type="submit" class="custom-save-btn">Save Changes</button>
           
       </form>
     </div>

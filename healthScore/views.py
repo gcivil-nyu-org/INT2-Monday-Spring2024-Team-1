@@ -430,7 +430,6 @@ def login_view(request):
 @login_required
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
-
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
 
@@ -754,10 +753,12 @@ def activate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
+@login_required
 def community_home(request):
     return redirect("all_posts")
 
 
+@login_required
 def view_all_posts(request):
     posts = Post.objects.all().order_by("-createdAt")
     return render(
@@ -765,6 +766,7 @@ def view_all_posts(request):
     )
 
 
+@login_required
 def view_my_posts(request):
     posts = Post.objects.filter(user=request.user).order_by("-createdAt")
     return render(
@@ -772,6 +774,7 @@ def view_my_posts(request):
     )
 
 
+@login_required
 def view_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = post.comments.all()
@@ -844,17 +847,18 @@ def request_health_history(request):
         requestorEmail = request.POST.get("requestorEmail")
         purpose = request.POST.get("purpose")
         userEmail = request.POST.get("userEmail")
+        userDob = request.POST.get("dob")
 
         context = {"error_message:": ""}
 
-        if not User.objects.filter(email=userEmail).exists():
-            context["error_message"] = "No user account exists with this email"
+        if not User.objects.filter(email=userEmail, dob=userDob).exists():
+            context["error_message"] = "No user account exists with these details"
             return render(request, "request_health_history.html", context)
 
-        user = User.objects.get(email=userEmail)
+        user = User.objects.get(email=userEmail, dob=userDob)
 
         if not user.is_patient:
-            context["error_message"] = "No user account exists with this email"
+            context["error_message"] = "No user account exists with these details"
             return render(request, "request_health_history.html", context)
 
         HealthHistoryAccessRequest.objects.create(
@@ -891,16 +895,61 @@ def update_health_history_access_request_status(request):
         updatedData = json.loads(request.body)
         request_id = updatedData.get("request_id")
         status = updatedData.get("status")
+        user_info = request.user
 
         request = get_object_or_404(HealthHistoryAccessRequest, id=request_id)
 
         request.status = status
         request.save()
+
+        send_mail_response = 0
+
+        if status == "approved":
+            send_mail_response = send_mail(
+                f"Update on Health History Access of: {user_info.name}",
+                f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
+                "from@example.com",
+                [request.requestorEmail],
+            )
+        else:
+            send_mail_response = send_mail(
+                f"Update on Health History Access of: {user_info.name}",
+                f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been rejected.\n\nRegards,\nHealth Score Team",
+                "from@example.com",
+                [request.requestorEmail],
+            )
+
+        message_response = ""
+        if send_mail_response:
+            message_response = "Email sent and request status updated successfully"
+        else:
+            message_response = (
+                "Email could not be sent, but request status updated successfully"
+            )
+
+        return JsonResponse({"message": message_response}, status=200)
+
+    return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@login_required()
+def update_request_status(request):
+    if request.method == "POST":
+        record_id = request.POST.get("record_id")
+        decision = request.POST.get("decision")
+        health_record = get_object_or_404(HealthRecord, id=record_id)
+        if decision == "Approve":
+            health_record.status = "approved"
+        else:
+            health_record.status = "rejected"
+            health_record.rejectedReason = request.POST.get("reason")
+
+        health_record.save()
         return JsonResponse(
             {"message": "Request status updated successfully"}, status=200
         )
 
-    return JsonResponse({"error": "Unauthorized"}, status=401)
+    return redirect("manage_request")
 
 
 @csrf_exempt

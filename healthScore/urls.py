@@ -100,6 +100,11 @@ urlpatterns = [
         name="update_health_history_access_request_status",
     ),
     path(
+        "update_request_status",
+        views.update_request_status,
+        name="update_request_status",
+    ),
+    path(
         "send-approval-emails", views.send_approval_emails, name="send_approval_email"
     ),
     path("send-reject-emails", views.send_rejection_emails, name="send_reject_emails"),
