@@ -23,6 +23,8 @@ from reportlab.lib.styles import ParagraphStyle
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
 
+from healthConfig.settings import EMAIL_HOST_USER
+
 from .models import (
     Appointment,
     HealthRecord,
@@ -37,6 +39,8 @@ from .models import (
 from .user_utils import get_health_history_details
 from .forms import PostForm, CommentForm
 from .file_upload import file_upload
+from django.views.decorators.http import require_http_methods
+from django.core.mail import send_mail, EmailMessage
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -199,7 +203,7 @@ def edit_user_info(request):
 
 
 @login_required
-def view_report(request):
+def view_report(request, selected_records=None):
     if request.method == "POST":
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = 'attachment; filename="Report.pdf"'
@@ -236,7 +240,9 @@ def view_report(request):
         story.append(logo_and_date)
         user_info = request.user
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
-        story.append(Paragraph("DOB: " + user_info.dob, styles["Normal"]))
+        story.append(
+            Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
+        )
         story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
         story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
         story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
@@ -255,7 +261,9 @@ def view_report(request):
             ],
         ]
 
-        selected_record_ids = request.POST.getlist("record_ids")
+        selected_record_ids = selected_records
+        if not selected_records:
+            selected_record_ids = request.POST.getlist("record_ids")
         for record_id in selected_record_ids:
             row = []
             record = HealthRecord.objects.get(id=record_id)
@@ -288,9 +296,7 @@ def view_report(request):
             temp_row = []
             for rec, val in appointment_properties.items():
                 if rec == "date":
-                    val = datetime.strptime(val, "%Y-%m-%d %H:%M:%S.%f").strftime(
-                        DATE_FORMAT
-                    )
+                    val = datetime.strptime(val, "%Y-%m-%d").strftime(DATE_FORMAT)
 
                 temp_row.append(Paragraph(str(rec).capitalize() + " :   " + str(val)))
             row.append(temp_row)
@@ -895,3 +901,66 @@ def update_health_history_access_request_status(request):
         )
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_approval_emails(request):
+    data = json.loads(request.body)
+    emails = data.get("emails", [])
+    requestIds = data.get("requestIds", [])
+
+    hr_ids = HealthRecord.objects.filter(userID=request.user).values_list(
+        "id", flat=True
+    )
+    pdf = view_report(request, hr_ids)
+
+    for email in emails:
+        email_msg = EmailMessage(
+            "Health Record Access Approval Confirmation",
+            "Your request for "
+            + request.user.email
+            + " has been approved. Please find attached health record detail.",
+            EMAIL_HOST_USER,
+            [email],
+        )
+
+        email_msg.attach(
+            "Health_Records_" + request.user.email + ".pdf",
+            pdf.getvalue(),
+            "application/pdf",
+        )
+
+        email_msg.send()
+
+    # set Approved status to selected request ids
+    for id in requestIds:
+        hhar = HealthHistoryAccessRequest.objects.get(id=id)
+        hhar.status = "approved"
+        hhar.save()
+
+    return JsonResponse({"message": "Emails have been sent!"})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_rejection_emails(request):
+    data = json.loads(request.body)
+    emails = data.get("emails", [])
+    requestIds = data.get("requestIds", [])
+
+    for email in emails:
+        send_mail(
+            "Health Record Access Rejected",
+            "Your request for " + request.user.email + " has been rejected.",
+            EMAIL_HOST_USER,
+            [email],
+        )
+
+    # set Approved status to selected request ids
+    for id in requestIds:
+        hhar = HealthHistoryAccessRequest.objects.get(id=id)
+        hhar.status = "rejected"
+        hhar.save()
+
+    return JsonResponse({"message": "Emails have been sent!"})
