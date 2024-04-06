@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
-from datetime import datetime
+from django.utils import timezone
+from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.forms.models import model_to_dict
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -887,25 +889,6 @@ def view_health_history_access_requests(request):
 
     return JsonResponse({"error": "wrong access method"}, status=401)
 
-@login_required()
-def update_request_status(request):
-    if request.method == "POST" and request.user.is_healthcare_worker:
-        update = json.loads(request.body)
-        record_id = update["recordID"]
-        decision = update["status"]
-        health_record = get_object_or_404(HealthRecord, id=record_id)
-        if decision == "approved":
-            health_record.status = "approved"
-        else:
-            health_record.status = "rejected"
-            health_record.rejectedReason = update["reason"]
-
-        health_record.save()
-        return JsonResponse(
-            {"message": "Request status updated successfully"}, status=200
-        )
-
-    return view_healthworkers_user_record(request)
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -943,7 +926,6 @@ def send_approval_emails(request):
 
     return JsonResponse({"message": "Emails have been sent!"})
 
-
 @csrf_exempt
 @require_http_methods(["POST"])
 def send_rejection_emails(request):
@@ -966,3 +948,100 @@ def send_rejection_emails(request):
         hhar.save()
 
     return JsonResponse({"message": "Emails have been sent!"})
+
+
+@login_required()
+def update_request_status(request):
+    if request.method == "POST":
+        record_id = request.POST.get("record_id")
+        decision = request.POST.get("decision")
+        health_record = get_object_or_404(HealthRecord, id=record_id)
+        if decision == "Approve":
+            health_record.status = "approved"
+        else:
+            health_record.status = "rejected"
+            health_record.rejectedReason = request.POST.get("reason")
+
+        health_record.save()
+        return JsonResponse(
+            {"message": "Request status updated successfully"}, status=200
+        )
+
+    return redirect("manage_request")
+
+@login_required
+def view_healthworkers_user_record(request):
+    if request.method == "GET" and request.user.is_healthcare_worker:
+        current_user = request.user
+        doc_id = HospitalStaff.objects.get(userID=current_user.id).id
+        history_list = HealthRecord.objects.filter(doctorID=doc_id)
+
+        appointment_name = request.GET.get("appointment_name")
+        if appointment_name:
+            history_list = history_list.filter(
+                appointmentId__name__icontains=appointment_name
+            )
+
+        filter_date = request.GET.get("date")
+        if filter_date:
+            filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
+            current_tz = timezone.get_current_timezone()
+            start_of_day = timezone.make_aware(
+                datetime.combine(filter_date, datetime.min.time()), current_tz
+            )
+            end_of_day = start_of_day + timedelta(days=1)
+            history_list = history_list.filter(
+                createdAt__range=(start_of_day, end_of_day)
+            )
+
+        history_list = history_list.filter(status="pending")
+
+        detailed_history_list = []
+        each_details = []
+        for h in history_list:
+            h_details = model_to_dict(h)
+            each_details.append(h_details)
+            # Fetch related appointment details
+            appointment_details = Appointment.objects.get(id=h.appointmentId_id)
+            appointment_name = appointment_details.name
+            appointment_properties = json.loads(h.appointmentId.properties)
+            appointment_type = (
+                appointment_details.name
+                if appointment_details.name is not None
+                else "Unknown"
+            )
+
+            # Fetch healthcare worker details by Dr. ID
+            doctor_details = HospitalStaff.objects.get(id=h.doctorID)
+            doctor_name = doctor_details.name
+
+            # Fetch hospital details by hospitalID
+            hospital_details = Hospital.objects.get(id=h.hospitalID)
+            hospital_name = hospital_details.name
+            hospital_address = hospital_details.address
+
+            user_email = User.objects.get(id=h.userID_id).email
+            # Append a dictionary for each record with all the details needed
+            detailed_history_list.append(
+                {
+                    "record_id": h.id,
+                    "user_id": user_email,
+                    "doctor_name": doctor_name,
+                    "hospital_name": hospital_name,
+                    "hospital_address": hospital_address,
+                    "createdAt": datetime.date(h.createdAt),
+                    "updatedAt": datetime.date(h.updatedAt),
+                    "appointment_name": appointment_name,
+                    "appointment_type": appointment_type,
+                    "record_status": h_details["status"],
+                    "appointment_properties": json.dumps(appointment_properties),
+                }
+            )
+
+        zipped_details = detailed_history_list
+        # return zipped_details
+        return render(
+            request, "view_records_doctors.html", {"docs_records": zipped_details}
+        )
+
+    return homepage(request)

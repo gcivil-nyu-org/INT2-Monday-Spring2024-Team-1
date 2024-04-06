@@ -128,7 +128,7 @@ class HealthRecord(models.Model):  # Viewed by User and hospitalStaff who are do
         "appointment", to_field="id", on_delete=models.CASCADE
     )
     healthDocuments = models.JSONField(null=True)
-    rejectedReason = models.TextField(default="N/A")
+    rejectedReason = models.TextField(null=True)
 
 
 class Appointment(models.Model):  # Viewed by User and hospitalStaff who are doctors
@@ -178,6 +178,7 @@ class Comment(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
 
 
+# 3rd Party requests
 class HealthHistoryAccessRequest(models.Model):
     id = models.AutoField(primary_key=True)
     userID = models.ForeignKey("user", to_field="id", on_delete=models.CASCADE)
