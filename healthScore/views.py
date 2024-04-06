@@ -887,70 +887,25 @@ def view_health_history_access_requests(request):
 
     return JsonResponse({"error": "wrong access method"}, status=401)
 
-
-@login_required
-@csrf_exempt
-def update_health_history_access_request_status(request):
-    if request.user.is_authenticated and request.method == "PUT":
-        updatedData = json.loads(request.body)
-        request_id = updatedData.get("request_id")
-        status = updatedData.get("status")
-        user_info = request.user
-
-        request = get_object_or_404(HealthHistoryAccessRequest, id=request_id)
-
-        request.status = status
-        request.save()
-
-        send_mail_response = 0
-
-        if status == "approved":
-            send_mail_response = send_mail(
-                f"Update on Health History Access of: {user_info.name}",
-                f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
-                "from@example.com",
-                [request.requestorEmail],
-            )
-        else:
-            send_mail_response = send_mail(
-                f"Update on Health History Access of: {user_info.name}",
-                f"Hi {request.requestorName},\n\nYour request to access health history of {user_info.name} has been rejected.\n\nRegards,\nHealth Score Team",
-                "from@example.com",
-                [request.requestorEmail],
-            )
-
-        message_response = ""
-        if send_mail_response:
-            message_response = "Email sent and request status updated successfully"
-        else:
-            message_response = (
-                "Email could not be sent, but request status updated successfully"
-            )
-
-        return JsonResponse({"message": message_response}, status=200)
-
-    return JsonResponse({"error": "Unauthorized"}, status=401)
-
-
 @login_required()
 def update_request_status(request):
-    if request.method == "POST":
-        record_id = request.POST.get("record_id")
-        decision = request.POST.get("decision")
+    if request.method == "POST" and request.user.is_healthcare_worker:
+        update = json.loads(request.body)
+        record_id = update["recordID"]
+        decision = update["status"]
         health_record = get_object_or_404(HealthRecord, id=record_id)
-        if decision == "Approve":
+        if decision == "approved":
             health_record.status = "approved"
         else:
             health_record.status = "rejected"
-            health_record.rejectedReason = request.POST.get("reason")
+            health_record.rejectedReason = update["reason"]
 
         health_record.save()
         return JsonResponse(
             {"message": "Request status updated successfully"}, status=200
         )
 
-    return redirect("manage_request")
-
+    return view_healthworkers_user_record(request)
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -966,10 +921,8 @@ def send_approval_emails(request):
 
     for email in emails:
         email_msg = EmailMessage(
-            "Health Record Access Approval Confirmation",
-            "Your request for "
-            + request.user.email
-            + " has been approved. Please find attached health record detail.",
+            f"Update on Health History Access of: {request.user.email}",
+            f"Hi {request.requestorName},\n\nYour request to access health history of {request.user.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
             EMAIL_HOST_USER,
             [email],
         )
@@ -1000,8 +953,8 @@ def send_rejection_emails(request):
 
     for email in emails:
         send_mail(
-            "Health Record Access Rejected",
-            "Your request for " + request.user.email + " has been rejected.",
+           f"Update on Health History Access of: {request.user.email}",
+            f"Hi {request.requestorName},\n\nYour request to access health history of {request.user.name} has been rejected.\n\nRegards,\nHealth Score Team",
             EMAIL_HOST_USER,
             [email],
         )
