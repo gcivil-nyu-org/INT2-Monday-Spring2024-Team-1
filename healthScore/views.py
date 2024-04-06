@@ -297,9 +297,6 @@ def view_report(request, selected_records=None):
 
             temp_row = []
             for rec, val in appointment_properties.items():
-                if rec == "date":
-                    val = datetime.strptime(val, "%Y-%m-%d").strftime(DATE_FORMAT)
-
                 temp_row.append(Paragraph(str(rec).capitalize() + " :   " + str(val)))
             row.append(temp_row)
 
@@ -924,7 +921,7 @@ def send_approval_emails(request):
         hhar.status = "approved"
         hhar.save()
 
-    return JsonResponse({"message": "Emails have been sent!"})
+    return JsonResponse({"message": "Emails have been sent!"}, status=200)
 
 
 @csrf_exempt
@@ -948,7 +945,7 @@ def send_rejection_emails(request):
         hhar.status = "rejected"
         hhar.save()
 
-    return JsonResponse({"message": "Emails have been sent!"})
+    return JsonResponse({"message": "Emails have been sent!"}, status=200)
 
 
 @login_required()

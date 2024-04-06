@@ -295,7 +295,7 @@
         const emailsToApprove = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.email);
         const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
 
-        fetch('{% url "send_approval_email" %}', {
+        fetch('{% url "send_approval_emails" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

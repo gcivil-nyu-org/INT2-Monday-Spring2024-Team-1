@@ -1,8 +1,9 @@
-from django.test import RequestFactory, TransactionTestCase, TestCase
+from django.test import RequestFactory, TransactionTestCase, TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 import os
+from django.core import mail
 from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -44,7 +45,6 @@ from healthScore.views import (
     add_healthcare_staff,
     request_health_history,
     view_health_history_access_requests,
-    update_health_history_access_request_status,
     delete_post,
     edit_post,
     delete_comment,
@@ -63,7 +63,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             email="user1@example.com",
             name="User1",
             password="userpass1",
-            dob="1990-01-01",
+            dob=datetime.strptime("1990-01-01", "%Y-%m-%d"),
             contactInfo="1234567890",
             proofOfIdentity="Proof1",
             address="Address1",
@@ -872,89 +872,41 @@ class ViewHealthHistoryAccessTestCase(TestCase):
 
 class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
     def setUp(self):
-        self.factory = RequestFactory()
-        self.user = User.objects.create(
-            email="admin@example.com", password="testpass123", is_patient=1, is_active=1
-        )
-        HealthHistoryAccessRequest.objects.create(
-            id=1,
-            status="pending",
-            requestorName="NYU",
-            requestorEmail="shc@nyu.edu",
-            purpose="For medical clearances",
-            userID=self.user,
-        )
-        HealthHistoryAccessRequest.objects.create(
-            id=2,
-            status="pending",
-            requestorName="NYU",
-            requestorEmail="",
-            purpose="For medical clearances",
-            userID=self.user,
-        )
+        self.client = Client()
+        self.user = User.objects.create_patient(email='test@example.com', password='password123', dob=datetime.now().date())
+        self.client.login(email='test@example.com', password='password123')
+        # Create test health history access requests
+        self.hhars = [HealthHistoryAccessRequest.objects.create(userID=self.user, status='pending') for _ in range(2)]
 
-    def test_approve_request(self):
-        request = self.factory.put(
-            reverse("update_health_history_access_request_status"),
-            data={"request_id": 1, "status": "approved"},
-            content_type="application/json",
-        )
+    def test_send_approval_emails(self):
+        url = reverse('send_approval_emails') 
+        data = {
+            "emails": ["test1@example.com", "test2@example.com"],
+            "requestIds": [hhar.id for hhar in self.hhars]
+        }
 
-        request.user = self.user
-        response = update_health_history_access_request_status(request)
+        response = self.client.post(url, data, content_type='application/json')
+
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 2) 
+        for hhar in self.hhars:
+            hhar.refresh_from_db()
+            self.assertEqual(hhar.status, 'approved')
 
-    def test_reject_request(self):
-        request = self.factory.put(
-            reverse("update_health_history_access_request_status"),
-            data={"request_id": 1, "status": "rejected"},
-            content_type="application/json",
-        )
+    def test_send_rejection_emails(self):
+        url = reverse('send_reject_emails')
+        data = {
+            "emails": ["test3@example.com", "test4@example.com"],
+            "requestIds": [hhar.id for hhar in self.hhars]
+        }
 
-        request.user = self.user
-        response = update_health_history_access_request_status(request)
+        response = self.client.post(url, data, content_type='application/json')
+
         self.assertEqual(response.status_code, 200)
-
-    def test_email_sent(self):
-        request = self.factory.put(
-            reverse("update_health_history_access_request_status"),
-            data={"request_id": 1, "status": "approved"},
-            content_type="application/json",
-        )
-
-        request.user = self.user
-        response = update_health_history_access_request_status(request)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            "Email sent and request status updated successfully",
-            response.content.decode(),
-        )
-
-    def test_email_not_sent(self):
-        request = self.factory.put(
-            reverse("update_health_history_access_request_status"),
-            data={"request_id": 2, "status": "rejected"},
-            content_type="application/json",
-        )
-
-        request.user = self.user
-        response = update_health_history_access_request_status(request)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            "Email could not be sent, but request status updated successfully",
-            response.content.decode(),
-        )
-
-    def test_unauthorized_error(self):
-        request = self.factory.post(
-            reverse("update_health_history_access_request_status"),
-            data={"request_id": 1, "status": "approved"},
-            content_type="application/json",
-        )
-
-        request.user = self.user
-        response = update_health_history_access_request_status(request)
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(len(mail.outbox), 2) 
+        for hhar in self.hhars:
+            hhar.refresh_from_db()
+            self.assertEqual(hhar.status, 'rejected')
 
 
 # Testing the function for file upload directly. So the 'url' used is relevant
