@@ -7,14 +7,98 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <title>Health Score</title>
 <style>
-
-
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #FFFFFF;
+        margin: 0;
+        padding: 0;
+    }
+    .overall_page {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+    h2 {
+        margin-top: 0;
+        font-size: 24px;
+        text-align: center;
+    }
+    .card {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: #FFFFFF;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .card-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    .card-text {
+        margin-bottom: 10px;
+        color: #666;
+    }
+    .btn {
+        margin-right: 5px;
+        cursor: pointer;
+    }
+    .btn-accept {
+        background-color: #28a745;
+        color: #FFFFFF;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 3px;
+    }
+    .btn-reject {
+        background-color: #dc3545;
+        color: #FFFFFF;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 3px;
+    }
+    .btn-accept:hover, .btn-reject:hover {
+        filter: brightness(90%);
+    }
 </style>
 </head >
 
-<body >
-{% include 'header.html' %}
+<body>
+    {% include 'header.html' %}
+
+    <div class="overall_page">
+        <h2>Incoming Health History Requests</h2>
+
+        <div class="row">
+            {% if access_requests %}
+            {% for request in access_requests %}
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Request from {{ request.requestorName }}</h5>
+                        <p class="card-text">Email: {{ request.requestorEmail }}</p>
+                        <p class="card-text">Purpose: {{ request.purpose }}</p>
+                        <p class="card-text">Requested at: {{ request.createdAt }}</p>
+                        <form method="POST" id="updateForm{{ request.id }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="request_id" value="{{ request.id }}">
+                            <button type="button" class="btn btn-accept" onclick="updateStatus({{ request.id }}, 'approved')">Approve</button>
+                            <button type="button" class="btn btn-reject" onclick="updateStatus({{ request.id }}, 'rejected')">Reject</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
 
 
-</body >
+            {% else %}
+            <p>No requests found.</p>
+            {% endif %}
+
+        </div>
+    </div>
+
+</body>
 </html >
