@@ -72,31 +72,33 @@
     <h2>Incoming Health History Requests</h2><br>
 
     <div class="row">
-        {% if access_requests %}
-        {% for request in access_requests %}
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Request from {{ request.requestorName }}</h5>
-                    <p class="card-text">Email: {{ request.requestorEmail }}</p>
-                    <p class="card-text">Purpose: {{ request.purpose }}</p>
-                    <p class="card-text">Requested at: {{ request.createdAt }}</p>
-                    <p class="card-text">Status: <span id="statusCell{{ request.id }}"> {{ request.status }}</span></p>
-                    <form method="POST" id="updateForm{{ request.id }}">
-                        {% csrf_token %}
-                        <input type="hidden" name="request_id" value="{{ request.id }}">
-                        <button type="button" class="card-btn btn-accept-green" onclick="updateStatus({{ request.id }}, 'approved')">Approve</button>
-                        <button type="button" class="card-btn btn-reject-red" onclick="updateStatus({{ request.id }}, 'rejected')">Reject</button>
-                    </form>
-                </div>
+    {% if access_requests %}
+    {% for request in access_requests %}
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Request from {{ request.requestorName }}</h5>
+                <p class="card-text">Email: {{ request.requestorEmail }}</p>
+                <p class="card-text">Purpose: {{ request.purpose }}</p>
+                <p class="card-text">Requested at: {{ request.createdAt }}</p>
+                <p class="card-text">Status: <span id="statusCell{{ request.id }}"> {{ request.status }}</span></p>
+                {% if request.status == 'pending' %}
+                <form method="POST" id="updateForm{{ request.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="request_id" value="{{ request.id }}">
+                    <button type="button" class="card-btn btn-accept-green" onclick="updateStatus({{ request.id }}, 'approved')">Approve</button>
+                    <button type="button" class="card-bth btn-reject-red" onclick="updateStatus({{ request.id }}, 'rejected')">Reject</button>
+                </form>
+                {% endif %}
             </div>
         </div>
-        {% endfor %}
+    </div>
+    {% endfor %}
 
-        {% else %}
-        <p>No requests found.</p>
-        {% endif %}
 
+    {% else %}
+    <p>No requests found.</p>
+    {% endif %}
     </div>
     </div>
 
