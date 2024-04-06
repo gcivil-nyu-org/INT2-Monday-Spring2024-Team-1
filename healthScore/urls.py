@@ -103,7 +103,8 @@ urlpatterns = [
         "send-approval-emails", views.send_approval_emails, name="send_approval_email"
     ),
     path("send-reject-emails", views.send_rejection_emails, name="send_reject_emails"),
-    path("recordDecision/",
+    path(
+        "recordDecision/",
         views.view_healthworkers_user_record,
         name="view_healthworkers_user_record",
     ),

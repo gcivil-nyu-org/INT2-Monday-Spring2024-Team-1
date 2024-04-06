@@ -926,6 +926,7 @@ def send_approval_emails(request):
 
     return JsonResponse({"message": "Emails have been sent!"})
 
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def send_rejection_emails(request):
@@ -968,6 +969,7 @@ def update_request_status(request):
         )
 
     return redirect("manage_request")
+
 
 @login_required
 def view_healthworkers_user_record(request):
