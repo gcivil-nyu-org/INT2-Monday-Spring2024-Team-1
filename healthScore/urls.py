@@ -104,4 +104,9 @@ urlpatterns = [
         views.update_request_status,
         name="update_request_status",
     ),
+    path(
+        "recordDecision/",
+        views.view_healthworkers_user_record,
+        name="view_healthworkers_user_record",
+    ),
 ]

@@ -94,7 +94,7 @@
                     <li><a href="/hs/viewHealthHistory" class="nav-link">Dashboard</a></li>
                     <li><a href="/hs/viewRequests" class="nav-link">Requests</a></li>
                     <li><a href="/hs/viewHealthHistoryAccessRequests" class="nav-link">Incoming</a></li>
-                    <li><a href="#" class="nav-link">Appointments</a></li>
+                    <!-- <li><a href="#" class="nav-link">Appointments</a></li> -->
                     <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
                     <li><a href="{% url "community" %}" class="nav-link">Community</a></li>
                 </ul>
@@ -102,15 +102,15 @@
                 <!-- Healthcare Worker Navigation -->
                 {% elif user.is_authenticated and user.is_healthcare_worker %}
                 <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="#" class="nav-link">Dashboard</a></li>
-                    <li><a href="#" class="nav-link">Patients</a></li>
-                    <li><a href="#" class="nav-link">Schedule</a></li>
+                    <li><a href="/" class="nav-link">Dashboard</a></li>
+                    <li><a href="/hs/recordDecision/" class="nav-link">Patients</a></li>
+                    <!-- <li><a href="#" class="nav-link">Schedule</a></li> -->
                 </ul>
                 
                 <!-- Staff Member Navigation -->
                 {% elif user.is_authenticated and user.is_staff %}
                 <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="#" class="nav-link">Dashboard</a></li>
+                    <li><a href="/" class="nav-link">Dashboard</a></li>
                     <li><a href="/hs/healthcareFacility" class="nav-link">Facility</a></li>
                     <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
                 </ul>

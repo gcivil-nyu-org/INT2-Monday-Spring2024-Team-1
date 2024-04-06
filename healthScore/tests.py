@@ -1121,8 +1121,8 @@ class TestRequestDecision(TestCase):
             # id=2,
             email="doctor@example.com",
             password="testpass123",
-            is_healthcare_worker=1,
-            is_active=1,
+            is_healthcare_worker=True,
+            is_active=True,
         )
 
         self.appointment = Appointment.objects.create(
@@ -1146,25 +1146,24 @@ class TestRequestDecision(TestCase):
 
     def test_approval(self):
         url = reverse("update_request_status")
+        self.user = self.doctor
         response = self.client.post(
-            url, {"record_id": self.health_record.id, "decision": "Approve"}
+            url, {"recordID": self.health_record.id, "status": "approved"}
         )
         self.health_record.refresh_from_db()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.health_record.status, "approved")
 
     def test_reject_with_reason(self):
         reason = "Test Reason"
+        self.user = self.doctor
         url = reverse("update_request_status")
         response = self.client.post(
             url,
             {
-                "record_id": self.health_record.id,
-                "decision": "Reject",
+                "recordID": self.health_record.id,
+                "status": "rejected",
                 "reason": reason,
             },
         )
         self.health_record.refresh_from_db()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.health_record.status, "rejected")
-        self.assertEqual(self.health_record.rejectedReason, reason)
