@@ -115,21 +115,6 @@
         <small>{{ post.user.name }} • posted on {{ post.createdAt|date:"N j, Y, H:i:s" }} {% if post.updatedAt|date:"N j, Y, H:i:s" != post.createdAt|date:"N j, Y, H:i:s"%} • edited{% endif %}</small>
         <hr>
         <p>{{ post.description|linebreaks }}</p>
-        <div class="icon-bar">
-            <div>
-                <button type="button" class="btn-icon" aria-label="Like" >
-                    <i class="bi bi-heart-fill icon-space"></i> Like
-                </button>
-            </div>
-            <div>
-                <button type="button" class="btn-icon" aria-label="Collect">
-                    <i class="bi bi-bookmark-star-fill icon-space"></i> 
-                </button>
-                <button type="button" class="btn-icon" aria-label="Share">
-                    <i class="bi bi-share-fill"></i>
-                </button>
-            </div>
-          </div>
     </li>
     <hr>
 </ul>
