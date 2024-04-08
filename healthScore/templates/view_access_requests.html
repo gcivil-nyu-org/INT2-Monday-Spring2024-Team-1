@@ -98,7 +98,7 @@
     <nav>
         <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
             <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-tab-pane" type="button" role="tab" aria-controls="pending-tab-pane" aria-selected="true">Pending</button>
-            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane" aria-selected="false">Aproved</button>
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane" aria-selected="false">Approved</button>
             <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane" type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Rejected</button>
         </div>
     </nav>
@@ -130,16 +130,15 @@
                             {{ request.status|capfirst }}
                         </td>
                         <td class="appointmentName"
-                            onclick="getProperties(`{{ request.purpose }}`)"
                             data-toggle="modal"
-                            data-target="#myModal"
+                            data-target="#myModal-{{request.id}}"
                             >Detail</td>
                         <td style="text-align: center;">
                             <input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" data-email="{{ request.requestorEmail }}" data-id="{{ request.id }}">
                         </td>
                     </tr>
                      <!-- Purpose Detail Modal -->
-                    <div id="myModal" class="modal fade" role="dialog">
+                    <div id="myModal-{{request.id}}" class="modal fade" role="dialog">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-body modalHeight" id="modal-body">
@@ -182,13 +181,12 @@
                             {{ request.status|capfirst }}
                         </td>
                         <td class="appointmentName"
-                            onclick="getProperties(`{{ request.purpose }}`)"
                             data-toggle="modal"
-                            data-target="#myModal2"
+                            data-target="#myModal-{{request.id}}"
                             >Detail</td>
                     </tr>
                      <!-- Purpose Detail Modal -->
-                    <div id="myModal2" class="modal fade" role="dialog">
+                    <div id="myModal-{{request.id}}" class="modal fade" role="dialog">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-body modalHeight" id="modal-body">
@@ -227,13 +225,13 @@
                             {{ request.status|capfirst }}
                         </td>
                         <td class="appointmentName"
-                            onclick="getProperties(`{{ request.purpose }}`)"
                             data-toggle="modal"
-                            data-target="#myModal3"
-                            >Detail</td>
+                            data-target="#myModal-{{ request.id }}"
+                            >Detail
+                        </td>
                     </tr>
                      <!-- Purpose Detail Modal -->
-                    <div id="myModal3" class="modal fade" role="dialog">
+                    <div id="myModal-{{ request.id }}" class="modal fade" role="dialog">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-body modalHeight" id="modal-body">
