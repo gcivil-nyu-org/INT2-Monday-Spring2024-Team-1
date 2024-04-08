@@ -148,7 +148,7 @@
 
                             <tr>
                                 <td class="appointmentName"
-                                    onclick="getProperties(`{{ record.appointment_properties }}|{{record.appointment_name}}`)"
+                                    onclick="getProperties(`{{record.record_id}}|{{ record.appointment_properties }}|{{record.appointment_name}}`)"
                                     data-toggle="modal" data-target="#myModal">{{record.user_id}}</td>
                                 <td>{{ record.appointment_name }}</td>
                                 <td>{{ record.appointment_type }}</td>
