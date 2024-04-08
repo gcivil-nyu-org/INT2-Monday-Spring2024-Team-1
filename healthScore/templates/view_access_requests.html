@@ -1,3 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Health Score</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <style>
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .grab {
+            cursor: -webkit-grab;
+            cursor: grab;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+
+        .navbar-custom {
+            background-color: #e3f2fd;
+        }
+
+        .navbar-brand {
+            position: relative;
+            background: url();
+            width: 170px;
+            left: 15px;
+            background-size: contain;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        .propertiesNoDisplay {
+            visibility: hidden;
+            display: none;
+        }
+
+        .addPropertiesValues {
+            padding: 0.75rem;
+            vertical-align: top;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .modalHeight {
+            max-height: 25rem;
+            overflow-y: auto;
+        }
+
+        .appointmentName {
+            text-decoration: underline;
+            color: blue;
+        }
+
+        .nav-tabs {
+            border-bottom: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'header.html' %}
+
+<div class="container my-5">
+    <h2 class="text-center">Access Requests for Your Records</h2>
+    <br>
+
+    <!-- Tabs Section -->
+    <nav>
+        <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-tab-pane" type="button" role="tab" aria-controls="pending-tab-pane" aria-selected="true">Pending</button>
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane" aria-selected="false">Aproved</button>
+            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane" type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Rejected</button>
+        </div>
+    </nav>
+
+    <!-- Data Display Section -->
+    <div class="row tab-content" id="nav-tabContent">
+        <div class="col-lg-12 tab-pane fade show active" id="pending-tab-pane" role="tabpanel" aria-labelledby="pending-tab">
+            <table class="table table-striped my-4 table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Requestor Name</th>
+                    <th scope="col">Requestor Email</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Purpose</th>
+                    <th scope="col">Selected</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for request in access_requests %}
+                {% if request.status == "pending" %}
+                    <tr class="{% if request.status == 'rejected' %}grab{% endif %}" >
+                        <td>{{ request.requestorName }}</td>
+                        <td>{{ request.requestorEmail }}</td>
+                        <td>{{ request.createdAt }}</td>
+                        <td class="{% if request.status == 'approved' %}text-success
+                            {% elif request.status == 'rejected' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ request.status|capfirst }}
+                        </td>
+                        <td class="appointmentName"
+                            onclick="getProperties(`{{ request.purpose }}`)"
+                            data-toggle="modal"
+                            data-target="#myModal"
+                            >Detail</td>
+                        <td style="text-align: center;">
+                            <input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" data-email="{{ request.requestorEmail }}" data-id="{{ request.id }}">
+                        </td>
+                    </tr>
+                     <!-- Purpose Detail Modal -->
+                    <div id="myModal" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body modalHeight" id="modal-body">
+                                    <p>{{request.purpose}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-success" id="approve-btn">Approve</button>
+                <button type="button" class="btn btn-danger" id="reject-btn">Reject</button>
+            </div>
+            
+        </div>
+        <div class="col-lg-12 tab-pane fade" id="approved-tab-pane" role="tabpanel" aria-labelledby="approved-tab">
+            <table class="table table-striped my-4 table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Requestor Name</th>
+                    <th scope="col">Requestor Email</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Purpose</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for request in access_requests %}
+                {% if request.status == "approved" %}
+                    <tr class="{% if request.status == 'rejected' %}grab{% endif %}" >
+                        <td>{{ request.requestorName }}</td>
+                        <td>{{ request.requestorEmail }}</td>
+                        <td>{{ request.createdAt }}</td>
+                        <td class="{% if request.status == 'approved' %}text-success
+                            {% elif request.status == 'rejected' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ request.status|capfirst }}
+                        </td>
+                        <td class="appointmentName"
+                            onclick="getProperties(`{{ request.purpose }}`)"
+                            data-toggle="modal"
+                            data-target="#myModal2"
+                            >Detail</td>
+                    </tr>
+                     <!-- Purpose Detail Modal -->
+                    <div id="myModal2" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body modalHeight" id="modal-body">
+                                    <p>{{request.purpose}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-12 tab-pane fade" id="rejected-tab-pane" role="tabpanel" aria-labelledby="rejected-tab">
+            <table class="table table-striped my-4 table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Requestor Name</th>
+                    <th scope="col">Requestor Email</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Purpose</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for request in access_requests %}
+                {% if request.status == "rejected" %}
+                    <tr class="{% if request.status == 'rejected' %}grab{% endif %}" >
+                        <td>{{ request.requestorName }}</td>
+                        <td>{{ request.requestorEmail }}</td>
+                        <td>{{ request.createdAt }}</td>
+                        <td class="{% if request.status == 'approved' %}text-success
+                            {% elif request.status == 'rejected' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ request.status|capfirst }}
+                        </td>
+                        <td class="appointmentName"
+                            onclick="getProperties(`{{ request.purpose }}`)"
+                            data-toggle="modal"
+                            data-target="#myModal3"
+                            >Detail</td>
+                    </tr>
+                     <!-- Purpose Detail Modal -->
+                    <div id="myModal3" class="modal fade" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body modalHeight" id="modal-body">
+                                    <p>{{request.purpose}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+
+
+    function formattedDate(date) {
+        var dateObject = new Date(date);
+        var month = dateObject.getMonth() + 1;
+        var day = dateObject.getDate();
+        var year = dateObject.getFullYear();
+
+        if (month < 10) {
+            month = '0' + month;
+        }
+        if (day < 10) {
+            day = '0' + day;
+        }
+
+        var formattedDate = month + '/' + day + '/' + year;
+        return formattedDate
+    }
+
+
+    function capitalizeLetter(key) {
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    }
+
+    document.getElementById('approve-btn').addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.form-check-input:checked');
+        const emailsToApprove = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.email);
+        const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
+
+        fetch('{% url "send_approval_emails" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ emails: emailsToApprove, requestIds: requestIds }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("We'll notify requestors via emails!");
+            window.location.href = '{% url "view_health_history_access_requests" %}';
+        })
+        .catch((error) => {
+            console.error("request error: ", error);
+            alert("Emails failed to send.");
+        })
+    })
+
+    document.getElementById('reject-btn').addEventListener('click', function(){
+        const checkedBoxes = document.querySelectorAll('.form-check-input:checked');
+        const emailsToApprove = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.email);
+        const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
+
+        fetch('{% url "send_reject_emails" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ emails: emailsToApprove, requestIds: requestIds }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("We'll notify requestors via emails!");
+            window.location.href = '{% url "view_health_history_access_requests" %}';
+        })
+        .catch((error) => {
+            console.error("request error: ", error);
+            alert("Emails failed to send.");
+        })
+    })
+</script>
+
+
+</body>
 </html>

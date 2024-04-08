@@ -95,8 +95,17 @@ urlpatterns = [
         name="view_health_history_access_requests",
     ),
     path(
-        "updateHealthHistoryAccessRequestStatus",
-        views.update_health_history_access_request_status,
-        name="update_health_history_access_request_status",
+        "update_request_status",
+        views.update_request_status,
+        name="update_request_status",
+    ),
+    path(
+        "send-approval-emails", views.send_approval_emails, name="send_approval_emails"
+    ),
+    path("send-reject-emails", views.send_rejection_emails, name="send_reject_emails"),
+    path(
+        "recordDecision/",
+        views.view_healthworkers_user_record,
+        name="view_healthworkers_user_record",
     ),
 ]

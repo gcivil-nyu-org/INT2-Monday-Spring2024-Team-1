@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.http import JsonResponse
-from datetime import datetime
+from django.utils import timezone
+from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.forms.models import model_to_dict
 import json
 
 from reportlab.lib.pagesizes import letter
@@ -23,6 +25,8 @@ from reportlab.lib.styles import ParagraphStyle
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
 from django.views.decorators.csrf import csrf_exempt
 
+from healthConfig.settings import EMAIL_HOST_USER
+
 from .models import (
     Appointment,
     HealthRecord,
@@ -37,6 +41,8 @@ from .models import (
 from .user_utils import get_health_history_details
 from .forms import PostForm, CommentForm
 from .file_upload import file_upload
+from django.views.decorators.http import require_http_methods
+from django.core.mail import send_mail, EmailMessage
 
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -199,7 +205,7 @@ def edit_user_info(request):
 
 
 @login_required
-def view_report(request):
+def view_report(request, selected_records=None):
     if request.method == "POST":
         response = HttpResponse(content_type="application/pdf")
         response["Content-Disposition"] = 'attachment; filename="Report.pdf"'
@@ -236,7 +242,9 @@ def view_report(request):
         story.append(logo_and_date)
         user_info = request.user
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
-        story.append(Paragraph("DOB: " + user_info.dob, styles["Normal"]))
+        story.append(
+            Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
+        )
         story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
         story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
         story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
@@ -255,7 +263,9 @@ def view_report(request):
             ],
         ]
 
-        selected_record_ids = request.POST.getlist("record_ids")
+        selected_record_ids = selected_records
+        if not selected_records:
+            selected_record_ids = request.POST.getlist("record_ids")
         for record_id in selected_record_ids:
             row = []
             record = HealthRecord.objects.get(id=record_id)
@@ -287,11 +297,6 @@ def view_report(request):
 
             temp_row = []
             for rec, val in appointment_properties.items():
-                if rec == "date":
-                    val = datetime.strptime(val, "%Y-%m-%d %H:%M:%S.%f").strftime(
-                        DATE_FORMAT
-                    )
-
                 temp_row.append(Paragraph(str(rec).capitalize() + " :   " + str(val)))
             row.append(temp_row)
 
@@ -424,7 +429,6 @@ def login_view(request):
 @login_required
 def view_health_history_requests(request):
     zipped_details = get_health_history_details(request=request)
-
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
 
 
@@ -748,10 +752,12 @@ def activate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
+@login_required
 def community_home(request):
     return redirect("all_posts")
 
 
+@login_required
 def view_all_posts(request):
     posts = Post.objects.all().order_by("-createdAt")
     return render(
@@ -759,6 +765,7 @@ def view_all_posts(request):
     )
 
 
+@login_required
 def view_my_posts(request):
     posts = Post.objects.filter(user=request.user).order_by("-createdAt")
     return render(
@@ -766,6 +773,7 @@ def view_my_posts(request):
     )
 
 
+@login_required
 def view_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = post.comments.all()
@@ -838,17 +846,18 @@ def request_health_history(request):
         requestorEmail = request.POST.get("requestorEmail")
         purpose = request.POST.get("purpose")
         userEmail = request.POST.get("userEmail")
+        userDob = request.POST.get("dob")
 
         context = {"error_message:": ""}
 
-        if not User.objects.filter(email=userEmail).exists():
-            context["error_message"] = "No user account exists with this email"
+        if not User.objects.filter(email=userEmail, dob=userDob).exists():
+            context["error_message"] = "No user account exists with these details"
             return render(request, "request_health_history.html", context)
 
-        user = User.objects.get(email=userEmail)
+        user = User.objects.get(email=userEmail, dob=userDob)
 
         if not user.is_patient:
-            context["error_message"] = "No user account exists with this email"
+            context["error_message"] = "No user account exists with these details"
             return render(request, "request_health_history.html", context)
 
         HealthHistoryAccessRequest.objects.create(
@@ -878,20 +887,161 @@ def view_health_history_access_requests(request):
     return JsonResponse({"error": "wrong access method"}, status=401)
 
 
-@login_required
 @csrf_exempt
-def update_health_history_access_request_status(request):
-    if request.user.is_authenticated and request.method == "PUT":
-        updatedData = json.loads(request.body)
-        request_id = updatedData.get("request_id")
-        status = updatedData.get("status")
+@require_http_methods(["POST"])
+def send_approval_emails(request):
+    data = json.loads(request.body)
+    emails = data.get("emails", [])
+    requestIds = data.get("requestIds", [])
 
-        request = get_object_or_404(HealthHistoryAccessRequest, id=request_id)
+    hr_ids = HealthRecord.objects.filter(userID=request.user).values_list(
+        "id", flat=True
+    )
+    pdf = view_report(request, hr_ids)
 
-        request.status = status
-        request.save()
+    for email in emails:
+        email_msg = EmailMessage(
+            f"Update on Health History Access of: {request.user.email}",
+            f"Hi,\n\nYour request to access health history of {request.user.name} has been approved. Please find PDF report attached.\n\nRegards,\nHealth Score Team",
+            EMAIL_HOST_USER,
+            [email],
+        )
+
+        email_msg.attach(
+            "Health_Records_" + request.user.email + ".pdf",
+            pdf.getvalue(),
+            "application/pdf",
+        )
+
+        email_msg.send()
+
+    # set Approved status to selected request ids
+    for id in requestIds:
+        hhar = HealthHistoryAccessRequest.objects.get(id=id)
+        hhar.status = "approved"
+        hhar.save()
+
+    return JsonResponse({"message": "Emails have been sent!"}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_rejection_emails(request):
+    data = json.loads(request.body)
+    emails = data.get("emails", [])
+    requestIds = data.get("requestIds", [])
+
+    for email in emails:
+        send_mail(
+            f"Update on Health History Access of: {request.user.email}",
+            f"Hi,\n\nYour request to access health history of {request.user.name} has been rejected.\n\nRegards,\nHealth Score Team",
+            EMAIL_HOST_USER,
+            [email],
+        )
+
+    # set Approved status to selected request ids
+    for id in requestIds:
+        hhar = HealthHistoryAccessRequest.objects.get(id=id)
+        hhar.status = "rejected"
+        hhar.save()
+
+    return JsonResponse({"message": "Emails have been sent!"}, status=200)
+
+
+@login_required()
+def update_request_status(request):
+    if request.method == "POST" and request.user.is_healthcare_worker:
+        update = json.loads(request.body)
+        record_id = update["recordID"]
+        decision = update["status"]
+        health_record = get_object_or_404(HealthRecord, id=record_id)
+        if decision == "approved":
+            health_record.status = "approved"
+        else:
+            health_record.status = "rejected"
+            health_record.rejectedReason = update["reason"]
+
+        health_record.save()
         return JsonResponse(
             {"message": "Request status updated successfully"}, status=200
         )
 
-    return JsonResponse({"error": "Unauthorized"}, status=401)
+    return view_healthworkers_user_record(request)
+
+
+@login_required
+def view_healthworkers_user_record(request):
+    if request.method == "GET" and request.user.is_healthcare_worker:
+        current_user = request.user
+        doc_id = HospitalStaff.objects.get(userID=current_user.id).id
+        history_list = HealthRecord.objects.filter(doctorID=doc_id)
+
+        appointment_name = request.GET.get("appointment_name")
+        if appointment_name:
+            history_list = history_list.filter(
+                appointmentId__name__icontains=appointment_name
+            )
+
+        filter_date = request.GET.get("date")
+        if filter_date:
+            filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
+            current_tz = timezone.get_current_timezone()
+            start_of_day = timezone.make_aware(
+                datetime.combine(filter_date, datetime.min.time()), current_tz
+            )
+            end_of_day = start_of_day + timedelta(days=1)
+            history_list = history_list.filter(
+                createdAt__range=(start_of_day, end_of_day)
+            )
+
+        history_list = history_list.filter(status="pending")
+
+        detailed_history_list = []
+        each_details = []
+        for h in history_list:
+            h_details = model_to_dict(h)
+            each_details.append(h_details)
+            # Fetch related appointment details
+            appointment_details = Appointment.objects.get(id=h.appointmentId_id)
+            appointment_name = appointment_details.name
+            appointment_properties = json.loads(h.appointmentId.properties)
+            appointment_type = (
+                appointment_details.name
+                if appointment_details.name is not None
+                else "Unknown"
+            )
+
+            # Fetch healthcare worker details by Dr. ID
+            doctor_details = HospitalStaff.objects.get(id=h.doctorID)
+            doctor_name = doctor_details.name
+
+            # Fetch hospital details by hospitalID
+            hospital_details = Hospital.objects.get(id=h.hospitalID)
+            hospital_name = hospital_details.name
+            hospital_address = hospital_details.address
+
+            user_email = User.objects.get(id=h.userID_id).email
+            # Append a dictionary for each record with all the details needed
+            detailed_history_list.append(
+                {
+                    "record_id": h.id,
+                    "user_id": user_email,
+                    "doctor_name": doctor_name,
+                    "hospital_name": hospital_name,
+                    "hospital_address": hospital_address,
+                    "createdAt": datetime.date(h.createdAt),
+                    "updatedAt": datetime.date(h.updatedAt),
+                    "appointment_name": appointment_name,
+                    "appointment_type": appointment_type,
+                    "record_status": h_details["status"],
+                    "appointment_properties": json.dumps(appointment_properties),
+                }
+            )
+
+        zipped_details = detailed_history_list
+        # return zipped_details
+        return render(
+            request, "view_records_doctors.html", {"docs_records": zipped_details}
+        )
+
+    return homepage(request)

@@ -1,8 +1,9 @@
-from django.test import RequestFactory, TransactionTestCase, TestCase
+from django.test import RequestFactory, TransactionTestCase, TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 import os
+from django.core import mail
 from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -44,7 +45,6 @@ from healthScore.views import (
     add_healthcare_staff,
     request_health_history,
     view_health_history_access_requests,
-    update_health_history_access_request_status,
     delete_post,
     edit_post,
     delete_comment,
@@ -63,7 +63,7 @@ class viewHealthHistoryTestCase(TransactionTestCase):
             email="user1@example.com",
             name="User1",
             password="userpass1",
-            dob="1990-01-01",
+            dob=datetime.strptime("1990-01-01", "%Y-%m-%d"),
             contactInfo="1234567890",
             proofOfIdentity="Proof1",
             address="Address1",
@@ -581,6 +581,7 @@ class CommunityTestCase(TestCase):
 
     def test_view_all_posts(self):
         request = self.factory.get(reversed("all_posts"))
+        request.user = self.user1
         response = view_all_posts(request)
         self.assertEqual(response.status_code, 200)
 
@@ -597,6 +598,7 @@ class CommunityTestCase(TestCase):
         request = self.factory.get(
             reverse("view_post", kwargs={"post_id": self.post.id})
         )
+        request.user = self.user1
         response = view_post(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 200)
 
@@ -766,6 +768,7 @@ class RequestHealthHistoryTestCase(TestCase):
             name="Patient 1",
             password="patientpass",
             is_patient=1,
+            dob="1997-12-30",
         )
 
         self.admin = User.objects.create_staff(
@@ -774,6 +777,7 @@ class RequestHealthHistoryTestCase(TestCase):
             name="Admin 1",
             password="adminpass",
             is_staff=1,
+            dob="1997-12-30",
         )
 
     def test_post_request_patient_does_not_exist(self):
@@ -784,12 +788,13 @@ class RequestHealthHistoryTestCase(TestCase):
                 "requestorEmail": "requestor@gmail.com",
                 "purpose": "For onboarding process",
                 "userEmail": "abcd@gmail.com",
+                "dob": "1997-12-28",
             },
         )
 
         response = request_health_history(request)
         self.assertIn(
-            "No user account exists with this email",
+            "No user account exists with these details",
             response.content.decode(),
         )
 
@@ -801,12 +806,13 @@ class RequestHealthHistoryTestCase(TestCase):
                 "requestorEmail": "requestor@gmail.com",
                 "purpose": "For onboarding process",
                 "userEmail": "admin@example.com",
+                "dob": "1997-12-30",
             },
         )
 
         response = request_health_history(request)
         self.assertIn(
-            "No user account exists with this email",
+            "No user account exists with these details",
             response.content.decode(),
         )
 
@@ -818,6 +824,7 @@ class RequestHealthHistoryTestCase(TestCase):
                 "requestorEmail": "requestor@gmail.com",
                 "purpose": "For onboarding process",
                 "userEmail": "patient@example.com",
+                "dob": "1997-12-30",
             },
         )
 
@@ -865,40 +872,48 @@ class ViewHealthHistoryAccessTestCase(TestCase):
 
 class UpdateHealthHistoryAccessRequestStatusTestCase(TestCase):
     def setUp(self):
-        self.factory = RequestFactory()
-        self.user = User.objects.create(
-            email="admin@example.com", password="testpass123", is_patient=1, is_active=1
+        self.client = Client()
+        self.user = User.objects.create_patient(
+            email="test@example.com", password="password123", dob=datetime.now().date()
         )
-        HealthHistoryAccessRequest.objects.create(
-            id=1,
-            status="pending",
-            requestorName="NYU",
-            requestorEmail="shc@nyu.edu",
-            purpose="For medical clearances",
-            userID=self.user,
-        )
+        self.client.login(email="test@example.com", password="password123")
+        # Create test health history access requests
+        self.hhars = [
+            HealthHistoryAccessRequest.objects.create(
+                userID=self.user, status="pending"
+            )
+            for _ in range(2)
+        ]
 
-    def test_approve_request(self):
-        request = self.factory.put(
-            reverse("update_health_history_access_request_status"),
-            data={"request_id": 1, "status": "approved"},
-            content_type="application/json",
-        )
+    def test_send_approval_emails(self):
+        url = reverse("send_approval_emails")
+        data = {
+            "emails": ["test1@example.com", "test2@example.com"],
+            "requestIds": [hhar.id for hhar in self.hhars],
+        }
 
-        request.user = self.user
-        response = update_health_history_access_request_status(request)
+        response = self.client.post(url, data, content_type="application/json")
+
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 2)
+        for hhar in self.hhars:
+            hhar.refresh_from_db()
+            self.assertEqual(hhar.status, "approved")
 
-    def test_unauthorized_error(self):
-        request = self.factory.post(
-            reverse("update_health_history_access_request_status"),
-            data={"request_id": 1, "status": "approved"},
-            content_type="application/json",
-        )
+    def test_send_rejection_emails(self):
+        url = reverse("send_reject_emails")
+        data = {
+            "emails": ["test3@example.com", "test4@example.com"],
+            "requestIds": [hhar.id for hhar in self.hhars],
+        }
 
-        request.user = self.user
-        response = update_health_history_access_request_status(request)
-        self.assertEqual(response.status_code, 401)
+        response = self.client.post(url, data, content_type="application/json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 2)
+        for hhar in self.hhars:
+            hhar.refresh_from_db()
+            self.assertEqual(hhar.status, "rejected")
 
 
 # Testing the function for file upload directly. So the 'url' used is relevant
@@ -1049,3 +1064,65 @@ class TestFileUpload(TestCase):
 
         url = file_upload(request, "identityProof")
         self.assertEqual(url, "")
+
+
+class TestRequestDecision(TestCase):
+    def setUp(self):
+        # self.factory = RequestFactory()
+        self.hospital = Hospital.objects.create(name="Test Hospital")
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+        )
+        self.client.login(email="user1@example.com", password="userpass1")
+        self.doctor = User.objects.create(
+            # id=2,
+            email="doctor@example.com",
+            password="testpass123",
+            is_healthcare_worker=True,
+            is_active=True,
+        )
+
+        self.appointment = Appointment.objects.create(
+            name="Eye Test",
+            properties=json.dumps(
+                {
+                    "cylindrical_power_right": 1.25,
+                    "cylindrical_power_left": 0.75,
+                    "spherical_power_left": -2.00,
+                    "spherical_power_right": -1.50,
+                    "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                }
+            ),
+        )
+        self.health_record = HealthRecord.objects.create(
+            doctorID=self.doctor.id,
+            userID=self.user,
+            hospitalID=self.hospital.id,
+            appointmentId=self.appointment,
+        )
+
+    def test_approval(self):
+        url = reverse("update_request_status")
+        self.user = self.doctor
+        response = self.client.post(
+            url, {"recordID": self.health_record.id, "status": "approved"}
+        )
+        self.health_record.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+
+    def test_reject_with_reason(self):
+        reason = "Test Reason"
+        self.user = self.doctor
+        url = reverse("update_request_status")
+        response = self.client.post(
+            url,
+            {
+                "recordID": self.health_record.id,
+                "status": "rejected",
+                "reason": reason,
+            },
+        )
+        self.health_record.refresh_from_db()
+        self.assertEqual(response.status_code, 200)

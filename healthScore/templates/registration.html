@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Registration</title>
+<title>Health Score</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -81,6 +81,11 @@
 </style>
 <script>
   function validateUserForm() {
+      
+    if (!validateDOB()) {
+        return false;
+    }
+      
     var password = document.getElementById("password").value;
     var retypePassword = document.getElementById("retype_password").value;
     var hasCapitalLetter = /[A-Z]/.test(password);
@@ -180,6 +185,23 @@
       document.getElementById('admin_role_section').onclick = function() { selectRole('Healthcare Admin'); };
   });
   
+  function validateDOB() {
+        var dobInput = document.getElementById('dob');
+        var dobError = document.getElementById('dobError');
+        var minDob = '1910-01-01';
+        var today = new Date().toISOString().split('T')[0];
+        var dobValue = dobInput.value;
+        
+        dobError.textContent = '';
+        
+        if (dobValue < minDob || dobValue > today) {
+            dobError.textContent = 'Date of birth must be between January 1, 1910, and today.';
+            return false;
+        }
+        
+        return true;
+    }
+  
 </script>
 </head>
 {%  include 'header.html' %}
@@ -220,6 +242,7 @@
     
     <label for="dob">Date of Birth<span style="color: red;">*</span></label>
     <input type="date" id="dob" name="dob" required value="{{ dob }}"><br>
+    <div id="dobError" class="error-message"></div>
     
     <label for="gender">Gender<span style="color: red;">*</span></label>
     <select id="gender" name="gender" required>
@@ -288,7 +311,7 @@
     <option value="WV" {% if state == "WV" %}selected{% endif %}>West Virginia</option>
     <option value="WI" {% if state == "WI" %}selected{% endif %}>Wisconsin</option>
     <option value="WY" {% if state == "WY" %}selected{% endif %}>Wyoming</option>
-    </select><br>
+    </select><br><br>
     
     <label for="zipcode">Zipcode<span style="color: red;">*</span></label>
     <input type="text" id="zipcode" name="zipcode" maxlength="5" pattern="[0-9]+" required value="{{ zipcode }}"><br>
@@ -391,7 +414,7 @@
     <option value="WV" {% if state == "WV" %}selected{% endif %}>West Virginia</option>
     <option value="WI" {% if state == "WI" %}selected{% endif %}>Wisconsin</option>
     <option value="WY" {% if state == "WY" %}selected{% endif %}>Wyoming</option>
-    </select><br>
+    </select><br><br>
 
     <label for="facility_zipcode">Facility Zipcode<span style="color: red;">*</span></label>
     <input type="text" id="facility_zipcode" name="facility_zipcode" maxlength="5" pattern="[0-9]+" required value="{{ facility_zipcode }}"><br>
