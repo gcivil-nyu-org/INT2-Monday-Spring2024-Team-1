@@ -894,9 +894,9 @@ def send_approval_emails(request):
     emails = data.get("emails", [])
     requestIds = data.get("requestIds", [])
 
-    hr_ids = HealthRecord.objects.filter(userID=request.user).values_list(
-        "id", flat=True
-    )
+    hr_ids = HealthRecord.objects.filter(
+        userID=request.user, status="approved"
+    ).values_list("id", flat=True)
     pdf = view_report(request, hr_ids)
 
     for email in emails:
