@@ -4,7 +4,6 @@ about: To report a bug
 title: ''
 labels: ''
 assignees: ''
-
 ---
 
 ## Description
