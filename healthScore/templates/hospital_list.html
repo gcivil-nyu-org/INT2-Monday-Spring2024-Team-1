@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital List</title>
+</head>
+<body>
+    <h1>Hospital List</h1>
+    {% if hospitals %}
+        <ul>
+        {% for hospital in hospitals %}
+            <li>
+                {{ hospital.name }} - Status: {{ hospital.status }}
+                <!-- Placeholder form for updating status -->
+                <form action="#" method="post">
+                    <input type="hidden" name="status" value="active">
+                    <button type="submit">Update Status</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hospitals found.</p>
+    {% endif %}
+</body>
+</html>
