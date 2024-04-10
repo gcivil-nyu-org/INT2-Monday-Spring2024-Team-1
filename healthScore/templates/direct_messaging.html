@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Score</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            flex: 1;
+            background-color: #ECE8F9;
+            padding: 20px;
+        }
+
+        .chat {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chat-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .chat-list-item {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+            .chat-list-item:hover {
+                background-color: #e0e0e0;
+            }
+
+        .message-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+            .message-container .message {
+                max-width: 70%;
+                padding: 10px;
+                border-radius: 20px;
+                margin-bottom: 5px;
+                word-wrap: break-word;
+                background-color: #f2f2f2;
+            }
+
+        .outgoing-message {
+            align-self: flex-end;
+        }
+
+        .incoming-message {
+            align-self: flex-start;
+        }
+
+        .message-input-container {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .send-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #5B0888;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .send-button:hover {
+                background-color: #2d0444;
+                text-decoration: none;
+                color: white
+            }
+    </style>
+</head>
+<body>
+    {%  include 'header.html' %}
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Your Chats</h2>
+            <ul class="chat-list" id="chatList">
+                <!-- chat items here -->
+            </ul>
+            <button onclick="redirectToSearch()">New Chat</button>
+        </div>
+        <div class="chat" id="chatInterface">
+            <div class="chat-header">
+                <h2>Chat</h2>
+            </div>
+            <div id="messages">
+                <!-- chat itmes here -->
+            </div>
+            <div class="message-input-container">
+                <input type="text" id="messageInput" class="message-input" placeholder="Type a message...">
+                <button onclick="sendMessage()" class="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>let chats = [];
+
+        function createNewChat() {
+            let chatName = prompt("Enter a name for the new chat:");
+            if (chatName) {
+                chats.push({
+                    name: chatName,
+                    messages: []
+                });
+                renderChatList();
+            }
+        }
+
+        function renderChatList() {
+            let chatList = document.getElementById('chatList');
+            chatList.innerHTML = '';
+            chats.forEach((chat, index) => {
+                let listItem = document.createElement('li');
+                listItem.classList.add('chat-list-item');
+                listItem.textContent = chat.name;
+                listItem.onclick = () => renderChatInterface(index);
+                chatList.appendChild(listItem);
+            });
+        }
+
+        function renderChatInterface(index) {
+            let chatInterface = document.getElementById('chatInterface');
+            chatInterface.querySelector('h2').textContent = chats[index].name;
+            let messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
+            chats[index].messages.forEach(message => {
+                let messageContainer = document.createElement('div');
+                messageContainer.classList.add('message-container');
+                let messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.textContent = message.text;
+                messageContainer.appendChild(messageElement);
+                if (message.sender === 'user') {
+                    messageContainer.classList.add('outgoing-message');
+                } else {
+                    messageContainer.classList.add('incoming-message');
+                }
+                messagesDiv.appendChild(messageContainer);
+            });
+        }
+
+        function sendMessage() {
+            let messageInput = document.getElementById('messageInput');
+            let messageText = messageInput.value.trim();
+            if (messageText !== '') {
+                let chatIndex = getActiveChatIndex();
+                chats[chatIndex].messages.push({
+                    text: messageText,
+                    sender: 'user'
+                });
+                renderChatInterface(chatIndex);
+                messageInput.value = '';
+            }
+        }
+
+        function getActiveChatIndex() {
+            let activeChatName = document.getElementById('chatInterface').querySelector('h2').textContent;
+            return chats.findIndex(chat => chat.name === activeChatName);
+        }
+
+        function redirectToSearch() {
+            window.location.href = "search.html";
+        }</script>
+
+</body>
+</html>
