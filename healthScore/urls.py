@@ -108,4 +108,5 @@ urlpatterns = [
         views.view_healthworkers_user_record,
         name="view_healthworkers_user_record",
     ),
+    path("directMessages", views.directMessages, name=""directMessages),
 ]

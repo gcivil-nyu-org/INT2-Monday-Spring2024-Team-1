@@ -1045,3 +1045,6 @@ def view_healthworkers_user_record(request):
         )
 
     return homepage(request)
+
+def directMessages(request):
+    return render(request, "direct_messaging.html")
