@@ -63,6 +63,13 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_healthcare_worker", True)
         return self._create_user(email, password, **extra_fields)
 
+    def create_superuser(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_patient', False)
+
+        return self._create_user(email, password, **extra_fields)
+
 
 class User(AbstractBaseUser, PermissionsMixin):  # Viewed by User
     id = models.AutoField(primary_key=True)
