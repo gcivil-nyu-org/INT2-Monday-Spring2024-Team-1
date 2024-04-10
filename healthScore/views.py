@@ -1046,27 +1046,29 @@ def view_healthworkers_user_record(request):
 
     return homepage(request)
 
+
 @login_required
 def list_hospitals(request):
     if request.method == "GET":
-        name_query = request.GET.get('name', '')
-        status_query = request.GET.get('status', '')
+        name_query = request.GET.get("name", "")
+        status_query = request.GET.get("status", "")
         filters = {}
         if name_query:
-            filters['name__icontains'] = name_query
+            filters["name__icontains"] = name_query
         if status_query:
-            filters['status'] = status_query
+            filters["status"] = status_query
 
         hospitals = Hospital.objects.filter(**filters)
         return render(request, "hospital_list.html", {"hospitals": hospitals})
+
 
 @login_required
 def update_hospital_status(request, hospital_id):
     if request.method == "POST":
         hospital = get_object_or_404(Hospital, pk=hospital_id)
-        new_status = request.POST.get('status')
+        new_status = request.POST.get("status")
 
-        if new_status in ['active', 'inactive', 'pending']:
+        if new_status in ["active", "inactive", "pending"]:
             hospital.status = new_status
             hospital.save()
             return JsonResponse({"message": "Hospital status updated successfully."})
