@@ -1052,4 +1052,4 @@ def directMessages(request):
 
 
 def startNewChat(request):
-    return render(request, "startNewChat.html")
+    return render(request, "new_chat.html")
