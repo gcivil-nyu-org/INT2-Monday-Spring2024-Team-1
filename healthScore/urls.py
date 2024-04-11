@@ -108,4 +108,9 @@ urlpatterns = [
         views.view_healthworkers_user_record,
         name="view_healthworkers_user_record",
     ),
+    path(
+        "admin_view_records/",
+        views.admin_view_health_history_requests,
+        name="admin_view_records",
+    ),
 ]
