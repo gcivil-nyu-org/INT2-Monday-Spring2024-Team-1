@@ -1063,12 +1063,14 @@ def list_hospitals(request):
 
 
 @login_required
+@csrf_exempt
 def update_hospital_status(request, hospital_id):
     if request.method == "POST":
         hospital = get_object_or_404(Hospital, pk=hospital_id)
-        new_status = request.POST.get("status")
+        bodyData = json.loads(request.body)
+        new_status = bodyData.get("status")
 
-        if new_status in ["active", "inactive", "pending"]:
+        if new_status in ["approved", "rejected", "pending"]:
             hospital.status = new_status
             hospital.save()
             return JsonResponse({"message": "Hospital status updated successfully."})
