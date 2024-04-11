@@ -1154,7 +1154,8 @@ class HospitalTests(TestCase):
         hospital = Hospital.objects.get(name="General Hospital")
         response = self.client.post(
             reverse("update_hospital_status", args=[hospital.id]),
-            {"status": "inactive"},
+            data={"status": "inactive"},
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
         hospital.refresh_from_db()
@@ -1163,6 +1164,8 @@ class HospitalTests(TestCase):
     def test_update_hospital_status_invalid(self):
         hospital = Hospital.objects.get(name="General Hospital")
         response = self.client.post(
-            reverse("update_hospital_status", args=[hospital.id]), {"status": "unknown"}
+            reverse("update_hospital_status", args=[hospital.id]),
+            data={"status": "unknown"},
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 400)
