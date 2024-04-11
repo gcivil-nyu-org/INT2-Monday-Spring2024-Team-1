@@ -1050,4 +1050,5 @@ def view_healthworkers_user_record(request):
 @login_required
 def admin_view_health_history_requests(request):
     zipped_details = get_admin_health_history_details(request=request)
+    # change from view_requests.html to the new html file
     return render(request, "view_requests.html", {"zipped_details": zipped_details})
