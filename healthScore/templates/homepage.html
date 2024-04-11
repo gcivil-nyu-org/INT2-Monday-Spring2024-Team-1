@@ -1,150 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Score</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
     }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background-color: #FFFFFF;
-    }
-    footer{
-      background-color: #FFFFFF;
-      padding: 20px;
-      text-align: center;
-    }
+
     .welcome-text {
-      font-family: Arial;
-      font-weight: bold;
-      text-align: center;
       font-size: 48px;
       margin-top: 50px;
       color: #080A45;
     }
+
     .stats {
-      display: flex;
-      justify-content: space-between;
       margin-top: 120px;
       margin-bottom: 100px;
-      padding: 0 100px;
     }
-    .stat-item {
-      text-align: center;
-      flex-grow: 5;
-    }
+
     .stat-number {
-      font-size: 45px; 
-      font-weight: bold; 
+      font-size: 45px;
+      font-weight: bold;
       color: #4A33E2;
     }
+
     .feature-page-container {
-      background-color: #C9B8F9;
       padding: 70px;
     }
+
     .feature-title {
       font-size: 35px;
-      margin-bottom: 20px;
-      text-align: center;
       font-weight: bold;
       margin-bottom: 40px;
     }
-    .feature-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
+
+    .flip-card {
+      background-color: transparent;
+      width: 300px;
+      height: 200px;
+      border: 1px solid #f1f1f1;
+      perspective: 1000px;
+      /* Remove this if you don't want the 3D effect */
     }
-    .feature-item {
-      flex: 1 0 calc(50% - 20px);
-      padding: 15px;
-      box-sizing: border-box;
-      background-color: #E5D2CE;
+
+    /* This container is needed to position the front and back side */
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
     }
-    
-    .user-dropdown-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
+
+    /* Do an horizontal flip when you move the mouse over the flip box container */
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
     }
-    
-    .user-dropdown-content a:hover {background-color: #f1f1f1}
-    
-    .user-dropdown:hover .user-dropdown-content {
-        display: block;
+
+    /* Position the front and back side */
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      /* Safari */
+      backface-visibility: hidden;
+    }
+
+    /* Style the front side (fallback if image is missing) */
+    .flip-card-front {
+      background-color: #bbb;
+      color: black;
+    }
+
+    /* Style the back side */
+    .flip-card-back {
+      background-color: dodgerblue;
+      color: white;
+      transform: rotateY(180deg);
     }
   </style>
 </head>
-  
-  
+
 <body>
-  {%  include 'header.html' %}
+  <!-- Header -->
+  {% include 'header.html' %}
 
+  <!-- Welcome Section -->
+  <div class="container text-center">
+    <div class="welcome-text">
+      <p>Your Health Records, Simplified</p>
+    </div>
+  </div>
 
-  <div class="welcome-text">
-    <p>Your Health Records, Simplified</p>
-  </div>
-  
-  
-  
-  <div class="stats">
-    <div class="stat-item">
-      <p><span class="stat-number">1M+</span></p>
-      <p>Secured Records</p>
-    </div>
-    <div class="stat-item">
-      <p><span class="stat-number">300</span></p>
-      <p>Partnering Institutions</p>
-    </div>
-    <div class="stat-item">
-      <p><span class="stat-number">1000+</span></p>
-      <p>Happy Clients</p>
-    </div>
-    <div class="stat-item">
-      <p><span class="stat-number">24/7</span></p>
-      <p>Support</p>
-    </div>
-  </div>
-  
-  
-  
-  
-  
-  <div class="feature-page-container">
-    <div class="feature-title">Why choose us?</div>
-    <div class="feature-container">
-      <div class="feature-item">
-        <h3>Secure Health Record Storage</h3>
-        <p>Safely store all your health records and vaccination information in one place.</p>
+  <!-- Stats Section -->
+  <div class="container stats">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="card-text"><span class="stat-number">1M+</span></p>
+            <p class="card-text">Secured Records</p>
+          </div>
+        </div>
       </div>
-      <div class="feature-item">
-        <h3>Easy Record Sharing</h3>
-        <p>Effortlessly send health records to work or school with just a few clicks</p>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="card-text"><span class="stat-number">300</span></p>
+            <p class="card-text">Partnering Institutions</p>
+          </div>
+        </div>
       </div>
-      <div class="feature-item">
-        <h3>Comprehensive Health Score</h3>
-        <p>Receive a health score based on your health history of tests and vaccines</p>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="card-text"><span class="stat-number">1000+</span></p>
+            <p class="card-text">Happy Clients</p>
+          </div>
+        </div>
       </div>
-      <div class="feature-item">
-        <h3>Instant Communication</h3>
-        <p>Easily communicate with health institutions for appointments or inquiries</p>
+      <div class="col-md-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <p class="card-text"><span class="stat-number">24/7</span></p>
+            <p class="card-text">Support</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  
-  
-  
-  <footer>
+
+  <!-- Features Section -->
+  <div class="container feature-page-container">
+    <div class="feature-title text-center">Why choose us?</div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Secure Health Record Storage</h3>
+            <p class="card-text">Safely store all your health records and vaccination information in one place.</p>
+          </div>
+        </div>
+      </div>
+      <br /><br />
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Easy Record Sharing</h3>
+            <p class="card-text">Effortlessly send health records to work or school with just a few clicks</p>
+          </div>
+        </div>
+      </div>
+      <br /><br />
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Comprehensive Health Score</h3>
+            <p class="card-text">Receive a health score based on your health history of tests and vaccines</p>
+          </div>
+        </div>
+      </div><br /><br />
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Instant Communication</h3>
+            <p class="card-text">Easily communicate with health institutions for appointments or inquiries</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center">
     <p>&copy; 2024 Software Engineering HealthScore Team</p>
   </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
