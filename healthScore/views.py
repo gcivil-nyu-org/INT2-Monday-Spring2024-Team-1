@@ -760,8 +760,20 @@ def community_home(request):
 @login_required
 def view_all_posts(request):
     posts = Post.objects.all().order_by("-createdAt")
+    posts_with_status_info = [
+        {
+            "id": post.id,
+            "title": post.title,
+            "description": post.description,
+            "createdAt": post.createdAt,
+            "is_healthcare_worker": post.user.is_healthcare_worker,
+        }
+        for post in posts
+    ]
     return render(
-        request, "community_home.html", {"posts": posts, "headerTitle": "All the posts"}
+        request,
+        "community_home.html",
+        {"posts": posts_with_status_info, "headerTitle": "All the posts"},
     )
 
 
@@ -1050,5 +1062,4 @@ def view_healthworkers_user_record(request):
 @login_required
 def admin_view_health_history_requests(request):
     zipped_details = get_admin_health_history_details(request=request)
-    # change from view_requests.html to the new html file
-    return render(request, "view_requests.html", {"zipped_details": zipped_details})
+    return render(request, "admin_view_records.html", {"zipped_details": zipped_details})
