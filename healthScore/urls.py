@@ -108,7 +108,7 @@ urlpatterns = [
         views.view_healthworkers_user_record,
         name="view_healthworkers_user_record",
     ),
-    #direct messaging
+    # direct messaging
     path("directMessages", views.directMessages, name="directMessages"),
     path("startNewChat", views.startNewChat, name="startNewChat"),
 ]
