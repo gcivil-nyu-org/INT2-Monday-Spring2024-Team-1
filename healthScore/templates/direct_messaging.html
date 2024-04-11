@@ -98,11 +98,26 @@
             cursor: pointer;
         }
 
-        .send-button:hover {
-            background-color: #2d0444;
-            text-decoration: none;
-            color: white
+            .send-button:hover {
+                background-color: #2d0444;
+                text-decoration: none;
+                color: white
+            }
+
+        .create-button {
+            padding: 7px 15px;
+            background-color: #5B0888;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
         }
+
+            .create-button:hover {
+                background-color: #2d0444;
+            }
+
     </style>
 </head>
 
@@ -115,16 +130,18 @@
         <div class="chat-sidebar">
             <h2>Your Chats</h2>
             <ul class="chat-list" id="chatList">
-                <!-- chat items here -->
+                <!-- user chat list here -->
             </ul>
-            <button onclick="redirectToSearch()">New Chat</button>
+            <button onclick="redirectToSearch()" class="create-button">New Chat</button>
         </div>
+
+
         <div class="chat" id="chatInterface">
             <div class="chat-header">
                 <h2>Chat</h2>
             </div>
             <div id="messages">
-                <!-- chat itmes here -->
+                <!-- chat messages here -->
             </div>
             <div class="message-input-container">
                 <input type="text" id="messageInput" class="message-input" placeholder="Type a message...">
@@ -132,11 +149,6 @@
             </div>
         </div>
     </div>
-
-
-
-
-
 
 
 
