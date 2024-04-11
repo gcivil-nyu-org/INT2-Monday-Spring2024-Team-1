@@ -48,7 +48,7 @@ from healthScore.views import (
     delete_post,
     edit_post,
     delete_comment,
-    admin_view_health_history_requests
+    admin_view_health_history_requests,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -1145,7 +1145,7 @@ class viewAdminHealthHistoryTestCase(TransactionTestCase):
             securityQues="",
             securityAns="",
             bloodGroup="A+",
-            is_staff=True
+            is_staff=True,
         )
         self.appointment = Appointment.objects.create(
             name="Eye Test",
@@ -1217,7 +1217,6 @@ class viewAdminHealthHistoryTestCase(TransactionTestCase):
         request.user = self.user
         response = admin_view_health_history_requests(request)
         self.assertEqual(response.status_code, 200)
-    
 
     def test_admin_view_history_record_status(self):
         url = reverse("admin_view_records")
@@ -1227,7 +1226,7 @@ class viewAdminHealthHistoryTestCase(TransactionTestCase):
             "healthcare_worker": "Doctor A",
             "healthcare_facility": "Hospital A",
             "date": "2024-03-08",
-            "record_status": "pending"
+            "record_status": "pending",
         }
         request = self.factory.get(url, request_struct)
         request.user = self.user

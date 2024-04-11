@@ -111,6 +111,6 @@ urlpatterns = [
     path(
         "admin_view_records/",
         views.admin_view_health_history_requests,
-        name="admin_view_records"
-    )
+        name="admin_view_records",
+    ),
 ]
