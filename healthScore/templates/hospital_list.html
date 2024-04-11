@@ -98,8 +98,8 @@
     <nav>
         <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
             <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-tab-pane" type="button" role="tab" aria-controls="pending-tab-pane" aria-selected="true">Pending</button>
-            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane" aria-selected="false">Approved</button>
-            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane" type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Rejected</button>
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane" aria-selected="false">Active</button>
+            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane" type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Inactive</button>
         </div>
     </nav>
 
@@ -119,12 +119,12 @@
                 <tbody>
                 {% for hospital in hospitals %}
                 {% if hospital.status == "pending" %}
-                    <tr class="{% if hospital.status == 'rejected' %}grab{% endif %}" >
+                    <tr class="{% if hospital.status == 'inactive' %}grab{% endif %}" >
                         <td>{{ hospital.name }}</td>
                         <td>{{ hospital.address }}</td>
                         <td>{{ hospital.contactInfo }}</td>
-                        <td class="{% if hospital.status == 'approved' %}text-success
-                            {% elif hospital.status == 'rejected' %}text-danger
+                        <td class="{% if hospital.status == 'active' %}text-success
+                            {% elif hospital.status == 'inactive' %}text-danger
                             {% else %}text-warning{% endif %}">
                             {{ hospital.status|capfirst }}
                         </td>
@@ -155,13 +155,13 @@
                 </thead>
                 <tbody>
                 {% for hospital in hospitals %}
-                {% if hospital.status == "approved" %}
-                    <tr class="{% if hospital.status == 'rejected' %}grab{% endif %}" >
+                {% if hospital.status == "active" %}
+                    <tr class="{% if hospital.status == 'inactive' %}grab{% endif %}" >
                         <td>{{ hospital.name }}</td>
                         <td>{{ hospital.address }}</td>
                         <td>{{ hospital.contactInfo }}</td>
-                        <td class="{% if hospital.status == 'approved' %}text-success
-                            {% elif hospital.status == 'rejected' %}text-danger
+                        <td class="{% if hospital.status == 'active' %}text-success
+                            {% elif hospital.status == 'inactive' %}text-danger
                             {% else %}text-warning{% endif %}">
                             {{ hospital.status|capfirst }}
                         </td>
@@ -185,13 +185,13 @@
                 </thead>
                 <tbody>
                 {% for hospital in hospitals %}
-                {% if hospital.status == "rejected" %}
-                    <tr class="{% if hospital.status == 'rejected' %}grab{% endif %}" >
+                {% if hospital.status == "inactive" %}
+                    <tr class="{% if hospital.status == 'inactive' %}grab{% endif %}" >
                         <td>{{ hospital.name }}</td>
                         <td>{{ hospital.address }}</td>
                         <td>{{ hospital.contactInfo }}</td>
-                        <td class="{% if hospital.status == 'approved' %}text-success
-                            {% elif hospital.status == 'rejected' %}text-danger
+                        <td class="{% if hospital.status == 'active' %}text-success
+                            {% elif hospital.status == 'inactive' %}text-danger
                             {% else %}text-warning{% endif %}">
                             {{ hospital.status|capfirst }}
                         </td>
@@ -258,7 +258,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ status: "approved" }),
+                body: JSON.stringify({ status: "active" }),
             })
             .then(response => response.json())
             .catch((error) => {
@@ -269,7 +269,7 @@
         }
 
         if(requestIds.length > 0 && !foundError) {
-            alert("Hospitals added to the approved list");
+            alert("Hospitals added to the active list");
             window.location.href = '{% url "list_hospitals" %}';
         }
     })
@@ -288,7 +288,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ status: "rejected" }),
+                body: JSON.stringify({ status: "inactive" }),
             })
             .then(response => response.json())
             .catch((error) => {
@@ -299,7 +299,7 @@
         }
 
         if(requestIds.length > 0 && !foundError) {
-            alert("Hospitals added to the rejected list");
+            alert("Hospitals added to the inactive list");
             window.location.href = '{% url "list_hospitals" %}';
         }
     })

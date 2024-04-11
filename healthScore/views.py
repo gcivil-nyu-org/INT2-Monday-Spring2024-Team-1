@@ -1070,7 +1070,7 @@ def update_hospital_status(request, hospital_id):
         bodyData = json.loads(request.body)
         new_status = bodyData.get("status")
 
-        if new_status in ["approved", "rejected", "pending"]:
+        if new_status in ["active", "inactive", "pending"]:
             hospital.status = new_status
             hospital.save()
             return JsonResponse({"message": "Hospital status updated successfully."})

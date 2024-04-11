@@ -1135,9 +1135,9 @@ class HospitalTests(TestCase):
         )
         self.client.login(email="testuser@test.com", password="12345")
 
-        Hospital.objects.create(name="General Hospital", status="approved")
+        Hospital.objects.create(name="General Hospital", status="active")
         Hospital.objects.create(name="City Hospital", status="pending")
-        Hospital.objects.create(name="Specialist Hospital", status="rejected")
+        Hospital.objects.create(name="Specialist Hospital", status="inactive")
 
     def test_list_hospitals_no_filter(self):
         response = self.client.get(reverse("list_hospitals"))
@@ -1154,16 +1154,18 @@ class HospitalTests(TestCase):
         hospital = Hospital.objects.get(name="General Hospital")
         response = self.client.post(
             reverse("update_hospital_status", args=[hospital.id]),
-            data = {"status": "rejected"},
+            data={"status": "inactive"},
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 200)
         hospital.refresh_from_db()
-        self.assertEqual(hospital.status, "rejected")
+        self.assertEqual(hospital.status, "inactive")
 
     def test_update_hospital_status_invalid(self):
         hospital = Hospital.objects.get(name="General Hospital")
         response = self.client.post(
-            reverse("update_hospital_status", args=[hospital.id]), data = {"status": "unknown"}, content_type="application/json"
+            reverse("update_hospital_status", args=[hospital.id]),
+            data={"status": "unknown"},
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 400)
