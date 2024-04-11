@@ -1049,3 +1049,6 @@ def view_healthworkers_user_record(request):
 
 def directMessages(request):
     return render(request, "direct_messaging.html")
+
+def startNewChat(request):
+    return render(request, "startNewChat.html")

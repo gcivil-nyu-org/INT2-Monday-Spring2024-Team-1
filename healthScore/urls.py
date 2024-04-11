@@ -109,4 +109,5 @@ urlpatterns = [
         name="view_healthworkers_user_record",
     ),
     path("directMessages", views.directMessages, name="directMessages"),
+    path("startNewChat", views.startNewChat, name="startNewChat"),
 ]
