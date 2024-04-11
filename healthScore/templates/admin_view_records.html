@@ -61,7 +61,7 @@
     <div class="row">
         <div class="col-lg-12">
             <h4>Filters</h4>
-            <form method="GET" action="{% url 'view_requests' %}" class="form-row align-items-center">
+            <form method="GET" action="{% url 'admin_view_records' %}" class="form-row align-items-center">
                 <div class="col-2">
                     <label for="appointment_name" class="sr-only">Reason for Visit:</label>
                     <input type="text" class="form-control mb-2" id="appointment_name" name="appointment_name"
@@ -72,11 +72,6 @@
                     <input type="text" class="form-control mb-2" id="healthcare_worker" name="healthcare_worker"
                            placeholder="Healthcare Worker" value="{{ request.GET.healthcare_worker }}">
                 </div>
-{#                <div class="col-auto">#}
-{#                    <label for="healthcare_facility" class="sr-only">Healthcare Facility:</label>#}
-{#                    <input type="text" class="form-control mb-2" id="healthcare_facility" name="healthcare_facility"#}
-{#                           placeholder="Healthcare Facility" value="{{ request.GET.healthcare_facility }}">#}
-{#                </div>#}
                 <div class="col-auto">
                     <label for="date" class="sr-only">Date:</label>
                     <input type="date" class="form-control mb-2" id="date" name="date" value="{{ request.GET.date }}">
@@ -103,7 +98,7 @@
                     <button type="submit" class="btn filter-btn mb-2">Filter</button>
                 </div>
                 <div class="col-auto">
-                    <a href="{% url 'view_requests' %}" class="btn clear-btn mb-2">Clear</a>
+                    <a href="{% url 'admin_view_records' %}" class="btn clear-btn mb-2">Clear</a>
                 </div>
             </form>
 
@@ -116,32 +111,30 @@
             <table class="table table-striped my-4">
                 <thead class="thead-dark">
                 <tr>
+                    <th scope="col">Patient Email</th>
                     <th scope="col">Reason for Visit</th>
                     <th scope="col">Visit Details</th>
                     <th scope="col">Healthcare Worker</th>
-{#                    <th scope="col">Healthcare Facility</th>#}
-{#                    <th scope="col">Address</th>#}
                     <th scope="col">Created Date</th>
                     <th scope="col">Updated Date</th>
                     <th scope="col">Rejected Reason</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Patient Email</th>
+                    
                 </tr>
                 </thead>
                 <tbody>
                 {% for request, details in zipped_details %}
                     <tr class="{% if request.record_status == 'rejected' %}grab{% endif %}" >
+                        <td>{{ request.user_email}}</td>
                         <td class="appointmentName">
                             {% if request.record_status == 'rejected' %}
-                                <a href="javascript:void(0);" onclick="getProperties(`{{ request.hospital_name }}|{{ request.record_status }}|{{ request.doctor_name }}|{{ request.appointment_type }}|{{ request.appointment_properties }}|{{ request.appointment_name }}|{{ request.record_id }}`)">{{ request.appointment_name }}</a>
+                                <a href="javascript:void(0);" onclick="getProperties(`{{ request.hospital_name }}|{{ request.record_status }}|{{ request.doctor_name }}|{{ request.appointment_type }}|{{ request.appointment_properties }}|{{ request.appointment_name }}|{{ request.record_id }} | {{ request.user_email }}`)">{{ request.appointment_name }}</a>
                             {% else %}
                                 {{ request.appointment_name }}
                             {% endif %}
                         </td>
                         <td>{{ request.appointment_type }}</td>
                         <td>{{ request.doctor_name }}</td>
-{#                        <td>{{ request.hospital_name }}</td>#}
-{#                        <td>{{ request.hospital_address }}</td>#}
                         <td>{{ request.createdAt }}</td>
                         <td>{{ request.updatedAt }}</td>
                         <td>{{ request.rejectedReason|capfirst }}</td>
@@ -150,7 +143,6 @@
                             {% else %}text-warning{% endif %}">
                             {{ request.record_status|capfirst }}
                         </td>
-                        <td>{{ request.email}}</td>
                     </tr>
                 {% endfor %}
 
@@ -212,6 +204,7 @@
             appointment_properties = appointment_details[4]
             appointment_type = appointment_details[5]
             record_id = appointment_details[6]
+            user_email = appointment_details[7]
 
             fetch('{% url "get_record" rec_id=0 %}'.replace('0', record_id)
                     , {
@@ -225,10 +218,10 @@
 
                         console.log(data, "data")
                         // Get the base URL
-                        const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+                        const baseUrl = window.location.origin + "/" + window.location.pathname.split("/")[1].replace(/\/[^/]*$/, '/') + "/";
                         console.log(baseUrl); // Output: http://127.0.0.1:8000/hs/
-                        window.location.href = baseUrl+"getEdit/"+record_id
-
+                        
+                        window.location.href = baseUrl+"adminGetEdit/"+record_id
 
                     })
                     .catch((error) => {

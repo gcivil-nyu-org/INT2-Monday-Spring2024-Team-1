@@ -113,4 +113,8 @@ urlpatterns = [
         views.admin_view_health_history_requests,
         name="admin_view_records",
     ),
+    path(
+        "adminGetEdit/<str:rec_id>/", 
+        views.get_admin_edit, 
+        name="adminGetEdit"),
 ]
