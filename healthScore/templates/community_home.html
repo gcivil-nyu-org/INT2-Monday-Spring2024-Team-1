@@ -12,6 +12,11 @@
         margin: 0 auto;
         padding: 20px;
     }
+    .worker-icon {
+    height: 30px;
+    margin-left: 5px;
+    }
+
     .topic {
         margin-bottom: 20px;
         padding: 10px;
@@ -101,6 +106,9 @@
             {% for post in posts %}
             <li class="post-list">
                 <h3>{{ post.title }}</h3>
+                {% if post.is_healthcare_worker %}
+                    <img src="https://i.imgur.com/MlFk11W.jpg" alt="Healthcare Worker" class="worker-icon" />
+                {% endif %}
                 {% load text_filters %}
                 <p>{{ post.description|first_300_characters|linebreaks }}</p>
                 <p class="expand_topic"><a href="{% url 'view_post' post.id %}">Read more ></a></p>
