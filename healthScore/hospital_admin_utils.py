@@ -22,10 +22,6 @@ def get_admin_health_history_details(request):
 
         all_records = HealthRecord.objects.filter(hospitalID=hospitalID)
 
-        userID = request.user
-
-        history_list = HealthRecord.objects.filter(userID=userID)
-
         appointment_name = request.GET.get("appointment_name")
         if appointment_name:
             all_records = all_records.filter(
