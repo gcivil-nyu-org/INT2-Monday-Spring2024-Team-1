@@ -11,12 +11,12 @@
             padding: 0;
         }
 
-        .container {
+        .full-container {
             display: flex;
             height: 100vh;
         }
 
-        .sidebar {
+        .chat-sidebar {
             flex: 1;
             background-color: #ECE8F9;
             padding: 20px;
@@ -98,18 +98,21 @@
             cursor: pointer;
         }
 
-            .send-button:hover {
-                background-color: #2d0444;
-                text-decoration: none;
-                color: white
-            }
+        .send-button:hover {
+            background-color: #2d0444;
+            text-decoration: none;
+            color: white
+        }
     </style>
 </head>
+
+
+
 <body>
     {%  include 'header.html' %}
 
-    <div class="container">
-        <div class="sidebar">
+    <div class="full-container">
+        <div class="chat-sidebar">
             <h2>Your Chats</h2>
             <ul class="chat-list" id="chatList">
                 <!-- chat items here -->
@@ -129,6 +132,15 @@
             </div>
         </div>
     </div>
+
+
+
+
+
+
+
+
+
 
     <script>let chats = [];
 
