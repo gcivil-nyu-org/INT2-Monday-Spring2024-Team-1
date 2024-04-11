@@ -1126,3 +1126,46 @@ class TestRequestDecision(TestCase):
         )
         self.health_record.refresh_from_db()
         self.assertEqual(response.status_code, 200)
+
+
+class HospitalTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser(
+            email="testuser@test.com", password="12345"
+        )
+        self.client.login(email="testuser@test.com", password="12345")
+
+        Hospital.objects.create(name="General Hospital", status="active")
+        Hospital.objects.create(name="City Hospital", status="pending")
+        Hospital.objects.create(name="Specialist Hospital", status="inactive")
+
+    def test_list_hospitals_no_filter(self):
+        response = self.client.get(reverse("list_hospitals"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("General Hospital", response.content.decode())
+
+    def test_list_hospitals_with_filter(self):
+        response = self.client.get(reverse("list_hospitals") + "?status=pending")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("City Hospital", response.content.decode())
+        self.assertNotIn("General Hospital", response.content.decode())
+
+    def test_update_hospital_status(self):
+        hospital = Hospital.objects.get(name="General Hospital")
+        response = self.client.post(
+            reverse("update_hospital_status", args=[hospital.id]),
+            data={"status": "inactive"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        hospital.refresh_from_db()
+        self.assertEqual(hospital.status, "inactive")
+
+    def test_update_hospital_status_invalid(self):
+        hospital = Hospital.objects.get(name="General Hospital")
+        response = self.client.post(
+            reverse("update_hospital_status", args=[hospital.id]),
+            data={"status": "unknown"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
