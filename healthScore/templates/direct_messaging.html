@@ -105,13 +105,14 @@
             }
 
         .create-button {
-            padding: 7px 15px;
             background-color: #5B0888;
+            font-size: 13px;
             color: #FFFFFF;
-            border: none;
+            border: 2px solid #5B0888;
+            padding: 7px 15px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 13px;
+            text-decoration: none;
         }
 
             .create-button:hover {
@@ -132,7 +133,7 @@
             <ul class="chat-list" id="chatList">
                 <!-- user chat list here -->
             </ul>
-            <button class="create-button" onclick="redirectToSearch()">New Chat</button>
+            <a href="/hs/startNewChat" class="create-button">New Chat</a>
         </div>
 
 
@@ -217,10 +218,6 @@
         function getActiveChatIndex() {
             let activeChatName = document.getElementById('chatInterface').querySelector('h2').textContent;
             return chats.findIndex(chat => chat.name === activeChatName);
-        }
-
-        function redirectToSearch() {
-            window.location.href = "startNewChat.html";
         }
     </script>
 
