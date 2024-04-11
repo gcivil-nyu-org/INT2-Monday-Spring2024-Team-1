@@ -10,26 +10,75 @@
             margin: 0;
             padding: 0;
         }
+
+        .page-container {
+            width: 100%;
+            padding: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex: 7;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 70%;
+        }
+
+        .user-type-dropdown {
+            flex: 2;
+            padding: 10px;
+            font-size: 16px;
+            margin-left: 10px;
+            width: 100%;
+            appearance: none;
+            background-image: url('https://icons.veryicon.com/png/o/miscellaneous/linktrip/down-arrow-small.png');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .search-button {
+            flex: 1;
+            padding: 10px 20px;
+            background-color: #5B0888;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+            .search-button:hover {
+                background-color: #2d0444;
+            }
+
     </style>
 </head>
-
-
-
 <body>
     {%  include 'header.html' %}
 
-   
+    <div class="page-container">
+        <h2>Start a New Chat</h2>
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search for a user...">
+            <select class="user-type-dropdown">
+                <option value="user">User</option>
+                <option value="healthcare">Healthcare Worker</option>
+            </select>
+            <button class="search-button">Search</button>
 
-
-
-
-
-
-
-
-
-
-    
+        </div>
+    </div>
 
 </body>
 </html>
