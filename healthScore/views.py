@@ -43,7 +43,7 @@ from .forms import PostForm, CommentForm
 from .file_upload import file_upload
 from django.views.decorators.http import require_http_methods
 from django.core.mail import send_mail, EmailMessage
-
+from .hospital_admin_utils import get_admin_health_history_details
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -1045,3 +1045,9 @@ def view_healthworkers_user_record(request):
         )
 
     return homepage(request)
+
+
+@login_required
+def admin_view_health_history_requests(request):
+    zipped_details = get_admin_health_history_details(request=request)
+    return render(request, "view_requests.html", {"zipped_details": zipped_details})
