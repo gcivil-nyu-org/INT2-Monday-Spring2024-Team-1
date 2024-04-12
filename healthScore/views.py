@@ -43,7 +43,7 @@ from .forms import PostForm, CommentForm
 from .file_upload import file_upload
 from django.views.decorators.http import require_http_methods
 from django.core.mail import send_mail, EmailMessage
-
+from .hospital_admin_utils import get_admin_health_history_details
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -1059,5 +1059,77 @@ def view_healthworkers_user_record(request):
     return homepage(request)
 
 
+@login_required
 def admin_view_health_history_requests(request):
-    return render(request, "admin_view_records.html")
+    zipped_details = get_admin_health_history_details(request=request)
+    return render(
+        request, "admin_view_records.html", {"zipped_details": zipped_details}
+    )
+
+
+@login_required
+def get_admin_edit(request, rec_id):
+    selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
+
+    app = list(
+        Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
+    )
+
+    hospitalList = list(Hospital.objects.all().values())
+    unselectedHospitalList = []
+    for hospital in hospitalList:
+        if hospital["id"] == selected_record[0]["hospitalID"]:
+            selected_record[0]["hospital_name"] = hospital["name"]
+        else:
+            unselectedHospitalList.append(hospital)
+
+    doctorList = list(HospitalStaff.objects.filter(admin=False).values())
+
+    unselectedDoctorList = []
+    for docs in doctorList:
+        if docs["id"] == selected_record[0]["doctorID"]:
+            selected_record[0]["doctor_name"] = docs["name"]
+        else:
+            unselectedDoctorList.append(docs)
+
+    data = {
+        "appointment_props": app[0],
+        "record": selected_record[0],
+        "hospitals": unselectedHospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+        "doctors": unselectedDoctorList,
+    }
+
+    return render(request, "admin_edit_health_record.html", {"data": data})
+
+
+@login_required
+def list_hospitals(request):
+    if request.method == "GET":
+        name_query = request.GET.get("name", "")
+        status_query = request.GET.get("status", "")
+        filters = {}
+        if name_query:
+            filters["name__icontains"] = name_query
+        if status_query:
+            filters["status"] = status_query
+
+        hospitals = Hospital.objects.filter(**filters)
+        return render(request, "hospital_list.html", {"hospitals": hospitals})
+
+
+@login_required
+@csrf_exempt
+def update_hospital_status(request, hospital_id):
+    if request.method == "POST":
+        hospital = get_object_or_404(Hospital, pk=hospital_id)
+        bodyData = json.loads(request.body)
+        new_status = bodyData.get("status")
+
+        if new_status in ["active", "inactive", "pending"]:
+            hospital.status = new_status
+            hospital.save()
+            return JsonResponse({"message": "Hospital status updated successfully."})
+        else:
+            return JsonResponse({"error": "Invalid status provided."}, status=400)
