@@ -87,13 +87,15 @@
         <div class="search-container">
             <select class="user-type-dropdown">
                 <option value="" disabled selected>Select a Hospital</option>
-                <option value="hospital1">Hospital 1</option>
-                <option value="hospital2">Hospital 2</option>
+                {% for hos in data.hospitals %}
+                <option value="{{hos.id}}">{{hos.name}}</option>
+                {% endfor %}
             </select>
 
             <input type="text" class="search-bar" placeholder="Search for a healthcare worker...">
             <button class="search-button">Search</button>
         </div>
+
 
         {% elif user.is_healthcare_worker %}
         <div class="search-container">
