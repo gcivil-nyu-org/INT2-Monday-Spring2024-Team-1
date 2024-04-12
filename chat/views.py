@@ -40,6 +40,7 @@ def display_chat(request):
         )
     else:
         return render(request, "chat/no_chat.html")
-    
-def user_select_view(request):
-    return render(request, "user_select.html")
+
+@login_required   
+def select_user_view(request):
+    return render(request, "chat/select_user.html")
