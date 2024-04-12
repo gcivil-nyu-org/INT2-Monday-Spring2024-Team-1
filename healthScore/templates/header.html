@@ -1,118 +1,136 @@
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Score</title>
     <style>
         body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
+
         header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 20px;
-          background-color: #FFFFFF;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #FFFFFF;
         }
-        .register-button{
-          background-color: #5B0888;
-          font-size: 15px;
+
+        .register-button {
+            background-color: #5B0888;
+            font-size: 15px;
             font-weight: bold;
-          color: #FFFFFF;
-          border: 2px solid #5B0888;
-          padding: 8px 15px;
-          border-radius: 5px;
-          cursor: pointer;
+            color: #FFFFFF;
+            border: 2px solid #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
             text-decoration: none;
         }
-        .register-button:hover{
+
+        .register-button:hover {
             background-color: #2d0444;
             border: 2px solid #2d0444;
             text-decoration: none;
             color: white
         }
-        .login-button{
-          background-color: transparent;
-          font-size: 15px;
-          color: #5B0888;
-          font-weight: bolder;
-          border: none;
-          padding: 8px 15px;
-          border-radius: 5px;
-          cursor: pointer;
+
+        .login-button {
+            background-color: transparent;
+            font-size: 15px;
+            color: #5B0888;
+            font-weight: bolder;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
             text-decoration: none;
         }
-        .login-button:hover{
-          color: #2d0444;
+
+        .login-button:hover {
+            color: #2d0444;
             text-decoration: underline;
         }
+
         .nav-link {
             color: #222222;
             padding: 10px;
             font-weight: normal;
         }
-        .nav-link:hover {
-          color: #000;
-        }
-        
-        .nav-scroller .nav {
-        display: flex;
-        flex-wrap: nowrap;
-        padding-bottom: 1rem;
-        margin-top: -1px;
-        overflow-x: auto;
-        text-align: center;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-      }
-        .header-profile-pic {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
 
-      .bd-mode-toggle .dropdown-menu .active .bi {
-        display: block !important;
+        .nav-link:hover {
+            color: #000;
+        }
+
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .header-profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .bd-mode-toggle .dropdown-menu .active .bi {
+            display: block !important;
         }
     </style>
 </head>
 
 <header class="p-3 mb-3 border-bottom">
     <div class="container">
-      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-          <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-              <img src="https://i.imgur.com/A0GOi7B.png" alt="Logo" width="267" height="80">
-          </a>
-      
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+                <img src="https://i.imgur.com/A0GOi7B.png" alt="Logo" width="267" height="80">
+            </a>
+
             <div class="d-flex flex-grow-1">
-              {% if user.is_authenticated and user.is_patient %}
-                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="/hs/viewHealthHistory" class="nav-link">Dashboard</a></li>
-                    <li><a href="/hs/viewRequests" class="nav-link">Requests</a></li>
-                    <li><a href='{% url "view_health_history_access_requests" %}' class="nav-link">Incoming</a></li>
-                    <!-- <li><a href="#" class="nav-link">Appointments</a></li> -->
-                    <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
-                    <li><a href="{% url "community" %}" class="nav-link">Community</a></li>
-                </ul>
-                
-                <!-- Healthcare Worker Navigation -->
+                {% if user.is_authenticated and user.is_patient %}
+                    <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                        <li><a href="/hs/viewHealthHistory" class="nav-link">Dashboard</a></li>
+                        <li><a href="/hs/viewRequests" class="nav-link">Requests</a></li>
+                        <li><a href='{% url "view_health_history_access_requests" %}' class="nav-link">Incoming</a></li>
+                        <!-- <li><a href="#" class="nav-link">Appointments</a></li> -->
+                        <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
+                        <li><a href="{% url "community" %}" class="nav-link">Community</a></li>
+                    </ul>
+
+                    <!-- Healthcare Worker Navigation -->
                 {% elif user.is_authenticated and user.is_healthcare_worker %}
-                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="/" class="nav-link">Dashboard</a></li>
-                    <li><a href="/hs/recordDecision/" class="nav-link">Patients</a></li>
-                    <!-- <li><a href="#" class="nav-link">Schedule</a></li> -->
-                </ul>
-                
-                <!-- Staff Member Navigation -->
+                    <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                        <li><a href="/" class="nav-link">Dashboard</a></li>
+                        <li><a href="/hs/recordDecision/" class="nav-link">Patients</a></li>
+                        <li><a href="{% url "community" %}" class="nav-link">Community</a></li>
+                        <!-- <li><a href="#" class="nav-link">Schedule</a></li> -->
+                    </ul>
+
+                    <!-- Staff Member Navigation -->
                 {% elif user.is_authenticated and user.is_staff %}
                 <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
                     <li><a href="/" class="nav-link">Dashboard</a></li>
                     <li><a href="/hs/healthcareFacility" class="nav-link">Facility</a></li>
                     <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
+                    <li><a href="/hs/admin_view_records" class="nav-link">Facility Records</a></li>
+                </ul>
+
+                <!-- Health Score Admin -->
+                {% elif user.is_authenticated and user.is_superuser %}
+                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link">Dashboard</a></li>
+                    <li><a href="/hs/hospitals" class="nav-link">Hospitals</a></li>
                 </ul>
                 
                 {% else %}
@@ -121,24 +139,28 @@
                 </ul>
                 {% endif %}
             </div>
-      
+
             <div class="ms-auto">
                 {% if not user.is_authenticated %}
                     <a href="/hs/login" class="login-button">Login</a>
                     <a href="/hs/registration" class="register-button">Register</a>
                 {% else %}
                     <div class="dropdown">
-                      <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://i.imgur.com/v2dIoGF.jpg" alt="mdo" width="20" height="20" class="header-profile-pic">
-                      </a>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/hs/userInfo">Profile</a></li>
-                        <li><a class="dropdown-item" href="/hs/logout">Sign out</a></li>
-                      </ul>
+                        <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://i.imgur.com/v2dIoGF.jpg" alt="mdo" width="20" height="20"
+                                 class="header-profile-pic">
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/hs/userInfo">Profile</a></li>
+                            <li><a class="dropdown-item" href="/hs/logout">Sign out</a></li>
+                        </ul>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
 </header>
