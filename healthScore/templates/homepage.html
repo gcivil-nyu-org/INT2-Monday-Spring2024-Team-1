@@ -76,15 +76,53 @@
 
     /* Style the front side (fallback if image is missing) */
     .flip-card-front {
-      background-color: #bbb;
+      background-color: white;
       color: black;
+      border-radius: 5px;
     }
 
     /* Style the back side */
     .flip-card-back {
-      background-color: dodgerblue;
+      background-color: white;
       color: white;
       transform: rotateY(180deg);
+    }
+
+    .card-width {
+      width: 100%;
+
+    }
+
+    .margin-title {
+      color: #4A33E2;
+      margin-top: 4rem;
+      font-weight: 900;
+    }
+
+    .margin-title-2 {
+      color: #4A33E2;
+      margin-top: 3rem;
+      font-weight: 900;
+    }
+
+    .margin-title-3 {
+      color: #4A33E2;
+      margin-top: 2rem;
+      font-weight: 900;
+    }
+
+    .card-bottom-margin {
+      margin-bottom: 3rem;
+    }
+
+    .box-styles {
+      box-shadow: 5px 10px lightgray;
+      border-radius: 5px;
+    }
+
+    .mini-card {
+      box-shadow: 5px 5px lightgray;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -96,7 +134,7 @@
   <!-- Welcome Section -->
   <div class="container text-center">
     <div class="welcome-text">
-      <p>Your Health Records, Simplified</p>
+      <p>Your Health Records, <b>Simplified!</b></p>
     </div>
   </div>
 
@@ -104,7 +142,7 @@
   <div class="container stats">
     <div class="row">
       <div class="col-md-3">
-        <div class="card text-center">
+        <div class="card text-center mini-card">
           <div class="card-body">
             <p class="card-text"><span class="stat-number">1M+</span></p>
             <p class="card-text">Secured Records</p>
@@ -112,7 +150,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card text-center">
+        <div class="card text-center mini-card">
           <div class="card-body">
             <p class="card-text"><span class="stat-number">300</span></p>
             <p class="card-text">Partnering Institutions</p>
@@ -120,7 +158,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card text-center">
+        <div class="card text-center mini-card">
           <div class="card-body">
             <p class="card-text"><span class="stat-number">1000+</span></p>
             <p class="card-text">Happy Clients</p>
@@ -128,7 +166,7 @@
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card text-center">
+        <div class="card text-center mini-card">
           <div class="card-body">
             <p class="card-text"><span class="stat-number">24/7</span></p>
             <p class="card-text">Support</p>
@@ -142,40 +180,38 @@
   <div class="container feature-page-container">
     <div class="feature-title text-center">Why choose us?</div>
     <div class="row">
-      <div class="col-md-6">
-        <div class="card flip-card">
-          <div class="card-body">
-            
-            
-              <div class="flip-card-inner">
-                <div class="flip-card-front">
-                  <h3 class="card-title">Secure Health Record Storage</h3>
-                </div>
-                <div class="flip-card-back">
-                  <p class="card-text">Safely store all your health records and vaccination information in one place.</p>
-                </div>
+      <div class="col-md-6 card-bottom-margin">
+        <div class="card flip-card card-width">
+          <div class="card-body box-styles">
+
+
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <h2 class="card-title margin-title">Secure Health Record Storage</h2>
               </div>
-
-
-
+              <div class="flip-card-back">
+                <h4 class="card-text margin-title-2">Safely store all your health records and vaccination information in
+                  one place!</h4>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      
+
 
 
       <br /><br />
-      <div class="col-md-6">
-        <div class="card flip-card">
-          <div class="card-body">
-            
+      <div class="col-md-6 card-bottom-margin">
+        <div class="card flip-card card-width">
+          <div class="card-body box-styles">
+
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <h3 class="card-title">Easy Record Sharing</h3>
+                <h2 class="card-title margin-title">Easy Record Sharing</h2>
               </div>
               <div class="flip-card-back">
-                <p class="card-text">Effortlessly send health records to work or school with just a few clicks</p>
+                <h4 class="card-text margin-title">Send health records in a click!</h4>
               </div>
             </div>
 
@@ -183,35 +219,37 @@
         </div>
       </div>
       <br /><br />
-      <div class="col-md-6">
-        <div class="card flip-card">
-          <div class="card-body">
-            
+      <div class="col-md-6 card-bottom-margin">
+        <div class="card flip-card card-width">
+          <div class="card-body box-styles">
+
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <h3 class="card-title">Comprehensive Health Score</h3>
+                <h2 class="card-title margin-title">Comprehensive Health Report</h2>
               </div>
               <div class="flip-card-back">
-                <p class="card-text">Receive a health score based on your health history of tests and vaccines</p>
+                <h4 class="card-text margin-title-2">Receive a health report based on your health history of tests and
+                  vaccines!</h4>
               </div>
             </div>
-            
+
           </div>
         </div>
       </div><br /><br />
-      <div class="col-md-6">
-        <div class="card flip-card">
-          <div class="card-body">
-            
+      <div class="col-md-6 card-bottom-margin">
+        <div class="card flip-card card-width">
+          <div class="card-body box-styles">
+
             <div class="flip-card-inner">
               <div class="flip-card-front">
-                <h3 class="card-title">Instant Communication</h3>
+                <h2 class="card-title margin-title">Instant Communication</h2>
               </div>
               <div class="flip-card-back">
-                <p class="card-text">Easily communicate with health institutions for appointments or inquiries</p>
+                <h4 class="card-text margin-title">Easily communicate with health institutions for appointments or
+                  inquiries!</h4>
               </div>
             </div>
-            
+
           </div>
         </div>
       </div>
@@ -219,6 +257,7 @@
   </div>
 
   <!-- Footer -->
+  <hr />
   <footer class="text-center">
     <p>&copy; 2024 Software Engineering HealthScore Team</p>
   </footer>
