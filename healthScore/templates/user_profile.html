@@ -78,6 +78,7 @@
                 <label for="profilePicture">Profile Picture</label>
                 <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
             </div>
+
         {% elif user.is_authenticated and user.is_healthcare_worker %}
             <div id="formFeedback" class="mb-3"></div>
             <div class="form-group">
@@ -100,7 +101,7 @@
                 <label for="profilePicture">Profile Picture</label>
                 <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
             </div>
-        
+
         {% elif user.is_authenticated and user.is_staff %}
             <div id="formFeedback" class="mb-3"></div>
             <div class="form-group">
@@ -123,6 +124,17 @@
                 <label for="profilePicture">Profile Picture</label>
                 <input type="file" class="form-control-file" id="profilePicture" name="profile_picture">
             </div>
+        
+        {% elif user.is_authenticated and user.is_superuser %}
+            <div id="formFeedback" class="mb-3"></div>
+            <div class="form-group">
+                <label for="adminName">Name</label>
+                <input type="text" class="form-control custom-width" id="adminName" name="name" value="{{ userInfo.name }}">
+            </div>
+            <div class="form-group">
+                <label for="adminEmail">Email address</label>
+                <input type="email" class="form-control custom-width" id="adminEmail" name="email" value="{{ userInfo.email }}">
+            </div>
           
         {% endif %}
           
@@ -144,7 +156,7 @@
 
         const fileInput = document.getElementById('profilePicture');
         // Check if a file is selected
-        if (fileInput.files.length > 0) {
+        if (fileInput && fileInput.files.length > 0) {
             // Append the file to the FormData object
             formData.append('file', fileInput.files[0]);
         }

@@ -119,13 +119,20 @@
 
                     <!-- Staff Member Navigation -->
                 {% elif user.is_authenticated and user.is_staff %}
-                    <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                        <li><a href="/" class="nav-link">Dashboard</a></li>
-                        <li><a href="/hs/healthcareFacility" class="nav-link">Facility</a></li>
-                        <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
-                        <li><a href="/hs/admin_view_records" class="nav-link">Facility Records</a></li>
-                    </ul>
+                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link">Dashboard</a></li>
+                    <li><a href="/hs/healthcareFacility" class="nav-link">Facility</a></li>
+                    <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
+                    <li><a href="/hs/admin_view_records" class="nav-link">Facility Records</a></li>
+                </ul>
 
+                <!-- Health Score Admin -->
+                {% elif user.is_authenticated and user.is_superuser %}
+                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="/" class="nav-link">Dashboard</a></li>
+                    <li><a href="/hs/hospitals" class="nav-link">Hospitals</a></li>
+                </ul>
+                
                 {% else %}
                     <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
                         <li><a href="#" class="nav-link">Features</a></li>
