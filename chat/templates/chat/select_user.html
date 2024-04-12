@@ -80,7 +80,7 @@
     {%  include 'header.html' %}
 
     <div class="page-container">
-        <a href="{% url 'chat:chat_view' %}" class="back-button"> &#60; Back</a>
+        <a href="{% url 'chat:inital_chat_view' %}" class="back-button"> &#60; Back</a>
         <h2>Start a New Chat</h2>
 
         {% if user.is_patient %}

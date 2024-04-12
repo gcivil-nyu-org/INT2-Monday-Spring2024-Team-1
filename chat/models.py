@@ -15,3 +15,4 @@ class ChatSession(models.Model):
         User, related_name="worker_chats", on_delete=models.CASCADE
     )
     createdAt = models.DateTimeField(auto_now_add=True)
+    messages = models.ManyToManyField(Message, blank=True)
