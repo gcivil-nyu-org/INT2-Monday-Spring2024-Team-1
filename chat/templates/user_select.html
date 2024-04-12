@@ -82,6 +82,8 @@
     <div class="page-container">
         <a href="{% url 'chat:chat_view' %}" class="back-button"> &#60; Back</a>
         <h2>Start a New Chat</h2>
+
+        {% if user.is_patient %}
         <div class="search-container">
             <input type="text" class="search-bar" placeholder="Search for a user...">
             <select class="user-type-dropdown">
@@ -89,8 +91,18 @@
                 <option value="healthcare">Healthcare Worker</option>
             </select>
             <button class="search-button">Search</button>
-
         </div>
+
+        {% elif user.is_healthcare_worker %}
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Search for a user...">
+                <select class="user-type-dropdown">
+                    <option value="user">User</option>
+                    <option value="healthcare">Healthcare Worker</option>
+                </select>
+                <button class="search-button">Search</button>
+
+            </div>
     </div>
 
 </body>
