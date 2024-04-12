@@ -49,6 +49,7 @@ from healthScore.views import (
     edit_post,
     delete_comment,
     admin_view_health_history_requests,
+    get_admin_edit
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -1231,4 +1232,24 @@ class viewAdminHealthHistoryTestCase(TransactionTestCase):
         request = self.factory.get(url, request_struct)
         request.user = self.user
         response = admin_view_health_history_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_edit_health_record_view(self):
+        url = reverse("edit_record")
+        body = {
+            "recordId": "1",
+            "appointmentId": "1",
+            "appointmentType": "blood_test",
+            "appointmentProperties": {"type": "Covid"},
+            "doctorId": "1",
+            "hospitalID": "1",
+        }
+        request = self.factory.post(
+            url,
+            data=body,
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = get_admin_edit(request, 1)
         self.assertEqual(response.status_code, 200)
