@@ -1253,6 +1253,8 @@ class viewAdminHealthHistoryTestCase(TransactionTestCase):
         request.user = self.user
         response = get_admin_edit(request, 1)
         self.assertEqual(response.status_code, 200)
+
+
 class HospitalTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser(
