@@ -1062,12 +1062,15 @@ def view_healthworkers_user_record(request):
 @login_required
 def admin_view_health_history_requests(request):
     zipped_details = get_admin_health_history_details(request=request)
-    return render(request, "admin_view_records.html", {"zipped_details": zipped_details})
+    return render(
+        request, "admin_view_records.html", {"zipped_details": zipped_details}
+    )
+
 
 @login_required
 def get_admin_edit(request, rec_id):
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
-    
+
     app = list(
         Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
     )

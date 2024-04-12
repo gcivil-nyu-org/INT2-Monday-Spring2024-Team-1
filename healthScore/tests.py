@@ -49,7 +49,7 @@ from healthScore.views import (
     edit_post,
     delete_comment,
     admin_view_health_history_requests,
-    get_admin_edit
+    get_admin_edit,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
