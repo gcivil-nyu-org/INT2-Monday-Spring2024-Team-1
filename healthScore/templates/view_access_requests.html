@@ -292,6 +292,11 @@
         const emailsToApprove = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.email);
         const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
 
+        if(requestIds.length==0 || emailsToApprove.length==0){
+            alert("No records present/selected!");
+            return
+        }
+
         fetch('{% url "send_approval_emails" %}', {
             method: 'POST',
             headers: {
@@ -314,6 +319,11 @@
         const checkedBoxes = document.querySelectorAll('.form-check-input:checked');
         const emailsToApprove = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.email);
         const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
+
+        if(requestIds.length==0 || emailsToApprove.length==0){
+            alert("No records present/selected!");
+            return
+        }
 
         fetch('{% url "send_reject_emails" %}', {
             method: 'POST',
