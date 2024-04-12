@@ -5,7 +5,6 @@ from . import views
 
 urlpatterns = [
     path("homepage", views.homepage, name="homepage"),
-    path("chat/", include("chat.urls")),
     path("registration/", views.registration, name="registration"),
     path("login/", views.login_view, name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
@@ -109,7 +108,5 @@ urlpatterns = [
         views.view_healthworkers_user_record,
         name="view_healthworkers_user_record",
     ),
-    # direct messaging
-    path("directMessages", views.directMessages, name="directMessages"),
-    path("startNewChat", views.startNewChat, name="startNewChat"),
+    path("get_patients", views.get_patients, name="get_patients"),
 ]

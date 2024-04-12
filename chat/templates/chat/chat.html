@@ -135,7 +135,7 @@
             <ul class="chat-list" id="chatList">
                 <!-- user chat list here -->
             </ul>
-            <a href="/hs/startNewChat" class="create-button">New Chat</a>
+            <a href="{% url 'chat:user_select_view' %}" class="create-button">New Chat</a>
         </div>
 
 
@@ -152,10 +152,6 @@
             </div>
         </div>
     </div>
-
-
-
-
 
     <script>let chats = [];
 

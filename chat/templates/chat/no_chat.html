@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Score</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .full-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .chat-sidebar {
+            flex: 1;
+            background-color: #ECE8F9;
+            padding: 20px;
+        }
+
+        .chat {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chat-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .chat-list-item {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+            .chat-list-item:hover {
+                background-color: #e0e0e0;
+            }
+
+        .message-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+            .message-container .message {
+                max-width: 70%;
+                padding: 10px;
+                border-radius: 20px;
+                margin-bottom: 5px;
+                word-wrap: break-word;
+                background-color: #f2f2f2;
+            }
+
+        .outgoing-message {
+            align-self: flex-end;
+        }
+
+        .incoming-message {
+            align-self: flex-start;
+        }
+
+        .message-input-container {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .send-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #5B0888;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .send-button:hover {
+                background-color: #2d0444;
+                text-decoration: none;
+                color: white
+            }
+
+        .create-button,
+        .create-button:hover {
+            background-color: #5B0888;
+            font-size: 13px;
+            color: #FFFFFF;
+            border: 2px solid #5B0888;
+            padding: 7px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+            .create-button:hover {
+                background-color: #2d0444;
+            }
+
+
+    </style>
+</head>
+
+
+
+<body>
+    {%  include 'header.html' %}
+
+    <div class="full-container">
+        <div class="chat-sidebar">
+            <h2>Your Chats</h2>
+            <ul class="chat-list" id="chatList">
+                <!-- user chat list here -->
+            </ul>
+            <a href="{% url 'chat:user_select_view' %}" class="create-button">New Chat</a>
+        </div>
+
+
+        <div class="chat" id="chatInterface">
+            <div class="chat-header">
+                <h2>Chat</h2>
+            </div>
+            <div id="messages">
+                <!-- chat messages here -->
+            </div>
+            <div class="message-input-container">
+                <input type="text" id="messageInput" class="message-input" placeholder="Type a message...">
+                <button onclick="sendMessage()" class="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

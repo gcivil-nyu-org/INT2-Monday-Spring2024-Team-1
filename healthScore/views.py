@@ -1047,9 +1047,6 @@ def view_healthworkers_user_record(request):
     return homepage(request)
 
 
-def directMessages(request):
-    return render(request, "direct_messaging.html")
-
-
-def startNewChat(request):
-    return render(request, "new_chat.html")
+def get_patients(request):
+    patients = list(User.objects.filter(is_patient=True).values())
+    return JsonResponse({'patients': patients})
