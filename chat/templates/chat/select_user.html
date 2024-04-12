@@ -85,25 +85,22 @@
 
         {% if user.is_patient %}
         <div class="search-container">
-            <input type="text" class="search-bar" placeholder="Search for a user...">
             <select class="user-type-dropdown">
-                <option value="user">User</option>
-                <option value="healthcare">Healthcare Worker</option>
+                <option value="" disabled selected>Select a Hospital</option>
+                {% for hos in data.hospitals %}
+                <option value="{{hos.id}}">{{hos.name}}</option>
+                {% endfor %}
             </select>
+
+            <input type="text" class="search-bar" placeholder="Search for a healthcare worker...">
             <button class="search-button">Search</button>
         </div>
 
         {% elif user.is_healthcare_worker %}
-            <div class="search-container">
-                <input type="text" class="search-bar" placeholder="Search for a user...">
-                <select class="user-type-dropdown">
-                    <option value="user">User</option>
-                    <option value="healthcare">Healthcare Worker</option>
-                </select>
-                <button class="search-button">Search</button>
-
-            </div>
-        {% endif %}
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search by patient name...">
+            <button class="search-button">Search</button>
+        </div>
     </div>
 
 </body>
