@@ -43,7 +43,7 @@ from .forms import PostForm, CommentForm
 from .file_upload import file_upload
 from django.views.decorators.http import require_http_methods
 from django.core.mail import send_mail, EmailMessage
-
+from .hospital_admin_utils import get_admin_health_history_details
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -760,8 +760,20 @@ def community_home(request):
 @login_required
 def view_all_posts(request):
     posts = Post.objects.all().order_by("-createdAt")
+    posts_with_status_info = [
+        {
+            "id": post.id,
+            "title": post.title,
+            "description": post.description,
+            "createdAt": post.createdAt,
+            "is_healthcare_worker": post.user.is_healthcare_worker,
+        }
+        for post in posts
+    ]
     return render(
-        request, "community_home.html", {"posts": posts, "headerTitle": "All the posts"}
+        request,
+        "community_home.html",
+        {"posts": posts_with_status_info, "headerTitle": "All the posts"},
     )
 
 
@@ -1045,6 +1057,51 @@ def view_healthworkers_user_record(request):
         )
 
     return homepage(request)
+
+
+@login_required
+def admin_view_health_history_requests(request):
+    zipped_details = get_admin_health_history_details(request=request)
+    return render(
+        request, "admin_view_records.html", {"zipped_details": zipped_details}
+    )
+
+
+@login_required
+def get_admin_edit(request, rec_id):
+    selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
+
+    app = list(
+        Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
+    )
+
+    hospitalList = list(Hospital.objects.all().values())
+    unselectedHospitalList = []
+    for hospital in hospitalList:
+        if hospital["id"] == selected_record[0]["hospitalID"]:
+            selected_record[0]["hospital_name"] = hospital["name"]
+        else:
+            unselectedHospitalList.append(hospital)
+
+    doctorList = list(HospitalStaff.objects.filter(admin=False).values())
+
+    unselectedDoctorList = []
+    for docs in doctorList:
+        if docs["id"] == selected_record[0]["doctorID"]:
+            selected_record[0]["doctor_name"] = docs["name"]
+        else:
+            unselectedDoctorList.append(docs)
+
+    data = {
+        "appointment_props": app[0],
+        "record": selected_record[0],
+        "hospitals": unselectedHospitalList,
+        "appointmentType": APPOINTMENT_TYPE,
+        "appointmentProps": json.dumps(APPOINTMENT_PROPS),
+        "doctors": unselectedDoctorList,
+    }
+
+    return render(request, "admin_edit_health_record.html", {"data": data})
 
 
 @login_required
