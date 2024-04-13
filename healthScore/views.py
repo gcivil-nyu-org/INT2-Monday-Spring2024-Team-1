@@ -110,7 +110,7 @@ def homepage(request):
     return render(request, "homepage.html")
 
 
-@login_required
+@login_required(login_url='/')
 def view_health_history(request):
     # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
     if(request.user.is_patient):
@@ -124,7 +124,7 @@ def view_health_history(request):
         return render(request, "view_history.html", {"zipped_details": zipped_details})
     return redirect("homepage")
 
-@login_required
+@login_required(login_url='/')
 def view_user_info(request):
     if request.method == "GET":
         current_user = request.user
@@ -151,7 +151,7 @@ def view_user_info(request):
         return render(request, "user_profile.html", {"userInfo": userInfo})
 
 
-@login_required
+@login_required(login_url='/')
 @csrf_exempt
 def edit_user_info(request):
     if request.method == "POST":
@@ -205,7 +205,7 @@ def edit_user_info(request):
         view_user_info(request)
 
 
-@login_required
+@login_required(login_url='/')
 def view_report(request, selected_records=None):
     if request.method == "POST":
         response = HttpResponse(content_type="application/pdf")
@@ -433,14 +433,14 @@ def login_view(request):
     return render(request, "login.html")
 
 
-@login_required
+@login_required(login_url='/')
 def view_health_history_requests(request):
     if(request.user.is_patient):
         zipped_details = get_health_history_details(request=request)
         return render(request, "view_requests.html", {"zipped_details": zipped_details})
     redirect("homepage")
 
-@login_required
+@login_required(login_url='/')
 def record_sent_view(request):
     return render(request, "record_submit_complete.html")
 
@@ -493,7 +493,7 @@ def get_edit(request, rec_id):
     return render(request, "edit_health_record.html", {"data": data})
 
 
-@login_required
+@login_required(login_url='/')
 def add_health_record_view(request):
     hospitalList = list(Hospital.objects.all().values())
     data = {
@@ -559,7 +559,7 @@ def add_health_record_view(request):
     return render(request, "record_submit.html", {"data": data})
 
 
-@login_required
+@login_required(login_url='/')
 def edit_health_record_view(request):
     if request.method == "POST":
         rec = json.loads(request.body)
@@ -654,7 +654,7 @@ def hospital_staff_directory(request):
     return render(request, "healthcare_facility.html", context)
 
 
-@login_required
+@login_required(login_url='/')
 @csrf_exempt
 def add_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "POST":
@@ -717,7 +717,7 @@ def add_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
-@login_required
+@login_required(login_url='/')
 @csrf_exempt
 def deactivate_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "PUT":
@@ -737,7 +737,7 @@ def deactivate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
-@login_required
+@login_required(login_url='/')
 @csrf_exempt
 def activate_healthcare_staff(request):
     if request.user.is_authenticated and request.method == "PUT":
@@ -760,12 +760,12 @@ def activate_healthcare_staff(request):
     return JsonResponse({"error": "Unauthorized"}, status=401)
 
 
-@login_required
+@login_required(login_url='/')
 def community_home(request):
     return redirect("all_posts")
 
 
-@login_required
+@login_required(login_url='/')
 def view_all_posts(request):
     posts = Post.objects.all().order_by("-createdAt")
     posts_with_status_info = [
@@ -785,7 +785,7 @@ def view_all_posts(request):
     )
 
 
-@login_required
+@login_required(login_url='/')
 def view_my_posts(request):
     posts = Post.objects.filter(user=request.user).order_by("-createdAt")
     return render(
@@ -793,14 +793,14 @@ def view_my_posts(request):
     )
 
 
-@login_required
+@login_required(login_url='/')
 def view_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = post.comments.all()
     return render(request, "post_details.html", {"post": post, "comments": comments})
 
 
-@login_required
+@login_required(login_url='/')
 def create_post(request):
     if request.method == "POST":
         form = PostForm(request.POST)
@@ -814,7 +814,7 @@ def create_post(request):
     return render(request, "post_create.html", {"form": form})
 
 
-@login_required
+@login_required(login_url='/')
 def edit_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method == "POST":
@@ -827,7 +827,7 @@ def edit_post(request, post_id):
     return render(request, "post_edit.html", {"form": form})
 
 
-@login_required
+@login_required(login_url='/')
 def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method == "GET":
@@ -836,7 +836,7 @@ def delete_post(request, post_id):
     return redirect("view_post", post_id=post_id)
 
 
-@login_required
+@login_required(login_url='/')
 def create_comments(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     if request.method == "POST":
@@ -850,7 +850,7 @@ def create_comments(request, post_id):
     return redirect("view_post", post_id=post.id)
 
 
-@login_required
+@login_required(login_url='/')
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.method == "GET":
@@ -892,7 +892,7 @@ def request_health_history(request):
     return render(request, "request_health_history.html")
 
 
-@login_required
+@login_required(login_url='/')
 @csrf_exempt
 def view_health_history_access_requests(request):
     if request.method == "GET":
@@ -968,7 +968,7 @@ def send_rejection_emails(request):
     return JsonResponse({"message": "Emails have been sent!"}, status=200)
 
 
-@login_required()
+@login_required(login_url='/')
 def update_request_status(request):
     if request.method == "POST" and request.user.is_healthcare_worker:
         update = json.loads(request.body)
@@ -989,7 +989,7 @@ def update_request_status(request):
     return view_healthworkers_user_record(request)
 
 
-@login_required
+@login_required(login_url='/')
 def view_healthworkers_user_record(request):
     if request.method == "GET" and request.user.is_healthcare_worker:
         current_user = request.user
@@ -1067,7 +1067,7 @@ def view_healthworkers_user_record(request):
     return homepage(request)
 
 
-@login_required
+@login_required(login_url='/')
 def admin_view_health_history_requests(request):
     zipped_details = get_admin_health_history_details(request=request)
     return render(
@@ -1075,7 +1075,7 @@ def admin_view_health_history_requests(request):
     )
 
 
-@login_required
+@login_required(login_url='/')
 def get_admin_edit(request, rec_id):
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
 
@@ -1112,7 +1112,7 @@ def get_admin_edit(request, rec_id):
     return render(request, "admin_edit_health_record.html", {"data": data})
 
 
-@login_required
+@login_required(login_url='/')
 def list_hospitals(request):
     if request.method == "GET":
         name_query = request.GET.get("name", "")
@@ -1127,7 +1127,7 @@ def list_hospitals(request):
         return render(request, "hospital_list.html", {"hospitals": hospitals})
 
 
-@login_required
+@login_required(login_url='/')
 @csrf_exempt
 def update_hospital_status(request, hospital_id):
     if request.method == "POST":
