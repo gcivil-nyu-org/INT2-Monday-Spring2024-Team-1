@@ -442,11 +442,7 @@ def view_health_history_requests(request):
     redirect("homepage")
 
 
-<<<<<<< HEAD
 @login_required(login_url="/")
-=======
-@login_required
->>>>>>> 876964a6838d34c1bd01066a07ad6ffc031f0fdf
 def record_sent_view(request):
     return render(request, "record_submit_complete.html")
 
