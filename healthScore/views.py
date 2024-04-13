@@ -435,9 +435,10 @@ def login_view(request):
 
 @login_required
 def view_health_history_requests(request):
-    zipped_details = get_health_history_details(request=request)
-    return render(request, "view_requests.html", {"zipped_details": zipped_details})
-
+    if(request.user.is_patient):
+        zipped_details = get_health_history_details(request=request)
+        return render(request, "view_requests.html", {"zipped_details": zipped_details})
+    redirect("homepage")
 
 @login_required
 def record_sent_view(request):
