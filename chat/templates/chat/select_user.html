@@ -12,7 +12,7 @@
         }
 
         .page-container {
-            width: 100%;
+            width: 95%;
             padding: 20px;
         }
 
@@ -74,6 +74,47 @@
                 color: #2d0444;
             }
 
+        .patient-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+            .patient-container:hover {
+                background-color: #f0f0f0; 
+            }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin-right: 40px;
+        }
+
+        .patient-details {
+            flex-grow: 2;
+        }
+
+        .chat-button {
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+            .chat-button:hover {
+                background-color: #357937;
+            }
+
+
     </style>
 </head>
 <body>
@@ -101,8 +142,86 @@
             <input type="text" class="search-bar" placeholder="Search by patient name...">
             <button class="search-button">Search</button>
         </div>
+
+        <br><br>
+        <div class="search-results"></div>
         {% endif %}
+
     </div>
+
+
+
+<script>
+    document.querySelector('.search-button').addEventListener('click', function () {
+        var searchTerm = document.querySelector('.search-bar').value.replace(/\s/g, ''); // remove spaces from search query
+
+        // AJAX request to backend
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/get_patients?search=' + searchTerm, true);
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 400) {
+                var data = JSON.parse(xhr.responseText);
+                displaySearchResults(data.patients);
+
+            } else {
+                console.error('Request failed: ' + xhr.statusText);
+            }
+        };
+        xhr.send();
+    });
+
+    // display search results of patients 
+    function displaySearchResults(patients) {
+        var searchResultsContainer = document.querySelector('.search-results');
+        searchResultsContainer.innerHTML = '';
+
+        patients.forEach(function (patient) {
+            var patientContainer = document.createElement('div');
+            patientContainer.classList.add('patient-container');
+
+            // Profile picture
+            var profilePicture = document.createElement('div');
+            profilePicture.classList.add('profile-picture');
+            profilePicture.style.backgroundImage = 'url("' + patient.profile_picture_url + '")';
+            patientContainer.appendChild(profilePicture);
+
+            // Patient details
+            var patientDetails = document.createElement('div');
+            patientDetails.classList.add('patient-details');
+            var patientName = document.createElement('p');
+            patientName.textContent = patient.name; // patient name
+            var patientEmail = document.createElement('p');
+            patientEmail.textContent = patient.email; //patient email
+            patientDetails.appendChild(patientName);
+            patientDetails.appendChild(patientEmail);
+            patientContainer.appendChild(patientDetails);
+
+            var chatButton = document.createElement('button');
+            chatButton.classList.add('chat-button');
+            chatButton.textContent = 'CHAT';
+            patientContainer.appendChild(chatButton);
+
+            searchResultsContainer.appendChild(patientContainer);
+        });
+    }
+
+    // testing data
+    var mockPatients = [
+        {
+            profile_picture_url: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+            name: 'John Doe',
+            email: 'john.doe@example.com'
+        },
+        {
+            profile_picture_url: 'https://cdn.icon-icons.com/icons2/3150/PNG/512/user_profile_female_icon_192701.png',
+            name: 'Jane Smith',
+            email: 'jane.smith@example.com'
+        },
+    ];
+
+    displaySearchResults(mockPatients);
+
+</script>
 
 </body>
 </html>

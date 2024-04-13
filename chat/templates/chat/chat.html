@@ -20,7 +20,19 @@
             flex: 1;
             background-color: #ECE8F9;
             padding: 20px;
+            border-right: 2px solid #ccc; 
         }
+
+        .chat-sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .chat-sidebar-header h2 {
+                margin: 0; 
+            }
 
         .chat {
             flex: 3;
@@ -32,10 +44,21 @@
 
         .chat-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
+
+            .profile-picture {
+                width: 55px; 
+                height: 55px; 
+                border-radius: 50%; 
+                margin-right: 10px; 
+            }
+
+            .user-name {
+                font-size: 20px; 
+                font-weight: bold;
+            }
 
         .chat-list {
             list-style-type: none;
@@ -44,17 +67,24 @@
 
         .chat-list-item {
             cursor: pointer;
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
+            padding: 15px; 
+            border-bottom: 2px solid #ccc; 
+            transition: background-color 0.3s; 
+            font-size: 18px; 
         }
 
             .chat-list-item:hover {
-                background-color: #e0e0e0;
+                background-color: #f0f0f0; 
+            }
+
+            .chat-list-item.active {
+                background-color: #8f68a3;
+                color: #FFFFFF;
+                font-weight: bold;
             }
 
         .message-container {
             display: flex;
-            justify-content: flex-end;
             margin-bottom: 10px;
         }
 
@@ -68,12 +98,32 @@
             }
 
         .outgoing-message {
-            align-self: flex-end;
+            display: flex;
+            justify-content: flex-end;
         }
 
+            .outgoing-message .message-container {
+                justify-content: flex-end; 
+            }
+
+            .outgoing-message .message {
+                background-color: #DCF8C6;
+                color: #000; 
+            }
+
         .incoming-message {
-            align-self: flex-start;
+            display: flex;
+            justify-content: flex-start; 
         }
+
+            .incoming-message .message-container {
+                justify-content: flex-start;
+            }
+
+            .incoming-message .message {
+                background-color: #F2F2F2;
+                color: #000; 
+            }
 
         .message-input-container {
             margin-top: auto;
@@ -83,14 +133,16 @@
 
         .message-input {
             flex: 1;
-            padding: 10px;
+            padding: 17px;
+            font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
         .send-button {
             margin-left: 10px;
-            padding: 10px 20px;
+            padding: 18px 25px;
+            font-size: 14px;
             background-color: #5B0888;
             color: #FFFFFF;
             border: none;
@@ -104,13 +156,11 @@
                 color: white
             }
 
-        .create-button,
-        .create-button:hover {
+        .create-button {
+            padding: 10px 20px;
             background-color: #5B0888;
-            font-size: 13px;
             color: #FFFFFF;
-            border: 2px solid #5B0888;
-            padding: 7px 15px;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
             text-decoration: none;
@@ -118,6 +168,7 @@
 
             .create-button:hover {
                 background-color: #2d0444;
+                text-decoration: none;
             }
 
 
@@ -131,19 +182,24 @@
 
     <div class="full-container">
         <div class="chat-sidebar">
-            <h2>Your Chats</h2>
+            <div class="chat-sidebar-header">
+                <h2>Your Chats</h2>
+                <a href="{% url 'chat:select_user_view' %}" class="create-button">New Chat</a>
+            </div>
+
             <ul class="chat-list" id="chatList">
                 <!-- user chat list here -->
             </ul>
-            <a href="{% url 'chat:select_user_view' %}" class="create-button">New Chat</a>
         </div>
 
 
         <div class="chat" id="chatInterface">
             <div class="chat-header">
-                <h2>Chat</h2>
+                <img src="profile1.jpg" alt="Profile Picture" class="profile-picture"> 
+                <h2 class="user-name">User Name</h2>
                 {{receiver_id|json_script:"receiver_id"}}
             </div>
+
             <div id="messages">
                 <!-- chat messages here -->
                 <textarea id="chat-log" cols="100" rows="20"></textarea><br>
@@ -155,7 +211,8 @@
         </div>
     </div>
 
-    <script>let chats = [];
+    <script>
+        let chats = [];
 
         function createNewChat() {
             let chatName = prompt("Enter a name for the new chat:");
@@ -175,21 +232,50 @@
                 let listItem = document.createElement('li');
                 listItem.classList.add('chat-list-item');
                 listItem.textContent = chat.name;
-                listItem.onclick = () => renderChatInterface(index);
+                listItem.onclick = () => {
+                    renderChatInterface(index);
+                    chatList.querySelectorAll('.chat-list-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    listItem.classList.add('active');
+                };
                 chatList.appendChild(listItem);
             });
         }
 
+
         function renderChatInterface(index) {
             let chatInterface = document.getElementById('chatInterface');
-            chatInterface.querySelector('h2').textContent = chats[index].name;
+            let chatHeader = chatInterface.querySelector('.chat-header');
+            let chatName = chats[index].name;
+            let userProfilePicture = chats[index].profilePicture;
+
+            // Clear existing content in the chat header
+            chatHeader.innerHTML = '';
+
+            // Create and append the profile picture element
+            let profilePicture = document.createElement('img');
+            profilePicture.src = userProfilePicture; 
+            profilePicture.alt = "Profile Picture";
+            profilePicture.classList.add('profile-picture');
+            chatHeader.appendChild(profilePicture);
+
+            // Create and append the user's name element
+            let userName = document.createElement('h2');
+            userName.textContent = chatName; 
+            userName.classList.add('user-name');
+            chatHeader.appendChild(userName);
+
             let messagesDiv = document.getElementById('messages');
             messagesDiv.innerHTML = '';
+
             chats[index].messages.forEach(message => {
                 let messageContainer = document.createElement('div');
                 messageContainer.classList.add('message-container');
+
                 let messageElement = document.createElement('div');
                 messageElement.classList.add('message');
+
                 messageElement.textContent = message.text;
                 messageContainer.appendChild(messageElement);
                 if (message.sender === 'user') {
@@ -200,6 +286,8 @@
                 messagesDiv.appendChild(messageContainer);
             });
         }
+
+
 
         function sendMessage() {
             let messageInput = document.getElementById('messageInput');
@@ -250,6 +338,34 @@
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
         };
+
+
+
+        // Add test data and test render
+        chats.push({
+            name: "John Doe",
+            profilePicture: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+            messages: [
+                { text: "Hello!", sender: "user" },
+                { text: "Hi there!", sender: "other" },
+                { text: "How are you?", sender: "user" },
+                { text: "I'm fine, thanks!", sender: "other" }
+            ]
+        });
+
+        chats.push({
+            name: "Jane Smith",
+            profilePicture: "https://cdn.icon-icons.com/icons2/3150/PNG/512/user_profile_female_icon_192701.png",
+            messages: [
+                { text: "Hey!", sender: "other" },
+                { text: "What's up?", sender: "user" },
+                { text: "Not much, just chilling.", sender: "other" }
+            ]
+        });
+        renderChatList();
+
+
+
     </script>
 </body>
 </html>
