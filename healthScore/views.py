@@ -113,14 +113,16 @@ def homepage(request):
 @login_required
 def view_health_history(request):
     # Create a new QueryDict object with the desired parameters: fetch only approved records for health history page
-    updated_params = request.GET.copy()
-    updated_params["record_status"] = "approved"
+    if request.user.is_patient:
+        updated_params = request.GET.copy()
+        updated_params["record_status"] = "approved"
 
-    # Update request.GET with the modified QueryDict
-    request.GET = updated_params
+        # Update request.GET with the modified QueryDict
+        request.GET = updated_params
 
-    zipped_details = get_health_history_details(request=request)
-    return render(request, "view_history.html", {"zipped_details": zipped_details})
+        zipped_details = get_health_history_details(request=request)
+        return render(request, "view_history.html", {"zipped_details": zipped_details})
+    return redirect("homepage")
 
 
 @login_required
@@ -242,9 +244,15 @@ def view_report(request, selected_records=None):
         story.append(logo_and_date)
         user_info = request.user
         story.append(Paragraph("Name: " + user_info.name, styles["Normal"]))
-        story.append(
-            Paragraph("DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"])
-        )
+        try:
+            story.append(
+                Paragraph(
+                    "DOB: " + user_info.dob.strftime("%Y-%m-%d"), styles["Normal"]
+                )
+            )
+        except Exception:
+            story.append(Paragraph("DOB: " + "", styles["Normal"]))
+
         story.append(Paragraph("BloodGroup: " + user_info.bloodGroup, styles["Normal"]))
         story.append(Paragraph("Email: " + user_info.email, styles["Normal"]))
         story.append(Paragraph("Contact: " + user_info.contactInfo, styles["Normal"]))
