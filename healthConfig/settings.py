@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "healthConfig.wsgi.application"
+# WSGI_APPLICATION = "healthConfig.wsgi.application"
 ASGI_APPLICATION = "healthConfig.asgi.application"
 
 # Configuring the communication layer used by Django channels for websocket handling

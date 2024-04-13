@@ -142,13 +142,15 @@
         <div class="chat" id="chatInterface">
             <div class="chat-header">
                 <h2>Chat</h2>
+                {{receiver_id|json_script:"receiver_id"}}
             </div>
             <div id="messages">
                 <!-- chat messages here -->
+                <textarea id="chat-log" cols="100" rows="20"></textarea><br>
             </div>
             <div class="message-input-container">
                 <input type="text" id="messageInput" class="message-input" placeholder="Type a message...">
-                <button onclick="sendMessage()" class="send-button">Send</button>
+                <button id="messageSubmit" onclick="sendMessage()" class="send-button">Send</button>
             </div>
         </div>
     </div>
@@ -217,7 +219,37 @@
             let activeChatName = document.getElementById('chatInterface').querySelector('h2').textContent;
             return chats.findIndex(chat => chat.name === activeChatName);
         }
-    </script>
 
+        document.querySelector('#messageInput').focus();
+        document.querySelector('#messageInput').onkeyup = function(e) {
+            if (e.keyCode === 13){ // enter, return
+                document.querySelector('#messageSubmit').click();
+            }
+        };
+        document.querySelector('#messageSubmit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#messageInput');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+
+        const roomName = JSON.parse(document.getElementById('receiver_id').textContent);
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+        );
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').value += (data.message + '\n');
+        };
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+    </script>
 </body>
 </html>

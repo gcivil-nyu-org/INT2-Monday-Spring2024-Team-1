@@ -38,7 +38,8 @@ def chat_view(request, receiver_id):
         "patient": patient,
         "healthcare_worker": healthcare_worker,
         "chatted_users": receivers,
-        "messages": messages
+        "messages": messages,
+        "receiver_id": str(receiver_id)
     }
 
     return render(request, "chat/chat.html", context)

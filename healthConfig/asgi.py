@@ -18,11 +18,9 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "healthConfig.settings")
 
 from chat import routing
 
-django_asgi_application = get_asgi_application()
-
 application = ProtocolTypeRouter(
     {
-        'http': django_asgi_application,
+        'http': get_asgi_application(),
         'websocket': AllowedHostsOriginValidator(
             AuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns))
         )
