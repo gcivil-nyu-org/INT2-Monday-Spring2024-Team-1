@@ -121,21 +121,24 @@
     {%  include 'header.html' %}
 
     <div class="page-container">
-        <a href="{% url 'chat:inital_chat_view' %}" class="back-button"> &#60; Back</a>
+        <a href="{% url 'chat:chat_view' %}" class="back-button"> &#60; Back</a>
         <h2>Start a New Chat</h2>
 
         {% if user.is_patient %}
         <div class="search-container">
-            <select class="user-type-dropdown">
+            <select id="hospitalSelect" class="user-type-dropdown" >
                 <option value="" disabled selected>Select a Hospital</option>
-                {% for hos in data.hospitals %}
+                {% for hos in hospitals %}
                 <option value="{{hos.id}}">{{hos.name}}</option>
                 {% endfor %}
             </select>
 
-            <input type="text" class="search-bar" placeholder="Search for a healthcare worker...">
-            <button class="search-button">Search</button>
+            <select id="doctorSelect" class="search-bar" >
+                <option value="" disabled selected>Search for a healthcare worker...</option>
+            </select>
         </div>
+        <br><br>
+        <div class="search-results"></div>
 
         {% elif user.is_healthcare_worker %}
         <div class="search-container">
@@ -152,23 +155,50 @@
 
 
 <script>
-    document.querySelector('.search-button').addEventListener('click', function () {
-        var searchTerm = document.querySelector('.search-bar').value.replace(/\s/g, ''); // remove spaces from search query
+    const hospitalDropdown = document.getElementById('hospitalSelect');
+    hospitalDropdown.addEventListener('change', function(){
+        const selectedOption = this.options[this.selectedIndex];
+        const hospitalId = selectedOption.value; // get the selected hospital's ID
+        const hospitalName =  selectedOption.textContent;// get the selected hospital name
 
-        // AJAX request to backend
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/get_patients?search=' + searchTerm, true);
-        xhr.onload = function () {
-            if (xhr.status >= 200 && xhr.status < 400) {
-                var data = JSON.parse(xhr.responseText);
-                displaySearchResults(data.patients);
+        if (hospitalId) {
+            fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospitalId),{
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    var selectElement = document.getElementById("doctorSelect");
+                    selectElement.innerHTML = '<option value="" selected disabled>Please select doctors in '+ hospitalName +'</option>';
 
-            } else {
-                console.error('Request failed: ' + xhr.statusText);
-            }
-        };
-        xhr.send();
-    });
+                    data['doctors'].forEach(function (doctor) {
+                        var option = new Option(doctor.name, doctor.id);
+                        selectElement.add(option);
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+    })
+    const doctorDropdown = document.getElementById('doctorSelect');
+    doctorDropdown.addEventListener('change', function(){
+        const doctorId = this.value;
+        fetch('{% url "get_doctor_details" doctor_id=0 %}'.replace('0', doctorId), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data['user'])
+            displaySearchResults(data['user'])
+        })
+
+    })
 
     // display search results of patients 
     function displaySearchResults(patients) {
@@ -182,44 +212,37 @@
             // Profile picture
             var profilePicture = document.createElement('div');
             profilePicture.classList.add('profile-picture');
-            profilePicture.style.backgroundImage = 'url("' + patient.profile_picture_url + '")';
+            var profile_picture_url = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+            profilePicture.style.backgroundImage = 'url("' + profile_picture_url + '")';
             patientContainer.appendChild(profilePicture);
 
             // Patient details
             var patientDetails = document.createElement('div');
             patientDetails.classList.add('patient-details');
             var patientName = document.createElement('p');
-            patientName.textContent = patient.name; // patient name
+            patientName.textContent = patient['name']; // patient name
             var patientEmail = document.createElement('p');
-            patientEmail.textContent = patient.email; //patient email
+            patientEmail.textContent = patient['email']; //patient email
             patientDetails.appendChild(patientName);
             patientDetails.appendChild(patientEmail);
             patientContainer.appendChild(patientDetails);
 
             var chatButton = document.createElement('button');
             chatButton.classList.add('chat-button');
+            chatButton.setAttribute('data-user-id', patient['id']);
             chatButton.textContent = 'CHAT';
             patientContainer.appendChild(chatButton);
 
             searchResultsContainer.appendChild(patientContainer);
+
+            chatButton.addEventListener('click', function(e){
+                e.preventDefault();
+                var receiver_id = chatButton.getAttribute('data-user-id');
+                var url = '{% url "chat:get_chat_session" receiver_id=0 %}'.replace('0', receiver_id);
+                window.location.href = url;
+            })
         });
     }
-
-    // testing data
-    var mockPatients = [
-        {
-            profile_picture_url: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-            name: 'John Doe',
-            email: 'john.doe@example.com'
-        },
-        {
-            profile_picture_url: 'https://cdn.icon-icons.com/icons2/3150/PNG/512/user_profile_female_icon_192701.png',
-            name: 'Jane Smith',
-            email: 'jane.smith@example.com'
-        },
-    ];
-
-    displaySearchResults(mockPatients);
 
 </script>
 

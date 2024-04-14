@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Score</title>
     <style>
-        body {
+     body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -20,7 +20,19 @@
             flex: 1;
             background-color: #ECE8F9;
             padding: 20px;
+            border-right: 2px solid #ccc; 
         }
+
+        .chat-sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .chat-sidebar-header h2 {
+                margin: 0; 
+            }
 
         .chat {
             flex: 3;
@@ -32,9 +44,20 @@
 
         .chat-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .profile-picture {
+            width: 55px; 
+            height: 55px; 
+            border-radius: 50%; 
+            margin-right: 10px; 
+        }
+
+        .user-name {
+            font-size: 20px; 
+            font-weight: bold;
         }
 
         .chat-list {
@@ -44,35 +67,62 @@
 
         .chat-list-item {
             cursor: pointer;
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
+            padding: 15px; 
+            border-bottom: 2px solid #ccc; 
+            transition: background-color 0.3s; 
+            font-size: 18px; 
         }
 
-            .chat-list-item:hover {
-                background-color: #e0e0e0;
-            }
+        .chat-list-item:hover {
+            background-color: #f0f0f0; 
+        }
+
+        .chat-list-item.active {
+            background-color: #8f68a3;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
 
         .message-container {
             display: flex;
-            justify-content: flex-end;
             margin-bottom: 10px;
         }
 
-            .message-container .message {
-                max-width: 70%;
-                padding: 10px;
-                border-radius: 20px;
-                margin-bottom: 5px;
-                word-wrap: break-word;
-                background-color: #f2f2f2;
-            }
+        .message-container .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+            background-color: #f2f2f2;
+        }
 
         .outgoing-message {
-            align-self: flex-end;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .outgoing-message .message-container {
+            justify-content: flex-end; 
+        }
+
+        .outgoing-message .message {
+            background-color: #DCF8C6;
+            color: #000; 
         }
 
         .incoming-message {
-            align-self: flex-start;
+            display: flex;
+            justify-content: flex-start; 
+        }
+
+        .incoming-message .message-container {
+            justify-content: flex-start;
+        }
+
+        .incoming-message .message {
+            background-color: #F2F2F2;
+            color: #000; 
         }
 
         .message-input-container {
@@ -83,14 +133,16 @@
 
         .message-input {
             flex: 1;
-            padding: 10px;
+            padding: 17px;
+            font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
 
         .send-button {
             margin-left: 10px;
-            padding: 10px 20px;
+            padding: 18px 25px;
+            font-size: 14px;
             background-color: #5B0888;
             color: #FFFFFF;
             border: none;
@@ -104,23 +156,20 @@
                 color: white
             }
 
-        .create-button,
-        .create-button:hover {
+        .create-button {
+            padding: 10px 20px;
             background-color: #5B0888;
-            font-size: 13px;
             color: #FFFFFF;
-            border: 2px solid #5B0888;
-            padding: 7px 15px;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
             text-decoration: none;
         }
 
-            .create-button:hover {
-                background-color: #2d0444;
-            }
-
-
+        .create-button:hover {
+            background-color: #2d0444;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -131,25 +180,19 @@
 
     <div class="full-container">
         <div class="chat-sidebar">
-            <h2>Your Chats</h2>
+            <div class="chat-sidebar-header">
+                <h2>Your Chats</h2>
+                <a href="{% url 'chat:select_user_view' %}" class="create-button">New Chat</a>
+            </div>
+
             <ul class="chat-list" id="chatList">
                 <!-- user chat list here -->
             </ul>
-            <a href="{% url 'chat:select_user_view' %}" class="create-button">New Chat</a>
         </div>
 
 
         <div class="chat" id="chatInterface">
-            <div class="chat-header">
-                <h2>Chat</h2>
-            </div>
-            <div id="messages">
-                <!-- chat messages here -->
-            </div>
-            <div class="message-input-container">
-                <input type="text" id="messageInput" class="message-input" placeholder="Type a message...">
-                <button onclick="sendMessage()" class="send-button">Send</button>
-            </div>
+            <p>No chats available</p>
         </div>
     </div>
 </body>

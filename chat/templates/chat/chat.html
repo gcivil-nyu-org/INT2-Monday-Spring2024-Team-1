@@ -73,29 +73,32 @@
             font-size: 18px; 
         }
 
-            .chat-list-item:hover {
-                background-color: #f0f0f0; 
-            }
+        .chat-list-item:hover {
+            background-color: #f0f0f0; 
+        }
 
-            .chat-list-item.active {
-                background-color: #8f68a3;
-                color: #FFFFFF;
-                font-weight: bold;
-            }
+        .chat-list-item.active {
+            background-color: #8f68a3;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+        #messages {
+            overflow-y: auto;
+        }
 
         .message-container {
             display: flex;
             margin-bottom: 10px;
         }
 
-            .message-container .message {
-                max-width: 70%;
-                padding: 10px;
-                border-radius: 20px;
-                margin-bottom: 5px;
-                word-wrap: break-word;
-                background-color: #f2f2f2;
-            }
+        .message-container .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+            background-color: #f2f2f2;
+        }
 
         .outgoing-message {
             display: flex;
@@ -170,16 +173,12 @@
                 background-color: #2d0444;
                 text-decoration: none;
             }
-
-
     </style>
 </head>
 
-
-
 <body>
     {%  include 'header.html' %}
-
+    
     <div class="full-container">
         <div class="chat-sidebar">
             <div class="chat-sidebar-header">
@@ -189,20 +188,36 @@
 
             <ul class="chat-list" id="chatList">
                 <!-- user chat list here -->
+                {% for receiver in receivers %}
+                {% if receiver.id == receiver_id %}
+                <li class="chat-list-item active" data-receiver-id="{{receiver.id}}">{{receiver.name}}</li>
+                {% else %}
+                <li class="chat-list-item" data-receiver-id="{{receiver.id}}">{{receiver.name}}</li>
+                {% endif %}
+                {% endfor %}
             </ul>
         </div>
 
 
         <div class="chat" id="chatInterface">
             <div class="chat-header">
-                <img src="profile1.jpg" alt="Profile Picture" class="profile-picture"> 
-                <h2 class="user-name">User Name</h2>
-                {{receiver_id|json_script:"receiver_id"}}
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile Picture" class="profile-picture"> 
+                <h2 class="user-name">{{receiver.name}}</h2>
             </div>
 
             <div id="messages">
                 <!-- chat messages here -->
-                <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+                {% for message in messages %}
+                {% if message.author == user %}
+                <div class="message-container outgoing-message">
+                    <div class="message">{{message.content}}</div>
+                </div>
+                {% else %}
+                <div class="message-container incoming-message">
+                    <div class="message">{{message.content}}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
             </div>
             <div class="message-input-container">
                 <input type="text" id="messageInput" class="message-input" placeholder="Type a message...">
@@ -213,101 +228,6 @@
 
     <script>
         let chats = [];
-
-        function createNewChat() {
-            let chatName = prompt("Enter a name for the new chat:");
-            if (chatName) {
-                chats.push({
-                    name: chatName,
-                    messages: []
-                });
-                renderChatList();
-            }
-        }
-
-        function renderChatList() {
-            let chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
-            chats.forEach((chat, index) => {
-                let listItem = document.createElement('li');
-                listItem.classList.add('chat-list-item');
-                listItem.textContent = chat.name;
-                listItem.onclick = () => {
-                    renderChatInterface(index);
-                    chatList.querySelectorAll('.chat-list-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    listItem.classList.add('active');
-                };
-                chatList.appendChild(listItem);
-            });
-        }
-
-
-        function renderChatInterface(index) {
-            let chatInterface = document.getElementById('chatInterface');
-            let chatHeader = chatInterface.querySelector('.chat-header');
-            let chatName = chats[index].name;
-            let userProfilePicture = chats[index].profilePicture;
-
-            // Clear existing content in the chat header
-            chatHeader.innerHTML = '';
-
-            // Create and append the profile picture element
-            let profilePicture = document.createElement('img');
-            profilePicture.src = userProfilePicture; 
-            profilePicture.alt = "Profile Picture";
-            profilePicture.classList.add('profile-picture');
-            chatHeader.appendChild(profilePicture);
-
-            // Create and append the user's name element
-            let userName = document.createElement('h2');
-            userName.textContent = chatName; 
-            userName.classList.add('user-name');
-            chatHeader.appendChild(userName);
-
-            let messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = '';
-
-            chats[index].messages.forEach(message => {
-                let messageContainer = document.createElement('div');
-                messageContainer.classList.add('message-container');
-
-                let messageElement = document.createElement('div');
-                messageElement.classList.add('message');
-
-                messageElement.textContent = message.text;
-                messageContainer.appendChild(messageElement);
-                if (message.sender === 'user') {
-                    messageContainer.classList.add('outgoing-message');
-                } else {
-                    messageContainer.classList.add('incoming-message');
-                }
-                messagesDiv.appendChild(messageContainer);
-            });
-        }
-
-
-
-        function sendMessage() {
-            let messageInput = document.getElementById('messageInput');
-            let messageText = messageInput.value.trim();
-            if (messageText !== '') {
-                let chatIndex = getActiveChatIndex();
-                chats[chatIndex].messages.push({
-                    text: messageText,
-                    sender: 'user'
-                });
-                renderChatInterface(chatIndex);
-                messageInput.value = '';
-            }
-        }
-
-        function getActiveChatIndex() {
-            let activeChatName = document.getElementById('chatInterface').querySelector('h2').textContent;
-            return chats.findIndex(chat => chat.name === activeChatName);
-        }
-
         document.querySelector('#messageInput').focus();
         document.querySelector('#messageInput').onkeyup = function(e) {
             if (e.keyCode === 13){ // enter, return
@@ -318,54 +238,43 @@
             const messageInputDom = document.querySelector('#messageInput');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
             }));
             messageInputDom.value = '';
         };
 
-        const roomName = JSON.parse(document.getElementById('receiver_id').textContent);
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
-            + '/ws/chat/'
-            + roomName
-            + '/'
+            + '/ws/chat/{{receiver_id}}/'
         );
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            console.log(data);
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message-container');
+            if (data.author_id === "{{user.id}}") {
+                messageContainer.classList.add('outgoing-message');
+            } else {
+                messageContainer.classList.add('incoming-message');
+            }
+            const message = document.createElement('div');
+            message.classList.add('message');
+            message.textContent = data.message;
+            messageContainer.appendChild(message);
+            document.getElementById('messages').appendChild(messageContainer);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
         };
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
         };
-
-
-
-        // Add test data and test render
-        chats.push({
-            name: "John Doe",
-            profilePicture: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-            messages: [
-                { text: "Hello!", sender: "user" },
-                { text: "Hi there!", sender: "other" },
-                { text: "How are you?", sender: "user" },
-                { text: "I'm fine, thanks!", sender: "other" }
-            ]
+        // click on chat list item to load chat
+        document.querySelectorAll('.chat-list-item').forEach(function(chatListItem) {
+            chatListItem.onclick = function(e) {
+                const receiverId = chatListItem.getAttribute('data-receiver-id');
+                window.location.href = '{% url "chat:get_chat_session" receiver_id=0 %}'.replace('0', receiverId);
+            };
         });
-
-        chats.push({
-            name: "Jane Smith",
-            profilePicture: "https://cdn.icon-icons.com/icons2/3150/PNG/512/user_profile_female_icon_192701.png",
-            messages: [
-                { text: "Hey!", sender: "other" },
-                { text: "What's up?", sender: "user" },
-                { text: "Not much, just chilling.", sender: "other" }
-            ]
-        });
-        renderChatList();
-
-
-
     </script>
 </body>
 </html>
