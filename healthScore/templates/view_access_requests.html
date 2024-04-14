@@ -6,7 +6,6 @@
     <title>Health Score</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <style>
         .sidebar {
             height: 100%;
@@ -293,6 +292,11 @@
         const emailsToApprove = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.email);
         const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
 
+        if(requestIds.length==0 || emailsToApprove.length==0){
+            alert("No records present/selected!");
+            return
+        }
+
         fetch('{% url "send_approval_emails" %}', {
             method: 'POST',
             headers: {
@@ -315,6 +319,11 @@
         const checkedBoxes = document.querySelectorAll('.form-check-input:checked');
         const emailsToApprove = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.email);
         const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
+
+        if(requestIds.length==0 || emailsToApprove.length==0){
+            alert("No records present/selected!");
+            return
+        }
 
         fetch('{% url "send_reject_emails" %}', {
             method: 'POST',

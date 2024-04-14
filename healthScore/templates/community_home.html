@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <title>Health Score</title>
 <style>
     #topics_container {
@@ -12,6 +11,11 @@
         margin: 0 auto;
         padding: 20px;
     }
+    .worker-icon {
+    height: 30px;
+    margin-left: 5px;
+    }
+
     .topic {
         margin-bottom: 20px;
         padding: 10px;
@@ -101,6 +105,9 @@
             {% for post in posts %}
             <li class="post-list">
                 <h3>{{ post.title }}</h3>
+                {% if post.is_healthcare_worker %}
+                    <img src="https://i.imgur.com/MlFk11W.jpg" alt="Healthcare Worker" class="worker-icon" />
+                {% endif %}
                 {% load text_filters %}
                 <p>{{ post.description|first_300_characters|linebreaks }}</p>
                 <p class="expand_topic"><a href="{% url 'view_post' post.id %}">Read more ></a></p>
