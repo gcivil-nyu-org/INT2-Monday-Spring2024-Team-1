@@ -241,6 +241,12 @@
                 document.querySelector('#messageSubmit').click();
             }
         };
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/{{receiver_id}}/'
+        );
+        
         document.querySelector('#messageSubmit').onclick = function(e) {
             const messageInputDom = document.querySelector('#messageInput');
             const message = messageInputDom.value;
@@ -250,11 +256,7 @@
             messageInputDom.value = '';
         };
 
-        const chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/chat/{{receiver_id}}/'
-        );
+        
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data);
