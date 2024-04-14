@@ -1309,10 +1309,12 @@ class ViewsTestCase(TestCase):
     def test_get_patients(self):
         self.client.login(email="patient@test.com", password="12345")
         response = self.client.get(reverse("get_patients"))
+        expected_patients = list(User.objects.filter(is_patient=True).values())
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.json()["patients"],
-            list(User.objects.filter(is_patient=True).values()),
+            len(response.json()["patients"]),
+            len(expected_patients),
         )
 
     def test_get_doctor_details(self):

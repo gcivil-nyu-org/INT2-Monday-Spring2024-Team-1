@@ -2,7 +2,6 @@ asgiref==3.7.2
 attrs==23.2.0
 autobahn==23.6.2
 Automat==22.10.0
-awsebcli==3.20.10
 bcrypt==4.1.2
 black==24.2.0
 blessed==1.20.0
