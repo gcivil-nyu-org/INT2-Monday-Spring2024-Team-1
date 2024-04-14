@@ -4,7 +4,7 @@ from healthScore.models import User, Hospital
 from .models import ChatSession
 
 
-@login_required
+@login_required(login_url="/")
 def get_chat_session(request, receiver_id):
     sender = request.user
     receiver = get_object_or_404(User, id=receiver_id)
@@ -76,7 +76,7 @@ def chat_view(request):
         return render(request, "chat/no_chat.html")
 
 
-@login_required
+@login_required(login_url="/")
 def select_user_view(request):
     hospitals = Hospital.objects.all()
     return render(request, "chat/select_user.html", {"hospitals": hospitals})
