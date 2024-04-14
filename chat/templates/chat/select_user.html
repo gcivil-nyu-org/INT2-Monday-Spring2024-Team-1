@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Score</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-container {
+            width: 95%;
+            padding: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar {
+            flex: 7;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 70%;
+        }
+
+        .user-type-dropdown {
+            flex: 2;
+            padding: 10px;
+            font-size: 16px;
+            margin-left: 10px;
+            width: 100%;
+            appearance: none;
+            background-image: url('https://icons.veryicon.com/png/o/miscellaneous/linktrip/down-arrow-small.png');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 18px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .search-button {
+            flex: 1;
+            padding: 10px 20px;
+            background-color: #5B0888;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+            .search-button:hover {
+                background-color: #2d0444;
+            }
+
+        .back-button,
+        .back-button:hover {
+            display: block;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-decoration: none;
+            color: #5B0888;
+        }
+            .back-button:hover {
+                color: #2d0444;
+            }
+
+        .patient-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+            .patient-container:hover {
+                background-color: #f0f0f0; 
+            }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin-right: 40px;
+        }
+
+        .patient-details {
+            flex-grow: 2;
+        }
+
+        .chat-button {
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+            .chat-button:hover {
+                background-color: #357937;
+            }
+
+
+    </style>
+</head>
+<body>
+    {%  include 'header.html' %}
+
+    <div class="page-container">
+        <a href="{% url 'chat:chat_view' %}" class="back-button"> &#60; Back</a>
+        <h2>Start a New Chat</h2>
+
+        {% if user.is_patient %}
+        <div class="search-container">
+            <select id="hospitalSelect" class="user-type-dropdown" >
+                <option value="" disabled selected>Select a Hospital</option>
+                {% for hos in hospitals %}
+                <option value="{{hos.id}}">{{hos.name}}</option>
+                {% endfor %}
+            </select>
+
+            <select id="doctorSelect" class="user-type-dropdown" >
+                <option value="" disabled selected>Select a healthcare worker...</option>
+            </select>
+        </div>
+
+        {% elif user.is_healthcare_worker %}
+        <div class="search-container">
+            <select id="patientSelect" class="user-type-dropdown" >
+                <option value="" disabled selected>Select a patient name...</option>
+            </select>
+        </div>
+        {% endif %}
+        <br><br>
+        <div class="search-results"></div>
+        
+    </div>
+
+
+
+<script>
+    const hospitalDropdown = document.getElementById('hospitalSelect');
+    if (hospitalDropdown) {
+        hospitalDropdown.addEventListener('change', function(){
+            const selectedOption = this.options[this.selectedIndex];
+            const hospitalId = selectedOption.value; // get the selected hospital's ID
+            const hospitalName =  selectedOption.textContent;// get the selected hospital name
+
+            if (hospitalId) {
+                fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospitalId),{
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        var selectElement = document.getElementById("doctorSelect");
+                        selectElement.innerHTML = '<option value="" selected disabled>Please select doctors in '+ hospitalName +'</option>';
+
+                        data['doctors'].forEach(function (doctor) {
+                            var option = new Option(doctor.name, doctor.id);
+                            selectElement.add(option);
+                        });
+                        
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+            }
+        })
+    }
+  
+    const doctorDropdown = document.getElementById('doctorSelect');
+    if (doctorDropdown) {
+        doctorDropdown.addEventListener('change', function(){
+            const doctorId = this.value;
+            fetch('{% url "get_doctor_details" doctor_id=0 %}'.replace('0', doctorId), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data['user'])
+                displaySearchResults(data['user'])
+            })
+        })
+    }
+
+    const patientDropdown = document.getElementById('patientSelect');
+    if (patientDropdown) {
+        window.onload = function(){
+        fetch('{% url "get_patients" %}', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data['patients'])
+            data['patients'].forEach(function (patient) {
+                var option = new Option(patient.name, patient.id);
+                patientDropdown.add(option);
+            });
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        }
+        patientDropdown.addEventListener('change', function(){
+            const patientId = this.value;
+            fetch('{% url "get_patient_details" patient_id=0 %}'.replace('0', patientId), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data['user'])
+                displaySearchResults(data['user'])
+            })
+        })
+    }
+    
+    // display search results of patients 
+    function displaySearchResults(patients) {
+        var searchResultsContainer = document.querySelector('.search-results');
+        searchResultsContainer.innerHTML = '';
+
+        patients.forEach(function (patient) {
+            var patientContainer = document.createElement('div');
+            patientContainer.classList.add('patient-container');
+
+            // Profile picture
+            var profilePicture = document.createElement('div');
+            profilePicture.classList.add('profile-picture');
+            var profile_picture_url = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+            profilePicture.style.backgroundImage = 'url("' + profile_picture_url + '")';
+            patientContainer.appendChild(profilePicture);
+
+            // Patient details
+            var patientDetails = document.createElement('div');
+            patientDetails.classList.add('patient-details');
+            var patientName = document.createElement('p');
+            patientName.textContent = patient['name']; // patient name
+            var patientEmail = document.createElement('p');
+            patientEmail.textContent = patient['email']; //patient email
+            patientDetails.appendChild(patientName);
+            patientDetails.appendChild(patientEmail);
+            patientContainer.appendChild(patientDetails);
+
+            var chatButton = document.createElement('button');
+            chatButton.classList.add('chat-button');
+            chatButton.setAttribute('data-user-id', patient['id']);
+            chatButton.textContent = 'CHAT';
+            patientContainer.appendChild(chatButton);
+
+            searchResultsContainer.appendChild(patientContainer);
+
+            chatButton.addEventListener('click', function(e){
+                e.preventDefault();
+                var receiver_id = chatButton.getAttribute('data-user-id');
+                var url = '{% url "chat:get_chat_session" receiver_id=0 %}'.replace('0', receiver_id);
+                window.location.href = url;
+            })
+        });
+    }
+
+</script>
+
+</body>
+</html>

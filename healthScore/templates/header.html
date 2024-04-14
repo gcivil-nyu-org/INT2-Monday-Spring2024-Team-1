@@ -146,15 +146,16 @@
                     <a href="/hs/registration" class="register-button">Register</a>
                 {% else %}
                     <div class="dropdown">
-                        <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                      <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="https://i.imgur.com/v2dIoGF.jpg" alt="mdo" width="20" height="20"
                                  class="header-profile-pic">
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/hs/userInfo">Profile</a></li>
-                            <li><a class="dropdown-item" href="/hs/logout">Sign out</a></li>
-                        </ul>
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/hs/userInfo">Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url "chat:chat_view" %}">Messages</a></li>
+                        <li><a class="dropdown-item" href="/hs/logout">Sign out</a></li>
+                    </ul>
                     </div>
                 {% endif %}
             </div>

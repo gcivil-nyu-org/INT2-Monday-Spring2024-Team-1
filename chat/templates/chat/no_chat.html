@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Score</title>
+    <style>
+     body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #full-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .chat-sidebar {
+            flex: 1;
+            background-color: #ECE8F9;
+            padding: 20px;
+            border-right: 2px solid #ccc; 
+        }
+
+        .chat-sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+            .chat-sidebar-header h2 {
+                margin: 0; 
+            }
+
+        .chat {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-picture {
+            width: 55px; 
+            height: 55px; 
+            border-radius: 50%; 
+            margin-right: 10px; 
+        }
+
+        .user-name {
+            font-size: 20px; 
+            font-weight: bold;
+        }
+
+        .chat-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .chat-list-item {
+            cursor: pointer;
+            padding: 15px; 
+            border-bottom: 2px solid #ccc; 
+            transition: background-color 0.3s; 
+            font-size: 18px; 
+        }
+
+        .chat-list-item:hover {
+            background-color: #f0f0f0; 
+        }
+
+        .chat-list-item.active {
+            background-color: #8f68a3;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        .message-container {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .message-container .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 20px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+            background-color: #f2f2f2;
+        }
+
+        .outgoing-message {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .outgoing-message .message-container {
+            justify-content: flex-end; 
+        }
+
+        .outgoing-message .message {
+            background-color: #DCF8C6;
+            color: #000; 
+        }
+
+        .incoming-message {
+            display: flex;
+            justify-content: flex-start; 
+        }
+
+        .incoming-message .message-container {
+            justify-content: flex-start;
+        }
+
+        .incoming-message .message {
+            background-color: #F2F2F2;
+            color: #000; 
+        }
+
+        .message-input-container {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 17px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .send-button {
+            margin-left: 10px;
+            padding: 18px 25px;
+            font-size: 14px;
+            background-color: #5B0888;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .send-button:hover {
+                background-color: #2d0444;
+                text-decoration: none;
+                color: white
+            }
+
+        .create-button {
+            padding: 10px 20px;
+            background-color: #5B0888;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .create-button:hover {
+            background-color: #2d0444;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+
+
+<body>
+    {%  include 'header.html' %}
+
+    <div id="full-container">
+        <div class="chat-sidebar">
+            <div class="chat-sidebar-header">
+                <h2>Your Chats</h2>
+                <a href="{% url 'chat:select_user_view' %}" class="create-button">New Chat</a>
+            </div>
+
+            <ul class="chat-list" id="chatList">
+                <!-- user chat list here -->
+            </ul>
+        </div>
+
+
+        <div class="chat" id="chatInterface">
+            <p>No chats available</p>
+        </div>
+    </div>
+
+    <script>
+        var headerHeight = document.querySelector('header').offsetHeight;
+        var fullContainerHeight = `calc(100vh - ${headerHeight}px)`;
+        var fullContainer = document.querySelector('#full-container');
+        fullContainer.style.height = fullContainerHeight;
+    </script>
+</body>
+</html>
