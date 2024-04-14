@@ -7,6 +7,7 @@ class Message(models.Model):
     content = models.TextField(blank=False)
     createdAt = models.DateTimeField(auto_now_add=True)
 
+
 class ChatSession(models.Model):
     patient = models.ForeignKey(
         User, related_name="patient_chats", on_delete=models.CASCADE

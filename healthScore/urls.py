@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from django.contrib.auth import views as auth_views
 
 from . import views
@@ -121,6 +121,14 @@ urlpatterns = [
         name="update_hospital_status",
     ),
     path("get_patients", views.get_patients, name="get_patients"),
-    path("get_doctor_details/<str:doctor_id>/", views.get_doctor_details, name="get_doctor_details"),
-    path("get_patient_details/<str:patient_id>/", views.get_patient_details, name="get_patient_details"),
+    path(
+        "get_doctor_details/<str:doctor_id>/",
+        views.get_doctor_details,
+        name="get_doctor_details",
+    ),
+    path(
+        "get_patient_details/<str:patient_id>/",
+        views.get_patient_details,
+        name="get_patient_details",
+    ),
 ]

@@ -1145,17 +1145,20 @@ def update_hospital_status(request, hospital_id):
             return JsonResponse({"error": "Invalid status provided."}, status=400)
 
 
-
+@login_required
 def get_patients(request):
     patients = list(User.objects.filter(is_patient=True).values())
-    return JsonResponse({'patients': patients})
+    return JsonResponse({"patients": patients})
 
+
+@login_required
 def get_doctor_details(request, doctor_id):
     doctor = HospitalStaff.objects.filter(id=doctor_id).first()
     user_detail = list(User.objects.filter(id=doctor.userID).values())
-    return JsonResponse({'user': user_detail})
+    return JsonResponse({"user": user_detail})
 
+
+@login_required
 def get_patient_details(request, patient_id):
-    patient = User.objects.filter(id=patient_id).first()
     patient_detail = list(User.objects.filter(id=patient_id).values())
-    return JsonResponse({'user': patient_detail})
+    return JsonResponse({"user": patient_detail})

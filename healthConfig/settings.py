@@ -80,11 +80,7 @@ TEMPLATES = [
 ASGI_APPLICATION = "healthConfig.asgi.application"
 
 # Configuring the communication layer used by Django channels for websocket handling
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': "channels.layers.InMemoryChannelLayer"
-    }
-}
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

@@ -6,5 +6,4 @@ app_name = "chat"
 urlpatterns = [
     path("", views.chat_view, name="chat_view"),
     path("<int:receiver_id>", views.get_chat_session, name="get_chat_session"),
-    path("select-user", views.select_user_view, name="select_user_view"),
 ]

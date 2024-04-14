@@ -1,6 +1,5 @@
 import json
 
-from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from healthScore.models import User
@@ -30,7 +29,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.save_message(self.scope["user"].id, self.receiver_id, message)
         # Send message to room group
         await self.channel_layer.group_send(
-            self.room_group_name, {"type": "chat_message", "message": message, "author_id": str(self.scope["user"].id)}
+            self.room_group_name,
+            {
+                "type": "chat_message",
+                "message": message,
+                "author_id": str(self.scope["user"].id),
+            },
         )
 
     # Receive message from room group
@@ -39,7 +43,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         author_id = event["author_id"]
 
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"message": message, "author_id": author_id}))
+        await self.send(
+            text_data=json.dumps({"message": message, "author_id": author_id})
+        )
 
     @database_sync_to_async
     def save_message(self, author_id, other_user_id, message):
@@ -54,4 +60,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
         chat_session.messages.add(Msg)
-        

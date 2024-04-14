@@ -23,5 +23,5 @@ urlpatterns = [
     path("", views.homepage, name="homepage"),
     path("hs/", include("healthScore.urls")),
     path("admin/", admin.site.urls),
-    path("chat/", include("chat.urls"))
+    path("chat/", include("chat.urls")),
 ]

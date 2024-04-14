@@ -1296,3 +1296,45 @@ class HospitalTests(TestCase):
             content_type="application/json",
         )
         self.assertEqual(response.status_code, 400)
+
+
+class ViewsTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_patient(
+            email="patient@test.com", password="12345"
+        )
+        self.hospital = Hospital.objects.create(name="Test Hospital")
+        self.client = Client()
+
+    def test_get_patients(self):
+        self.client.login(email="patient@test.com", password="12345")
+        response = self.client.get(reverse("get_patients"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["patients"],
+            list(User.objects.filter(is_patient=True).values()),
+        )
+
+    def test_get_doctor_details(self):
+        self.client.login(email="patient@test.com", password="12345")
+        doctor_user = User.objects.create_healthcare_worker(
+            email="doctor@test.com", password="12345"
+        )
+        doctor = HospitalStaff.objects.create(id=1, userID=doctor_user.id, hospitalID=self.hospital)
+        response = self.client.get(reverse("get_doctor_details", args=[doctor.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["user"],
+            list(User.objects.filter(id=doctor.userID).values()),
+        )
+
+    def test_get_patient_details(self):
+        self.client.login(email="patient@test.com", password="12345")
+        patient = User.objects.create_patient(
+            email="patient1@test.com", password="12345"
+        )
+        response = self.client.get(reverse("get_patient_details", args=[patient.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["user"], list(User.objects.filter(id=patient.id).values())
+        )

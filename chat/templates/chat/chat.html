@@ -11,7 +11,7 @@
             padding: 0;
         }
 
-        .full-container {
+        #full-container {
             display: flex;
             height: 100vh;
         }
@@ -179,7 +179,7 @@
 <body>
     {%  include 'header.html' %}
     
-    <div class="full-container">
+    <div id="full-container">
         <div class="chat-sidebar">
             <div class="chat-sidebar-header">
                 <h2>Your Chats</h2>
@@ -229,7 +229,7 @@
     <script>
         var headerHeight = document.querySelector('header').offsetHeight;
         var fullContainerHeight = `calc(100vh - ${headerHeight}px)`;
-        var fullContainer = document.querySelector('.full-container');
+        var fullContainer = document.querySelector('#full-container');
         fullContainer.style.height = fullContainerHeight;
         window.onload = function() {
             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
