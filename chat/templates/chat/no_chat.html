@@ -195,5 +195,12 @@
             <p>No chats available</p>
         </div>
     </div>
+
+    <script>
+        var headerHeight = document.querySelector('header').offsetHeight;
+        var fullContainerHeight = `calc(100vh - ${headerHeight}px)`;
+        var fullContainer = document.querySelector('.full-container');
+        fullContainer.style.height = fullContainerHeight;
+    </script>
 </body>
 </html>

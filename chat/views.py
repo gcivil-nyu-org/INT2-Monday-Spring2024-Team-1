@@ -10,27 +10,30 @@ def get_chat_session(request, receiver_id):
     receiver = get_object_or_404(User, id=receiver_id)
 
     if sender.is_patient:
-        # users that have been chatted with current user before
-        receiver_ids = (
-            ChatSession.objects.filter(patient_id=sender.id)
-            .values_list("healthcareWorker_id", flat=True).distinct()
-        )
-        receivers = User.objects.filter(id__in=receiver_ids)
         # current chat and messages
         chat, created = ChatSession.objects.get_or_create(patient=sender, healthcareWorker=receiver)
         messages = chat.messages.all()
-    elif sender.is_healthcare_worker:
         # users that have been chatted with current user before
         receiver_ids = (
-            ChatSession.objects.filter(healthcareWorker_id=sender.id)
-            .values_list("patient_id", flat=True).distinct()
+            ChatSession.objects.filter(patient_id=sender.id).order_by("-createdAt")
+            .values_list("healthcareWorker_id", flat=True).distinct()
         )
         receivers = User.objects.filter(id__in=receiver_ids)
+        receivers = list(receivers)
+        receivers.sort(key=lambda receiver: list(receiver_ids).index(receiver.id))
+    elif sender.is_healthcare_worker:
         # current chat and messages
         chat, created = ChatSession.objects.get_or_create(patient=receiver, healthcareWorker=sender)
         messages = chat.messages.all()
-
-
+        # users that have been chatted with current user before
+        receiver_ids = (
+            ChatSession.objects.filter(healthcareWorker_id=sender.id).order_by("-createdAt")
+            .values_list("patient_id", flat=True).distinct()
+        )
+        receivers = User.objects.filter(id__in=receiver_ids)
+        receivers = list(receivers)
+        receivers.sort(key=lambda receiver: list(receiver_ids).index(receiver.id))
+        
     context = {
         "receiver_id": receiver_id,
         "receiver": receiver,

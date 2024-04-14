@@ -1055,3 +1055,8 @@ def get_doctor_details(request, doctor_id):
     doctor = HospitalStaff.objects.filter(id=doctor_id).first()
     user_detail = list(User.objects.filter(id=doctor.userID).values())
     return JsonResponse({'user': user_detail})
+
+def get_patient_details(request, patient_id):
+    patient = User.objects.filter(id=patient_id).first()
+    patient_detail = list(User.objects.filter(id=patient_id).values())
+    return JsonResponse({'user': patient_detail})

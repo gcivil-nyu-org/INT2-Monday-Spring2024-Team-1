@@ -227,7 +227,14 @@
     </div>
 
     <script>
-        let chats = [];
+        var headerHeight = document.querySelector('header').offsetHeight;
+        var fullContainerHeight = `calc(100vh - ${headerHeight}px)`;
+        var fullContainer = document.querySelector('.full-container');
+        fullContainer.style.height = fullContainerHeight;
+        window.onload = function() {
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        };
+
         document.querySelector('#messageInput').focus();
         document.querySelector('#messageInput').onkeyup = function(e) {
             if (e.keyCode === 13){ // enter, return

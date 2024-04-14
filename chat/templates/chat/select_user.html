@@ -134,59 +134,79 @@
             </select>
 
             <select id="doctorSelect" class="search-bar" >
-                <option value="" disabled selected>Search for a healthcare worker...</option>
+                <option value="" disabled selected>Select a healthcare worker...</option>
             </select>
         </div>
-        <br><br>
-        <div class="search-results"></div>
 
         {% elif user.is_healthcare_worker %}
         <div class="search-container">
-            <input type="text" class="search-bar" placeholder="Search by patient name...">
-            <button class="search-button">Search</button>
+            <select id="patientSelect" class="search-bar" >
+                <option value="" disabled selected>Select a patient name...</option>
+            </select>
         </div>
-
+        {% endif %}
         <br><br>
         <div class="search-results"></div>
-        {% endif %}
-
+        
     </div>
 
 
 
 <script>
     const hospitalDropdown = document.getElementById('hospitalSelect');
-    hospitalDropdown.addEventListener('change', function(){
-        const selectedOption = this.options[this.selectedIndex];
-        const hospitalId = selectedOption.value; // get the selected hospital's ID
-        const hospitalName =  selectedOption.textContent;// get the selected hospital name
+    if (hospitalDropdown) {
+        hospitalDropdown.addEventListener('change', function(){
+            const selectedOption = this.options[this.selectedIndex];
+            const hospitalId = selectedOption.value; // get the selected hospital's ID
+            const hospitalName =  selectedOption.textContent;// get the selected hospital name
 
-        if (hospitalId) {
-            fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospitalId),{
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    var selectElement = document.getElementById("doctorSelect");
-                    selectElement.innerHTML = '<option value="" selected disabled>Please select doctors in '+ hospitalName +'</option>';
+            if (hospitalId) {
+                fetch('{% url "get_doctors" hos_id=0 %}'.replace('0', hospitalId),{
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        var selectElement = document.getElementById("doctorSelect");
+                        selectElement.innerHTML = '<option value="" selected disabled>Please select doctors in '+ hospitalName +'</option>';
 
-                    data['doctors'].forEach(function (doctor) {
-                        var option = new Option(doctor.name, doctor.id);
-                        selectElement.add(option);
+                        data['doctors'].forEach(function (doctor) {
+                            var option = new Option(doctor.name, doctor.id);
+                            selectElement.add(option);
+                        });
+                        
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
                     });
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        }
-    })
+            }
+        })
+    }
+  
     const doctorDropdown = document.getElementById('doctorSelect');
-    doctorDropdown.addEventListener('change', function(){
-        const doctorId = this.value;
-        fetch('{% url "get_doctor_details" doctor_id=0 %}'.replace('0', doctorId), {
+    if (doctorDropdown) {
+        doctorDropdown.addEventListener('change', function(){
+            const doctorId = this.value;
+            fetch('{% url "get_doctor_details" doctor_id=0 %}'.replace('0', doctorId), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data['user'])
+                displaySearchResults(data['user'])
+            })
+        })
+    }
+
+    const patientDropdown = document.getElementById('patientSelect');
+    if (patientDropdown) {
+        window.onload = function(){
+        fetch('{% url "get_patients" %}', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -194,12 +214,32 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data['user'])
-            displaySearchResults(data['user'])
+            console.log(data['patients'])
+            data['patients'].forEach(function (patient) {
+                var option = new Option(patient.name, patient.id);
+                patientDropdown.add(option);
+            });
         })
-
-    })
-
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        }
+        patientDropdown.addEventListener('change', function(){
+            const patientId = this.value;
+            fetch('{% url "get_patient_details" patient_id=0 %}'.replace('0', patientId), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data['user'])
+                displaySearchResults(data['user'])
+            })
+        })
+    }
+    
     // display search results of patients 
     function displaySearchResults(patients) {
         var searchResultsContainer = document.querySelector('.search-results');
