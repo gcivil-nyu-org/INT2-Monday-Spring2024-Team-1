@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .models import HealthRecord, Hospital, HospitalStaff, Appointment, User
 
 
-@login_required
+@login_required(login_url="/")
 def get_admin_health_history_details(request):
     if request.method == "GET" and request.user.is_staff:
         id = request.user.id

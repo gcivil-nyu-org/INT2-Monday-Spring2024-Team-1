@@ -12,7 +12,7 @@ from .models import (
 )
 
 
-@login_required
+@login_required(login_url="/")
 def get_health_history_details(request):
     if request.method == "GET":
         userID = request.user
