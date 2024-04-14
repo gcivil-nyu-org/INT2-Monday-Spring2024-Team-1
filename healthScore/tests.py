@@ -1322,7 +1322,9 @@ class ViewsTestCase(TestCase):
         doctor_user = User.objects.create_healthcare_worker(
             email="doctor@test.com", password="12345"
         )
-        doctor = HospitalStaff.objects.create(id=1, userID=doctor_user.id, hospitalID=self.hospital)
+        doctor = HospitalStaff.objects.create(
+            id=1, userID=doctor_user.id, hospitalID=self.hospital
+        )
         response = self.client.get(reverse("get_doctor_details", args=[doctor.id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
