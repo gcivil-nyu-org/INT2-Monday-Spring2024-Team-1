@@ -68,3 +68,5 @@ urllib3==1.26.18
 virtualenv==20.24.6
 wcwidth==0.1.9
 zope.interface==6.2
+gunicorn==20.0.4
+supervisor==4.2.2
