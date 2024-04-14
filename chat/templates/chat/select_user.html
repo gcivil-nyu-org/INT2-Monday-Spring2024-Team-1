@@ -133,14 +133,14 @@
                 {% endfor %}
             </select>
 
-            <select id="doctorSelect" class="search-bar" >
+            <select id="doctorSelect" class="user-type-dropdown" >
                 <option value="" disabled selected>Select a healthcare worker...</option>
             </select>
         </div>
 
         {% elif user.is_healthcare_worker %}
         <div class="search-container">
-            <select id="patientSelect" class="search-bar" >
+            <select id="patientSelect" class="user-type-dropdown" >
                 <option value="" disabled selected>Select a patient name...</option>
             </select>
         </div>
