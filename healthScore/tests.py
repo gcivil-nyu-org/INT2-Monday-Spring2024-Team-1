@@ -24,32 +24,89 @@ from healthScore.models import (
 
 from healthScore.file_upload import file_upload
 
-from healthScore.views import (
+
+
+
+
+
+
+
+
+
+
+
+
+from healthScore.homepage_and_auth import (
+    login_view,
+    registration,
+    homepage
+)
+
+from healthScore.profile_view import (
     edit_user_info,
-    view_health_history,
-    view_report,
-    view_user_info,
+    view_user_info
+)
+
+from healthScore.patient_view_records import (
     view_health_history_requests,
-    add_health_record_view,
-    record_sent_view,
-    activate_healthcare_staff,
-    deactivate_healthcare_staff,
-    create_post,
-    view_all_posts,
-    view_post,
-    create_comments,
-    get_doctors,
+    view_report,
     get_record,
+    view_health_history
+)
+
+from healthScore.patient_submit_health_record import (
+    get_doctors,
     get_edit,
     edit_health_record_view,
+    add_health_record_view,
+    record_sent_view
+)
+
+from healthScore.healthcare_data import (
+    get_facility_doctors,
+    get_facility_admins,
+    hospital_staff_directory,
     add_healthcare_staff,
-    request_health_history,
-    view_health_history_access_requests,
-    delete_post,
+    deactivate_healthcare_staff,
+    activate_healthcare_staff
+)
+
+from healthScore.community_data import (
+    community_home,
+    view_all_posts,
+    view_my_posts,
+    view_post,
+    create_post,
     edit_post,
-    delete_comment,
+    delete_post,
+    create_comments,
+    delete_comment
+)
+
+from healthScore.external_health_request_access import (
+    request_health_history,
+    send_approval_emails,
+    send_rejection_emails,
+    update_request_status,
+    view_health_history_access_requests
+)
+
+from healthScore.admin_view_user_healthrecords import (
+    view_healthworkers_user_record,
     admin_view_health_history_requests,
-    get_admin_edit,
+    get_admin_edit
+)
+
+from healthScore.doctor_data import (
+    get_patients,
+    get_doctor_details,
+    get_patient_details
+)
+
+
+from healthScore.healthscore_admin_view import (
+    update_hospital_status,
+    list_hospitals
 )
 
 DATE_FORMAT = "%Y-%m-%d"
