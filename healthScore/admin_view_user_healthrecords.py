@@ -108,6 +108,7 @@ APPOINTMENT_PROPS = {
     },
 }
 
+
 @login_required(login_url="/")
 def view_healthworkers_user_record(request):
     if request.method == "GET" and request.user.is_healthcare_worker:
@@ -185,6 +186,7 @@ def view_healthworkers_user_record(request):
 
     return homepage_and_auth.homepage(request)
 
+
 @login_required(login_url="/")
 def admin_view_health_history_requests(request):
     zipped_details = get_admin_health_history_details(request=request)
@@ -228,5 +230,3 @@ def get_admin_edit(request, rec_id):
     }
 
     return render(request, "admin_edit_health_record.html", {"data": data})
-
-

@@ -25,33 +25,15 @@ from healthScore.models import (
 from healthScore.file_upload import file_upload
 
 
+from healthScore.homepage_and_auth import login_view, registration, homepage
 
-
-
-
-
-
-
-
-
-
-
-from healthScore.homepage_and_auth import (
-    login_view,
-    registration,
-    homepage
-)
-
-from healthScore.profile_view import (
-    edit_user_info,
-    view_user_info
-)
+from healthScore.profile_view import edit_user_info, view_user_info
 
 from healthScore.patient_view_records import (
     view_health_history_requests,
     view_report,
     get_record,
-    view_health_history
+    view_health_history,
 )
 
 from healthScore.patient_submit_health_record import (
@@ -59,7 +41,7 @@ from healthScore.patient_submit_health_record import (
     get_edit,
     edit_health_record_view,
     add_health_record_view,
-    record_sent_view
+    record_sent_view,
 )
 
 from healthScore.healthcare_data import (
@@ -68,7 +50,7 @@ from healthScore.healthcare_data import (
     hospital_staff_directory,
     add_healthcare_staff,
     deactivate_healthcare_staff,
-    activate_healthcare_staff
+    activate_healthcare_staff,
 )
 
 from healthScore.community_data import (
@@ -80,7 +62,7 @@ from healthScore.community_data import (
     edit_post,
     delete_post,
     create_comments,
-    delete_comment
+    delete_comment,
 )
 
 from healthScore.external_health_request_access import (
@@ -88,26 +70,23 @@ from healthScore.external_health_request_access import (
     send_approval_emails,
     send_rejection_emails,
     update_request_status,
-    view_health_history_access_requests
+    view_health_history_access_requests,
 )
 
 from healthScore.admin_view_user_healthrecords import (
     view_healthworkers_user_record,
     admin_view_health_history_requests,
-    get_admin_edit
+    get_admin_edit,
 )
 
 from healthScore.doctor_data import (
     get_patients,
     get_doctor_details,
-    get_patient_details
+    get_patient_details,
 )
 
 
-from healthScore.healthscore_admin_view import (
-    update_hospital_status,
-    list_hospitals
-)
+from healthScore.healthscore_admin_view import update_hospital_status, list_hospitals
 
 DATE_FORMAT = "%Y-%m-%d"
 

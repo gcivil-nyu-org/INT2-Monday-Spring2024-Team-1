@@ -106,8 +106,6 @@ APPOINTMENT_PROPS = {
 }
 
 
-
-
 @login_required(login_url="/")
 def community_home(request):
     return redirect("all_posts")
@@ -205,4 +203,3 @@ def delete_comment(request, comment_id):
         comment.delete()
 
     return redirect("view_post", post_id=comment.post.id)
-

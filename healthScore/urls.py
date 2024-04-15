@@ -45,28 +45,46 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-
-
     # Profile information
     path("editUserInfo", profile_view.edit_user_info, name="edit_user_info"),
     path("userInfo", profile_view.view_user_info, name="user_info"),
-
-
     # view records
-    path("viewRequests", patient_view_records.view_health_history_requests, name="view_requests"),
-    path("viewHealthHistory", patient_view_records.view_health_history, name="view_health_history"),
+    path(
+        "viewRequests",
+        patient_view_records.view_health_history_requests,
+        name="view_requests",
+    ),
+    path(
+        "viewHealthHistory",
+        patient_view_records.view_health_history,
+        name="view_health_history",
+    ),
     path("viewReports", patient_view_records.view_report, name="view_reports"),
     path("getRecord/<str:rec_id>/", patient_view_records.get_record, name="get_record"),
-    
-
     # Submitting health request apis
-    path("getDoctors/<str:hos_id>/", patient_submit_health_record.get_doctors, name="get_doctors"),
-    path("getEdit/<str:rec_id>/", patient_submit_health_record.get_edit, name="get_edit"),
-    path("edit-record/", patient_submit_health_record.edit_health_record_view, name="edit_record"),
-    path("new-record/", patient_submit_health_record.add_health_record_view, name="new_health_record"),
-    path("request-sent/", patient_submit_health_record.record_sent_view, name="new_health_record_sent"),
-
-
+    path(
+        "getDoctors/<str:hos_id>/",
+        patient_submit_health_record.get_doctors,
+        name="get_doctors",
+    ),
+    path(
+        "getEdit/<str:rec_id>/", patient_submit_health_record.get_edit, name="get_edit"
+    ),
+    path(
+        "edit-record/",
+        patient_submit_health_record.edit_health_record_view,
+        name="edit_record",
+    ),
+    path(
+        "new-record/",
+        patient_submit_health_record.add_health_record_view,
+        name="new_health_record",
+    ),
+    path(
+        "request-sent/",
+        patient_submit_health_record.record_sent_view,
+        name="new_health_record_sent",
+    ),
     # Get healthcare related data
     path(
         "healthcareFacility/",
@@ -74,10 +92,20 @@ urlpatterns = [
         name="hospital_staff_directory",
     ),
     path(
-        "getFacilityDoctors/", healthcare_data.get_facility_doctors, name="get_facility_doctors"
+        "getFacilityDoctors/",
+        healthcare_data.get_facility_doctors,
+        name="get_facility_doctors",
     ),
-    path("getFacilityAdmins/", healthcare_data.get_facility_admins, name="get_facility_admins"),
-    path("addHealthcareStaff", healthcare_data.add_healthcare_staff, name="add_healthcare_staff"),
+    path(
+        "getFacilityAdmins/",
+        healthcare_data.get_facility_admins,
+        name="get_facility_admins",
+    ),
+    path(
+        "addHealthcareStaff",
+        healthcare_data.add_healthcare_staff,
+        name="add_healthcare_staff",
+    ),
     path(
         "deleteHealthcareStaff",
         healthcare_data.deactivate_healthcare_staff,
@@ -88,9 +116,6 @@ urlpatterns = [
         healthcare_data.activate_healthcare_staff,
         name="activate_healthcare_staff",
     ),
-
-
-
     # community apis
     path("community/", community_data.community_home, name="community"),
     path("community/all-posts/", community_data.view_all_posts, name="all_posts"),
@@ -109,9 +134,6 @@ urlpatterns = [
         community_data.delete_comment,
         name="delete_comment",
     ),
-    
-
-
     # External health request related apis
     path(
         "requestHealthHistory",
@@ -129,11 +151,15 @@ urlpatterns = [
         name="update_request_status",
     ),
     path(
-        "send-approval-emails", external_health_request_access.send_approval_emails, name="send_approval_emails"
+        "send-approval-emails",
+        external_health_request_access.send_approval_emails,
+        name="send_approval_emails",
     ),
-    path("send-reject-emails", external_health_request_access.send_rejection_emails, name="send_reject_emails"),
-
-
+    path(
+        "send-reject-emails",
+        external_health_request_access.send_rejection_emails,
+        name="send_reject_emails",
+    ),
     # health admin's view user records
     path(
         "recordDecision/",
@@ -145,9 +171,11 @@ urlpatterns = [
         admin_view_user_healthrecords.admin_view_health_history_requests,
         name="admin_view_records",
     ),
-    path("adminGetEdit/<str:rec_id>/", admin_view_user_healthrecords.get_admin_edit, name="adminGetEdit"),
-
-
+    path(
+        "adminGetEdit/<str:rec_id>/",
+        admin_view_user_healthrecords.get_admin_edit,
+        name="adminGetEdit",
+    ),
     # Doctor related apis
     path("get_patients", doctor_data.get_patients, name="get_patients"),
     path(
@@ -160,8 +188,6 @@ urlpatterns = [
         doctor_data.get_patient_details,
         name="get_patient_details",
     ),
-
-
     # healthScore admin apis
     path("hospitals/", healthscore_admin_view.list_hospitals, name="list_hospitals"),
     path(
@@ -169,7 +195,4 @@ urlpatterns = [
         healthscore_admin_view.update_hospital_status,
         name="update_hospital_status",
     ),
-
-
-    
 ]

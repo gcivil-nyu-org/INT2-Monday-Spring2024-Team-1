@@ -106,7 +106,6 @@ APPOINTMENT_PROPS = {
 }
 
 
-
 @login_required(login_url="/")
 def get_patients(request):
     patients = list(User.objects.filter(is_patient=True).values())

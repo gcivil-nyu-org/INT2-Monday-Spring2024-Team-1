@@ -108,7 +108,6 @@ APPOINTMENT_PROPS = {
 }
 
 
-
 @csrf_exempt
 def request_health_history(request):
     if request.method == "POST":
@@ -140,7 +139,6 @@ def request_health_history(request):
         return redirect("homepage")
 
     return render(request, "request_health_history.html")
-
 
 
 @csrf_exempt
@@ -223,6 +221,7 @@ def update_request_status(request):
         )
 
     return admin_view_user_healthrecords.view_healthworkers_user_record(request)
+
 
 @login_required(login_url="/")
 @csrf_exempt

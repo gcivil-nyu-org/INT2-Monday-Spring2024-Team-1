@@ -106,8 +106,6 @@ APPOINTMENT_PROPS = {
 }
 
 
-
-
 def get_facility_doctors(request):
     if request.user.is_authenticated:
         user_hospital_staff_entry = get_object_or_404(
@@ -285,4 +283,3 @@ def activate_healthcare_staff(request):
         )
 
     return JsonResponse({"error": "Unauthorized"}, status=401)
-

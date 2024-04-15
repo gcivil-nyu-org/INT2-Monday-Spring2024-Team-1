@@ -106,13 +106,11 @@ APPOINTMENT_PROPS = {
 }
 
 
-
 def get_doctors(request, hos_id):
     doctorList = list(
         HospitalStaff.objects.filter(admin=False, hospitalID_id=hos_id).values()
     )
     return JsonResponse({"doctors": doctorList})
-
 
 
 def get_edit(request, rec_id):
@@ -150,7 +148,6 @@ def get_edit(request, rec_id):
     return render(request, "edit_health_record.html", {"data": data})
 
 
-
 @login_required(login_url="/")
 def edit_health_record_view(request):
     if request.method == "POST":
@@ -171,6 +168,7 @@ def edit_health_record_view(request):
         record.save()
 
         return JsonResponse({"message": "Updated succesfully"})
+
 
 @login_required(login_url="/")
 def add_health_record_view(request):
@@ -241,5 +239,3 @@ def add_health_record_view(request):
 @login_required(login_url="/")
 def record_sent_view(request):
     return render(request, "record_submit_complete.html")
-
-

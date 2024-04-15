@@ -106,8 +106,6 @@ APPOINTMENT_PROPS = {
 }
 
 
-
-
 @login_required(login_url="/")
 def list_hospitals(request):
     if request.method == "GET":
@@ -137,4 +135,3 @@ def update_hospital_status(request, hospital_id):
             return JsonResponse({"message": "Hospital status updated successfully."})
         else:
             return JsonResponse({"error": "Invalid status provided."}, status=400)
-

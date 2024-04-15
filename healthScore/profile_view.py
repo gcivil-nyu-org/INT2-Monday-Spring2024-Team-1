@@ -185,4 +185,3 @@ def view_user_info(request):
             userInfo["specialization"] = "None"
 
         return render(request, "user_profile.html", {"userInfo": userInfo})
-
