@@ -6,6 +6,9 @@ python:
 install:
 - pip install -r requirements.txt
 
+before_script:
+- export DJANGO_SETTINGS_MODULE=healthConfig.settings
+
 script:
 - black --check .
 - flake8 --max-line-length=300 .
