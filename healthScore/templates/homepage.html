@@ -8,6 +8,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Score</title>
   <style>
+      
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    .accordion-button {
+        color: #333; /* Change color as needed */
+        background-color: #f8f9fa;
+        border: none;
+        outline: none;
+        text-align: left;
+        padding: 0.75rem 1.25rem;
+        font-size: 1.2rem; /* Adjust size as needed */
+    }
+    
+    .accordion-button:not(.collapsed) {
+        color: #0056b3; /* Change color for active state as needed */
+        background-color: #e9ecef;
+    }
+    
+    .accordion-button::after {
+        content: ""; /* Removes default Bootstrap icons */
+    }
+    
+    .accordion-button i {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .accordion-button.collapsed i {
+        transform: rotate(0);
+    }
+    
+    .accordion-button:not(.collapsed) i {
+        transform: rotate(180deg); /* Flips the arrow when active */
+        background-color: #f8f9fa; /* Lighter background when expanded */
+        box-shadow: none;
+    }
+    
+    .accordion-button:focus {
+        box-shadow: none; /* Removes the focus outline shadow */
+    }
+
+    .card {
+        border: none; /* Removes the border around the card */
+        background: none; /* Removes any background color from the card */
+    }
+    
+    .card-header {
+        background: none; /* Ensures the card header has no background */
+        border-bottom: none; /* Removes the border line below the header */
+    }
+      
     body {
       font-family: Arial, sans-serif;
     }
@@ -26,7 +78,7 @@
     .stat-number {
       font-size: 45px;
       font-weight: bold;
-      color: #4A33E2;
+      color: #5B0888;
     }
 
     .feature-page-container {
@@ -94,20 +146,14 @@
     }
 
     .margin-title {
-      color: #4A33E2;
+      color: #5B0888;
       margin-top: 4rem;
       font-weight: 900;
     }
 
     .margin-title-2 {
-      color: #4A33E2;
+      color: #5B0888;
       margin-top: 3rem;
-      font-weight: 900;
-    }
-
-    .margin-title-3 {
-      color: #4A33E2;
-      margin-top: 2rem;
       font-weight: 900;
     }
 
@@ -177,8 +223,8 @@
   </div>
 
   <!-- Features Section -->
-  <div class="container feature-page-container">
-    <div class="feature-title text-center">Why choose us?</div>
+  <div id="features-section" class="container feature-page-container">
+    <div class="feature-title text-center border-bottom">Why choose us?</div>
     <div class="row">
       <div class="col-md-6 card-bottom-margin">
         <div class="card flip-card card-width">
@@ -254,6 +300,151 @@
         </div>
       </div>
     </div>
+  </div>
+  
+  <div id="faq-section" class="container feature-page-container">
+      <h2 class="feature-title text-center border-bottom">Frequently Asked Questions</h2>
+      <section class="bg-white py-3 py-md-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    
+                    <h3 class="pt-4">Users</h3>
+                    <div class="accordion accordion-flush" id="usersAccordion">
+                        <div class="accordion-item">
+                            <h4 class="accordion-header" id="usersQuestionOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#usersAnswerOne" aria-expanded="false" aria-controls="usersAnswerOne">
+                                    How do I sign up?
+                                </button>
+                            </h4>
+                            <div id="usersAnswerOne" class="accordion-collapse collapse" aria-labelledby="usersQuestionOne" data-bs-parent="#usersAccordion">
+                                <div class="accordion-body">
+                                    You can sign up by clicking the "Register" button in the top right corner, and entering your personal information. Follow the step-by-step instructions to create your account.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h4 class="accordion-header" id="usersQuestionTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#usersAnswerTwo" aria-expanded="false" aria-controls="usersAnswerTwo">
+                                    How do I request my medical records to be added?
+                                </button>
+                            </h4>
+                            <div id="usersAnswerTwo" class="accordion-collapse collapse" aria-labelledby="usersQuestionTwo" data-bs-parent="#usersAccordion">
+                                <div class="accordion-body">
+                                    Log into your account, navigate to the records section, and use the 'Request Records' feature to ask healthcare facilities to add vaccinations, checkup details, or any other health related records to your account.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h4 class="accordion-header" id="usersQuestionThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#usersAnswerTwo" aria-expanded="false" aria-controls="usersAnswerTwo">
+                                    Am I able to chat with my healthcare professional if I have questions?
+                                </button>
+                            </h4>
+                            <div id="usersAnswerTwo" class="accordion-collapse collapse" aria-labelledby="usersQuestionTwo" data-bs-parent="#usersAccordion">
+                                <div class="accordion-body">
+                                    Yes, users will have the ability to direct message their healthcare professionals to ask any questions relating to your health, or submitted requests.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <h3 class="pt-4">Healthcare Workers</h3>
+                    <div class="accordion accordion-flush" id="healthcareWorkersAccordion">
+                        <div class="accordion-item">
+                            <h4 class="accordion-header" id="healthcareQuestionOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#healthcareAnswerOne" aria-expanded="false" aria-controls="healthcareAnswerOne">
+                                    How can I access a patient's health records?
+                                </button>
+                            </h4>
+                            <div id="healthcareAnswerOne" class="accordion-collapse collapse" aria-labelledby="healthcareQuestionOne" data-bs-parent="#healthcareWorkersAccordion">
+                                <div class="accordion-body">
+                                    You will have the ability to submit requests via our portal. Your patients will have to approve your request, where a pdf report will subsequently be sent to your email associated with your account.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h4 class="accordion-header" id="healthcareQuestionTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#healthcareAnswerOne" aria-expanded="false" aria-controls="healthcareAnswerOne">
+                                    Are we able to post on the community interaction?
+                                </button>
+                            </h4>
+                            <div id="healthcareAnswerOne" class="accordion-collapse collapse" aria-labelledby="healthcareQuestionOne" data-bs-parent="#healthcareWorkersAccordion">
+                                <div class="accordion-body">
+                                    Yes! Our users will value 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <h3 class="pt-4">Third-Party Institutions</h3>
+                    <div class="accordion accordion-flush" id="thirdPartyAccordion">
+                        <div class="accordion-item">
+                            <h4 class="accordion-header" id="thirdPartyQuestionOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#thirdPartyAnswerOne" aria-expanded="false" aria-controls="thirdPartyAnswerOne">
+                                    How can we request access to health records?
+                                </button>
+                            </h4>
+                            <div id="thirdPartyAnswerOne" class="accordion-collapse collapse" aria-labelledby="thirdPartyQuestionOne" data-bs-parent="#thirdPartyAccordion">
+                                <div class="accordion-body">
+                                    To request access, you must be registered and approved as a legitimate institution. Please see the section below for further details on how to begin submitting a request.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+  </div>
+    
+    <!-- Health Request Section -->
+  <div id="health-request-section" class="container feature-page-container">
+      <h2 class="feature-title text-center border-bottom">Submitting Health Request</h2>
+      <section class="container mt-5">
+        <div class="row align-items-center">
+            <!-- Top left-->
+            <div class="col-md-6">
+                <img src="https://i.imgur.com/km40XhQ.png" alt="Description of Image" class="img-fluid">
+            </div>
+            <!-- Top right-->
+            <div class="col-md-6 align-items-center">
+                <p>Third-party institutions, such as universities and corporations, as well as healthcare workers, can request user health history by providing the details in the image to the left. Requesters will need to know the users name and date of birth in order for the request to go through. Any requests that do not match those details will not go through.</p>
+            </div>
+        </div>
+        <div class="row mt-4 align-items-center">
+            <!-- Bottom left-->
+            <div class="col-md-6 align-items-center">
+                <p>Upon successful submission of a request, users will receive a pending item on their "Incoming" page. Users then have the option to approve or deny each request based on the details provided. If approved, a pdf document will be sent to the email provided with all health history of the user.</p>
+            </div>
+            <!-- Bottom right -->
+            <div class="col-md-6">
+                <img src="https://i.imgur.com/huiWxQm.png" alt="Description of Another Image" class="img-fluid">
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <p>If you'd like to submit a request for health information, please <a href="/hs/requestHealthHistory" class="text-primary">click here</a>.</p>
+            </div>
+        </div>
+    </section>
+  </div>
+    
+    <!-- About Section -->
+  <div id="about-section" class="container feature-page-container">
+      <h2 class="feature-title text-center border-bottom">About Health Score</h2>
+      <div class="row align-items-center">
+            <div class="col-lg-6 mb-3 mb-lg-0">
+                <img src="https://i.imgur.com/4RlmUNF.png" alt="Visual depiction of Health Score services" class="img-fluid rounded">
+            </div>
+            <div class="col-lg-6">
+                <p>Health Score is a state-of-the-art universal health records application that simplifies how individuals and institutions manage and access medical records. Our platform allows users to securely store all their medical records in one accessible spot, revolutionizing how medical histories are maintained and shared.</p>
+                <p>Users can sign up to manage their records and request that healthcare facilities upload documents directly into their account. This seamless integration ensures that medical information is up-to-date and readily available.</p>
+                <p>Healthcare providers benefit from the ability to view patient records upon request, enabling them to deliver informed care. Meanwhile, third-party institutions such as universities and businesses can request access to necessary health records for application processes, with user consent, ensuring privacy and compliance are maintained.</p>
+                <p>At Health Score, we are committed to ensuring your health information is secure, accessible, and managed with the highest level of integrity. Join us in transforming health management by creating your account today.</p>
+            </div>
+        </div>
   </div>
 
   <!-- Footer -->
