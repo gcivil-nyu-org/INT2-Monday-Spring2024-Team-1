@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Health Score</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .grab {
+            cursor: -webkit-grab;
+            cursor: grab;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+
+        .navbar-custom {
+            background-color: #e3f2fd;
+        }
+
+        .navbar-brand {
+            position: relative;
+            background: url();
+            width: 170px;
+            left: 15px;
+            background-size: contain;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        .propertiesNoDisplay {
+            visibility: hidden;
+            display: none;
+        }
+
+        .addPropertiesValues {
+            padding: 0.75rem;
+            vertical-align: top;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .modalHeight {
+            max-height: 25rem;
+            overflow-y: auto;
+        }
+
+        .appointmentName {
+            text-decoration: underline;
+            color: blue;
+        }
+
+        .nav-tabs {
+            border-bottom: 0 !important;
+        }
+        .btn.filter-btn {
+            background-color: #5B0888;
+            border-color: transparent;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex; /* Make the button a flex container */
+            justify-content: center; /* Center content horizontally */
+            align-items: center;
+            height:39px
+        }
+        .btn.filter-btn:hover {
+            background-color: #2d0444;
+            color: white;
+        }
+        .btn.clear-btn{
+            background-color: white;
+            border-color: #5B0888;
+            color: #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height:39px
+        }
+        .btn.clear-btn:hover{
+            border-color: #2d0444;
+            background-color: #2d0444;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'header.html' %}
+
+<div class="container my-5">
+    <h2 class="text-center">Hospitals List</h2>
+    <br>
+
+    <!-- Filter Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <form method="GET" action="{% url 'list_hospitals' %}" class="form-row align-items-center">
+                <div class="col-2">
+                    <label for="name" class="sr-only">Hospital Name:</label>
+                    <input type="text" class="form-control mb-2" id="name" name="name"
+                           placeholder="Hospital Name" value="{{ request.GET.name }}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn filter-btn mb-2">Filter</button>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'list_hospitals' %}" class="btn clear-btn mb-2">Clear</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <br>
+
+    <!-- Tabs Section -->
+    <nav>
+        <div class="nav nav-tabs nav-justified" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-tab-pane" type="button" role="tab" aria-controls="pending-tab-pane" aria-selected="true">Pending</button>
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane" aria-selected="false">Active</button>
+            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane" type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Inactive</button>
+        </div>
+    </nav>
+
+    <!-- Data Display Section -->
+    <div class="row tab-content" id="nav-tabContent">
+        <div class="col-lg-12 tab-pane fade show active" id="pending-tab-pane" role="tabpanel" aria-labelledby="pending-tab">
+            <table class="table table-striped my-4 table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Contact Info</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Selected</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for hospital in hospitals %}
+                {% if hospital.status == "pending" %}
+                    <tr class="{% if hospital.status == 'inactive' %}grab{% endif %}" >
+                        <td>{{ hospital.name }}</td>
+                        <td>{{ hospital.address }}</td>
+                        <td>{{ hospital.contactInfo }}</td>
+                        <td class="{% if hospital.status == 'active' %}text-success
+                            {% elif hospital.status == 'inactive' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ hospital.status|capfirst }}
+                        </td>
+                        <td style="text-align: center;">
+                            <input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" data-id="{{ hospital.id }}">
+                        </td>
+                    </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-success" id="approve-btn">Approve</button>
+                <button type="button" class="btn btn-danger" id="reject-btn">Reject</button>
+            </div>
+            
+        </div>
+
+        <div class="col-lg-12 tab-pane fade" id="approved-tab-pane" role="tabpanel" aria-labelledby="approved-tab">
+            <table class="table table-striped my-4 table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Contact Info</th>
+                    <th scope="col">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for hospital in hospitals %}
+                {% if hospital.status == "active" %}
+                    <tr class="{% if hospital.status == 'inactive' %}grab{% endif %}" >
+                        <td>{{ hospital.name }}</td>
+                        <td>{{ hospital.address }}</td>
+                        <td>{{ hospital.contactInfo }}</td>
+                        <td class="{% if hospital.status == 'active' %}text-success
+                            {% elif hospital.status == 'inactive' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ hospital.status|capfirst }}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-lg-12 tab-pane fade" id="rejected-tab-pane" role="tabpanel" aria-labelledby="rejected-tab">
+            <table class="table table-striped my-4 table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Contact Info</th>
+                    <th scope="col">Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for hospital in hospitals %}
+                {% if hospital.status == "inactive" %}
+                    <tr class="{% if hospital.status == 'inactive' %}grab{% endif %}" >
+                        <td>{{ hospital.name }}</td>
+                        <td>{{ hospital.address }}</td>
+                        <td>{{ hospital.contactInfo }}</td>
+                        <td class="{% if hospital.status == 'active' %}text-success
+                            {% elif hospital.status == 'inactive' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ hospital.status|capfirst }}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+
+
+    function formattedDate(date) {
+        var dateObject = new Date(date);
+        var month = dateObject.getMonth() + 1;
+        var day = dateObject.getDate();
+        var year = dateObject.getFullYear();
+
+        if (month < 10) {
+            month = '0' + month;
+        }
+        if (day < 10) {
+            day = '0' + day;
+        }
+
+        var formattedDate = month + '/' + day + '/' + year;
+        return formattedDate
+    }
+
+
+    function capitalizeLetter(key) {
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    }
+
+    document.getElementById('approve-btn').addEventListener('click', function() {
+        const checkedBoxes = document.querySelectorAll('.form-check-input:checked');
+        const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
+        var updateUrl = '{% url "update_hospital_status" 11 %}';
+        var foundError = false;
+
+        for (let i = 0; i < requestIds.length; i++) {
+            const updateId = requestIds[i];
+
+            fetch(updateUrl.replace('11', updateId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: "active" }),
+            })
+            .then(response => response.json())
+            .catch((error) => {
+                foundError = true;
+                console.error("request error: ", error);
+                alert("Failed to update the status");
+            })
+        }
+
+        if(requestIds.length > 0 && !foundError) {
+            alert("Hospitals added to the active list");
+            window.location.href = '{% url "list_hospitals" %}';
+        }
+    })
+
+    document.getElementById('reject-btn').addEventListener('click', function(){
+        const checkedBoxes = document.querySelectorAll('.form-check-input:checked');
+        const requestIds = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.id);
+        var updateUrl = '{% url "update_hospital_status" 11 %}';
+        var foundError = false;
+
+        for (let i = 0; i < requestIds.length; i++) {
+            const updateId = requestIds[i];
+
+            fetch(updateUrl.replace('11', updateId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: "inactive" }),
+            })
+            .then(response => response.json())
+            .catch((error) => {
+                foundError = true;
+                console.error("request error: ", error);
+                alert("Failed to update the status");
+            })
+        }
+
+        if(requestIds.length > 0 && !foundError) {
+            alert("Hospitals added to the inactive list");
+            window.location.href = '{% url "list_hospitals" %}';
+        }
+    })
+</script>
+
+
+</body>
+</html>

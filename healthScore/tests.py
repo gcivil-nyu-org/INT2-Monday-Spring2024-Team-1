@@ -48,6 +48,8 @@ from healthScore.views import (
     delete_post,
     edit_post,
     delete_comment,
+    admin_view_health_history_requests,
+    get_admin_edit,
 )
 
 DATE_FORMAT = "%Y-%m-%d"
@@ -1126,3 +1128,217 @@ class TestRequestDecision(TestCase):
         )
         self.health_record.refresh_from_db()
         self.assertEqual(response.status_code, 200)
+
+
+class viewAdminHealthHistoryTestCase(TransactionTestCase):
+    reset_sequences = True
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+            dob=datetime.strptime("1990-01-01", "%Y-%m-%d"),
+            contactInfo="1234567890",
+            proofOfIdentity="Proof1",
+            address="Address1",
+            securityQues="",
+            securityAns="",
+            bloodGroup="A+",
+            is_staff=True,
+        )
+        self.appointment = Appointment.objects.create(
+            name="Eye Test",
+            properties=json.dumps(
+                {
+                    "cylindrical_power_right": 1.25,
+                    "cylindrical_power_left": 0.75,
+                    "spherical_power_left": -2.00,
+                    "spherical_power_right": -1.50,
+                    "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                }
+            ),
+        )
+        self.health_record = HealthRecord.objects.create(
+            doctorID=1,
+            userID=self.user,
+            hospitalID=1,
+            status="approved",
+            appointmentId=self.appointment,
+        )
+        self.hospital = Hospital.objects.create(
+            name="Hospital A",
+            address="Address A",
+            contactInfo="1234567890",
+        )
+        self.hospital_staff = HospitalStaff.objects.create(
+            hospitalID=self.hospital,
+            admin=False,
+            name="Doctor A",
+            specialization="Cardiology",
+            contactInfo="1234567890",
+            userID=self.user.id,
+        )
+
+    def test_admin_view_history(self):
+        url = reverse("admin_view_records")
+        # appointment name healthcare_worker, healthcare_facility and date are passed
+        request_struct = {
+            "appointment_name": "Vaccine",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital A",
+            "date": "2024-03-08",
+        }
+        request = self.factory.get(url, request_struct)
+        request.user = self.user
+        response = admin_view_health_history_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_view_history_requests(self):
+        url = reverse("admin_view_records")
+        # appointment name healthcare_worker, healthcare_facility date and record_status are passed
+        request = HttpRequest()
+        request.method = "GET"  # Set the HTTP method to GET
+        request.path = url
+        request.user = self.user
+        request.GET["appointment_name"] = "Vaccine"
+        request.GET["healthcare_worker"] = "Doctor A"
+        request.GET["healthcare_facility"] = "Hospital B"
+        request.GET["date"] = datetime.now().strftime(DATE_FORMAT)
+        request.GET["record_status"] = "approved"
+        response = admin_view_health_history_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_view_history_no_filters(self):
+        url = reverse("admin_view_records")
+        # appointment name healthcare_worker, healthcare_facility and date are passed
+        request_struct = {}
+        request = self.factory.get(url, request_struct)
+        request.user = self.user
+        response = admin_view_health_history_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_view_history_record_status(self):
+        url = reverse("admin_view_records")
+        # appointment name healthcare_worker, healthcare_facility and date are passed
+        request_struct = {
+            "appointment_name": "Vaccine",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital A",
+            "date": "2024-03-08",
+            "record_status": "pending",
+        }
+        request = self.factory.get(url, request_struct)
+        request.user = self.user
+        response = admin_view_health_history_requests(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_edit_health_record_view(self):
+        url = reverse("edit_record")
+        body = {
+            "recordId": "1",
+            "appointmentId": "1",
+            "appointmentType": "blood_test",
+            "appointmentProperties": {"type": "Covid"},
+            "doctorId": "1",
+            "hospitalID": "1",
+        }
+        request = self.factory.post(
+            url,
+            data=body,
+            content_type="application/json",
+        )
+
+        request.user = self.user
+        response = get_admin_edit(request, 1)
+        self.assertEqual(response.status_code, 200)
+
+
+class HospitalTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser(
+            email="testuser@test.com", password="12345"
+        )
+        self.client.login(email="testuser@test.com", password="12345")
+
+        Hospital.objects.create(name="General Hospital", status="active")
+        Hospital.objects.create(name="City Hospital", status="pending")
+        Hospital.objects.create(name="Specialist Hospital", status="inactive")
+
+    def test_list_hospitals_no_filter(self):
+        response = self.client.get(reverse("list_hospitals"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("General Hospital", response.content.decode())
+
+    def test_list_hospitals_with_filter(self):
+        response = self.client.get(reverse("list_hospitals") + "?status=pending")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("City Hospital", response.content.decode())
+        self.assertNotIn("General Hospital", response.content.decode())
+
+    def test_update_hospital_status(self):
+        hospital = Hospital.objects.get(name="General Hospital")
+        response = self.client.post(
+            reverse("update_hospital_status", args=[hospital.id]),
+            data={"status": "inactive"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        hospital.refresh_from_db()
+        self.assertEqual(hospital.status, "inactive")
+
+    def test_update_hospital_status_invalid(self):
+        hospital = Hospital.objects.get(name="General Hospital")
+        response = self.client.post(
+            reverse("update_hospital_status", args=[hospital.id]),
+            data={"status": "unknown"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+
+class ViewsTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_patient(
+            email="patient@test.com", password="12345"
+        )
+        self.hospital = Hospital.objects.create(name="Test Hospital")
+        self.client = Client()
+
+    def test_get_patients(self):
+        self.client.login(email="patient@test.com", password="12345")
+        response = self.client.get(reverse("get_patients"))
+        expected_patients = list(User.objects.filter(is_patient=True).values())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            len(response.json()["patients"]),
+            len(expected_patients),
+        )
+
+    def test_get_doctor_details(self):
+        self.client.login(email="patient@test.com", password="12345")
+        doctor_user = User.objects.create_healthcare_worker(
+            email="doctor@test.com", password="12345"
+        )
+        doctor = HospitalStaff.objects.create(
+            id=1, userID=doctor_user.id, hospitalID=self.hospital
+        )
+        response = self.client.get(reverse("get_doctor_details", args=[doctor.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["user"],
+            list(User.objects.filter(id=doctor.userID).values()),
+        )
+
+    def test_get_patient_details(self):
+        self.client.login(email="patient@test.com", password="12345")
+        patient = User.objects.create_patient(
+            email="patient1@test.com", password="12345"
+        )
+        response = self.client.get(reverse("get_patient_details", args=[patient.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["user"], list(User.objects.filter(id=patient.id).values())
+        )

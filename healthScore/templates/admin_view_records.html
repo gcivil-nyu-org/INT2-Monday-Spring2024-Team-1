@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Health Score</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+
+        .btn.filter-btn {
+            background-color: #5B0888;
+            border-color: transparent;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex; /* Make the button a flex container */
+            justify-content: center; /* Center content horizontally */
+            align-items: center;
+            height:39px
+        }
+        .btn.filter-btn:hover {
+            background-color: #2d0444;
+            color: white;
+        }
+
+        .btn.clear-btn{
+            background-color: white;
+            border-color: #5B0888;
+            color: #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height:39px
+        }
+        .btn.clear-btn:hover{
+            border-color: #2d0444;
+            background-color: #2d0444;
+            color: white;
+        }
+
+        .appointmentName {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'header.html' %}
+
+<div class="container my-5">
+    <h2 class="text-center">Facility Records</h2>
+
+    <!-- Filter Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h4>Filters</h4>
+            <form method="GET" action="{% url 'admin_view_records' %}" class="form-row align-items-center">
+                <div class="col-2">
+                    <label for="appointment_name" class="sr-only">Reason for Visit:</label>
+                    <input type="text" class="form-control mb-2" id="appointment_name" name="appointment_name"
+                           placeholder="Reason for Visit" value="{{ request.GET.appointment_name }}">
+                </div>
+                <div class="col-2">
+                    <label for="healthcare_worker" class="sr-only">User Name:</label>
+                    <input type="text" class="form-control mb-2" id="healthcare_worker" name="healthcare_worker"
+                           placeholder="Healthcare Worker" value="{{ request.GET.healthcare_worker }}">
+                </div>
+                <div class="col-auto">
+                    <label for="date" class="sr-only">Date:</label>
+                    <input type="date" class="form-control mb-2" id="date" name="date" value="{{ request.GET.date }}">
+                </div>
+                <div class="col-auto">
+                    <label for="record_status" class="sr-only">Request Status:</label>
+                    <select class="form-control mb-2" id="record_status" name="record_status"
+                            aria-label="Request Status">
+                        <option value="" {% if request.GET.record_status == "" %}selected{% endif %}> All Request
+                            Status
+                        </option>
+                        <option value="approved" {% if request.GET.record_status == "approved" %}selected{% endif %}>
+                            Approved
+                        </option>
+                        <option value="rejected" {% if request.GET.record_status == "rejected" %}selected{% endif %}>
+                            Rejected
+                        </option>
+                        <option value="pending" {% if request.GET.record_status == "pending" %}selected{% endif %}>
+                            Pending
+                        </option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn filter-btn mb-2">Filter</button>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'admin_view_records' %}" class="btn clear-btn mb-2">Clear</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Data Display Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table table-striped my-4">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Patient Email</th>
+                    <th scope="col">Reason for Visit</th>
+                    <th scope="col">Visit Details</th>
+                    <th scope="col">Healthcare Worker</th>
+                    <th scope="col">Created Date</th>
+                    <th scope="col">Updated Date</th>
+                    <th scope="col">Rejected Reason</th>
+                    <th scope="col">Status</th>
+                    
+                </tr>
+                </thead>
+                <tbody>
+                {% for request, details in zipped_details %}
+                    <tr class="{% if request.record_status == 'rejected' %}grab{% endif %}" >
+                        <td>{{ request.user_email}}</td>
+                        <td class="appointmentName">
+                            {% if request.record_status == 'rejected' %}
+                                <a href="javascript:void(0);" onclick="getProperties(`{{ request.hospital_name }}|{{ request.record_status }}|{{ request.doctor_name }}|{{ request.appointment_type }}|{{ request.appointment_properties }}|{{ request.appointment_name }}|{{ request.record_id }} | {{ request.user_email }}`)">{{ request.appointment_name }}</a>
+                            {% else %}
+                                {{ request.appointment_name }}
+                            {% endif %}
+                        </td>
+                        <td>{{ request.appointment_type }}</td>
+                        <td>{{ request.doctor_name }}</td>
+                        <td>{{ request.createdAt }}</td>
+                        <td>{{ request.updatedAt }}</td>
+                        <td>{{ request.rejectedReason|capfirst }}</td>
+                        <td class="{% if request.record_status == 'approved' %}text-success
+                            {% elif request.record_status == 'rejected' %}text-danger
+                            {% else %}text-warning{% endif %}">
+                            {{ request.record_status|capfirst }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+    }
+
+
+    function formattedDate(date) {
+        var dateObject = new Date(date);
+        var month = dateObject.getMonth() + 1;
+        var day = dateObject.getDate();
+        var year = dateObject.getFullYear();
+
+        if (month < 10) {
+            month = '0' + month;
+        }
+        if (day < 10) {
+            day = '0' + day;
+        }
+
+        var formattedDate = month + '/' + day + '/' + year;
+        return formattedDate
+    }
+
+
+    function capitalizeLetter(key) {
+        return key.charAt(0).toUpperCase() + key.slice(1);
+    }
+
+    function getProperties(appointment) {
+        appointment_details = appointment.split("|")
+        if (appointment_details[1]=="rejected") {
+            console.log(appointment_details, "sopmethign")
+
+
+            hospital_name = appointment_details[0]
+            record_status = appointment_details[1]
+            doctor_name = appointment_details[2]
+            appointment_name = appointment_details[3]
+            appointment_properties = appointment_details[4]
+            appointment_type = appointment_details[5]
+            record_id = appointment_details[6]
+            user_email = appointment_details[7]
+
+            fetch('{% url "get_record" rec_id=0 %}'.replace('0', record_id)
+                    , {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+
+                        console.log(data, "data")
+                        // Get the base URL
+                        const baseUrl = window.location.origin + "/" + window.location.pathname.split("/")[1].replace(/\/[^/]*$/, '/') + "/";
+                        console.log(baseUrl); // Output: http://127.0.0.1:8000/hs/
+                        
+                        window.location.href = baseUrl+"adminGetEdit/"+record_id
+
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+
+        } else {
+            // document.getElementById('modal-body').innerHTML = `<div class='alert alert-danger' role='alert'>
+            //                         No Properties!
+            //                         </div>`
+        }
+    }
+
+</script>
+
+
+</body>
+</html>
