@@ -1,0 +1,105 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+
+
+# To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
+from django.views.decorators.csrf import csrf_exempt
+
+from .models import (
+    Hospital,
+    User,
+    HospitalStaff,
+)
+
+from .file_upload import file_upload
+
+
+def homepage(request):
+    return render(request, "homepage.html")
+
+
+@csrf_exempt
+def registration(request):
+    if request.method == "POST":
+        role = request.POST.get("role")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        fullname = request.POST.get("fullname")
+        phone_number = request.POST.get("contactInfo")
+        context = {"error_message:": ""}
+
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            if user.is_patient:
+                context["error_message"] = (
+                    "A patient account already exists with this email"
+                )
+            elif user.is_staff:
+                context["error_message"] = (
+                    "An admin account already exists with this email"
+                )
+            else:
+                context["error_message"] = (
+                    "A healthcare worker account already exists with this email"
+                )
+
+            return render(request, "registration.html", context)
+
+        common_fields = {
+            "email": email,
+            "password": password,
+            "name": fullname,
+            "contactInfo": phone_number,
+        }
+
+        if role == "User":
+            file_url = file_upload(request, "identityProof")
+            user_specific_fields = {
+                "dob": request.POST.get("dob"),
+                "gender": request.POST.get("gender"),
+                "address": f"{request.POST.get('street_address')}, {request.POST.get('city')}, {request.POST.get('state')}, {request.POST.get('zipcode')}",
+                "proofOfIdentity": file_url,  # This needs handling for file upload
+            }
+            User.objects.create_patient(**common_fields, **user_specific_fields)
+
+        elif role == "Healthcare Admin":
+            hospital_name = request.POST.get("hospital_name")
+            hospital_address = f"{request.POST.get('facility_street_address')}, {request.POST.get('facility_city')}, {request.POST.get('facility_state')}, {request.POST.get('facility_zipcode')}"
+
+            user = User.objects.create_staff(**common_fields)
+
+            hospital, created = Hospital.objects.get_or_create(
+                name=hospital_name,
+                defaults={"address": hospital_address, "contactInfo": phone_number},
+            )
+
+            HospitalStaff.objects.create(
+                hospitalID=hospital,
+                admin=True,
+                name=fullname,
+                contactInfo=phone_number,
+                userID=user.id,
+            )
+
+        return redirect("homepage")
+
+    return render(request, "registration.html")
+
+
+def login_view(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        user = authenticate(request, email=email, password=password, is_active=True)
+
+        if user is not None:
+            login(request, user)
+            return redirect("homepage")
+        else:
+            return render(
+                request,
+                "login.html",
+                {"error_message": "Invalid email or password. Please try again."},
+            )
+    return render(request, "login.html")

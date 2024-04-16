@@ -17,10 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from healthScore import views
+from healthScore import homepage_and_auth
 
 urlpatterns = [
-    path("", views.homepage, name="homepage"),
+    path("", homepage_and_auth.homepage, name="homepage"),
     path("hs/", include("healthScore.urls")),
     path("admin/", admin.site.urls),
     path("chat/", include("chat.urls")),

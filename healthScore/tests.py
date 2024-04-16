@@ -24,30 +24,45 @@ from healthScore.models import (
 
 from healthScore.file_upload import file_upload
 
-from healthScore.views import (
-    edit_user_info,
-    view_health_history,
-    view_report,
-    view_user_info,
+from healthScore.profile_view import edit_user_info, view_user_info
+
+from healthScore.patient_view_records import (
     view_health_history_requests,
-    add_health_record_view,
-    record_sent_view,
-    activate_healthcare_staff,
-    deactivate_healthcare_staff,
-    create_post,
-    view_all_posts,
-    view_post,
-    create_comments,
-    get_doctors,
+    view_report,
     get_record,
+    view_health_history,
+)
+
+from healthScore.patient_submit_health_record import (
+    get_doctors,
     get_edit,
     edit_health_record_view,
+    add_health_record_view,
+    record_sent_view,
+)
+
+from healthScore.healthcare_data import (
     add_healthcare_staff,
+    deactivate_healthcare_staff,
+    activate_healthcare_staff,
+)
+
+from healthScore.community_data import (
+    view_all_posts,
+    view_post,
+    create_post,
+    edit_post,
+    delete_post,
+    create_comments,
+    delete_comment,
+)
+
+from healthScore.external_health_request_access import (
     request_health_history,
     view_health_history_access_requests,
-    delete_post,
-    edit_post,
-    delete_comment,
+)
+
+from healthScore.admin_view_user_healthrecords import (
     admin_view_health_history_requests,
     get_admin_edit,
 )
