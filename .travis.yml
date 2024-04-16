@@ -40,5 +40,5 @@ deploy:
     bucket_name: $BUCKET_NAME
     on:
       repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
-      branch: develop
+      branch: restructure
     skip_cleanup: 'true'
