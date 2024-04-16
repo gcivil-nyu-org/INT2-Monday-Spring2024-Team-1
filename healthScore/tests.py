@@ -24,7 +24,6 @@ from healthScore.models import (
 
 from healthScore.file_upload import file_upload
 
-
 from healthScore.profile_view import edit_user_info, view_user_info
 
 from healthScore.patient_view_records import (
@@ -67,8 +66,6 @@ from healthScore.admin_view_user_healthrecords import (
     admin_view_health_history_requests,
     get_admin_edit,
 )
-
-
 
 DATE_FORMAT = "%Y-%m-%d"
 

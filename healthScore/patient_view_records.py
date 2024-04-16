@@ -19,10 +19,6 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT
 from reportlab.lib.styles import ParagraphStyle
 
-# To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
-from django.views.decorators.csrf import csrf_exempt
-
-from healthConfig.settings import EMAIL_HOST_USER
 
 from .models import (
     HealthRecord,
