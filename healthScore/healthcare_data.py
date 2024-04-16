@@ -12,6 +12,7 @@ from .models import (
     HospitalStaff,
 )
 
+
 def get_facility_doctors(request):
     if request.user.is_authenticated:
         user_hospital_staff_entry = get_object_or_404(

@@ -6,7 +6,6 @@ from django.forms.models import model_to_dict
 import json
 
 
-
 from .models import (
     Appointment,
     HealthRecord,

@@ -45,7 +45,6 @@ APPOINTMENT_TYPE = {
 }
 
 
-
 @login_required(login_url="/")
 def view_health_history_requests(request):
     if request.user.is_patient:

@@ -21,7 +21,6 @@ from . import patient_view_records
 from . import admin_view_user_healthrecords
 
 
-
 @csrf_exempt
 def request_health_history(request):
     if request.method == "POST":
