@@ -1,5 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from .user_utils import get_health_history_details
+from .models import (
+    Post,
+)
 
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
@@ -103,3 +108,29 @@ def login_view(request):
                 {"error_message": "Invalid email or password. Please try again."},
             )
     return render(request, "login.html")
+
+@login_required(login_url="/")
+def user_dashboard(request):
+    # Check if the user is a patient and authorized to see the data
+    if not request.user.is_patient:
+        return redirect("homepage")  # Redirect to the homepage if not a patient
+
+    # Fetch posts
+    posts = Post.objects.filter(user=request.user).order_by("-createdAt")[:5]  # example limit to 5 recent posts
+
+    # Fetch pending requests
+    zipped_requests = get_health_history_details(request=request) if request.user.is_patient else None
+
+    # Fetch approved health records
+    updated_params = request.GET.copy()
+    updated_params["record_status"] = "approved"
+    request.GET = updated_params
+    zipped_history = get_health_history_details(request=request) if request.user.is_patient else None
+
+    # Passing all the required context to the dashboard template
+    context = {
+        "posts": posts,
+        "zipped_requests": zipped_requests,
+        "zipped_history": zipped_history
+    }
+    return render(request, "user_dashboard.html", context)
