@@ -195,4 +195,5 @@ urlpatterns = [
         healthscore_admin_view.update_hospital_status,
         name="update_hospital_status",
     ),
+    path("userDashboard", homepage_and_auth.user_dashboard, name="user_dashboard"),
 ]
