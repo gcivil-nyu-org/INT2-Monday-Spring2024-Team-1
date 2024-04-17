@@ -69,3 +69,4 @@ virtualenv==20.24.6
 wcwidth==0.1.9
 zope.interface==6.2
 supervisor
+channels-redis==4.2.0

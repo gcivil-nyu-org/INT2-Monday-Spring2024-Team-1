@@ -80,7 +80,14 @@ WSGI_APPLICATION = "healthConfig.wsgi.application"
 ASGI_APPLICATION = "healthConfig.asgi.application"
 
 # Configuring the communication layer used by Django channels for websocket handling
-CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "CONFIG": {
+        #     "hosts": [("tutornyu.g0snws.ng.0001.usw2.cache.amazonaws.com", 6379)],
+        # },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
