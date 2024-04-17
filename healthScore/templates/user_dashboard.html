@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Score</title>
+  <style>
+      
+  </style>
+</head>
+
+<body>
+    <!-- Header -->
+    {% include 'header.html' %}
+    <div class="container mt-4">
+        <div class="row">
+          <div class="col-md-6">
+            <h2>Recent Posts</h2>
+            <div class="list-group">
+              {% for post in posts %}
+              <a href="{% url 'view_post' post_id=post.id %}" class="list-group-item list-group-item-action">{{ post.title }} - {{ post.createdAt }}</a>
+              {% empty %}
+              <p>No posts found.</p>
+              {% endfor %}
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'my_posts' %}" class="btn btn-link">View all my posts ></a>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h2>Health History</h2>
+            <div class="list-group">
+              {% for history in zipped_history %}
+              <a href="#" class="list-group-item list-group-item-action">{{ history.record_title }} - {{ history.record_date }}</a>
+              {% empty %}
+              <p>No records found.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Pending Requests</h2>
+                <div class="list-group">
+                  {% for request in zipped_requests %}
+                  <a href="#" class="list-group-item list-group-item-action">{{ request.request_detail }} - {{ request.request_date }}</a>
+                  {% empty %}
+                  <p>No pending requests found.</p>
+                  {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4">
+              <div class="col-12">
+                <a href="{% url 'new_health_record' %}" class="btn btn-primary">Add Health Record</a>
+              </div>
+            </div>
+        </div>
+    </div>
+
+</body>
