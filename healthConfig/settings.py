@@ -83,9 +83,14 @@ ASGI_APPLICATION = "healthConfig.asgi.application"
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
-        # "CONFIG": {
-        #     "hosts": [("tutornyu.g0snws.ng.0001.usw2.cache.amazonaws.com", 6379)],
-        # },
+        "CONFIG": {
+            "hosts": [
+                (
+                    "health-score-integration-env.eba-kxwt66bh.us-west-2.elasticbeanstalk.com",
+                    6379,
+                )
+            ],
+        },
     },
 }
 
