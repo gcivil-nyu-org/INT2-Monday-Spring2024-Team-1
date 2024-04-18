@@ -178,7 +178,7 @@ def add_health_record_view(request):
         appointmentProperties = dict()
         all_fields = request.POST
 
-        medicalDocs = {request.POST.get("appointmentType"): medicalDocUrl}
+        medicalDocs = medicalDocUrl
         for key, value in all_fields.items():
             if (
                 key != "csrfmiddlewaretoken"

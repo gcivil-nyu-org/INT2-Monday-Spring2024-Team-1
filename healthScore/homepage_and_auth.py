@@ -15,6 +15,9 @@ from .file_upload import file_upload
 
 
 def homepage(request):
+    # if(request.user):
+    #     profile = request.user.profile_picture
+    #     return render(request, "homepage.html", profile)
     return render(request, "homepage.html")
 
 

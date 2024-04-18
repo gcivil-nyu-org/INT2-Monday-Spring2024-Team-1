@@ -46,6 +46,10 @@ def edit_user_info(request):
                 setattr(current_user, field, new_value)
                 data_updated = True
 
+        if(request.FILES.get("profile_picture")):
+            setattr(current_user, "profilePic", file_url)
+            data_updated = True
+
         new_specialization = request.POST.get("specialization")
         if new_specialization:
             try:
