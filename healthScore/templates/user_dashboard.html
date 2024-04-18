@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Score</title>
   <style>
-      
+
   </style>
 </head>
 
@@ -27,22 +27,44 @@
               {% endfor %}
             </div>
             <div class="mt-3">
-                <a href="{% url 'my_posts' %}" class="btn btn-link">View all my posts ></a>
+                <a href="{% url 'my_posts' %}" class="btn btn-link">View all my posts >></a>
             </div>
           </div>
           <div class="col-md-6">
             <h2>Health History</h2>
-            <div class="list-group">
-              {% for history in zipped_history %}
-              <a href="#" class="list-group-item list-group-item-action">{{ history.record_title }} - {{ history.record_date }}</a>
-              {% empty %}
-              <p>No records found.</p>
-              {% endfor %}
+            <div class="col-lg-12">
+                <table class="table my-4 table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Reason for Visit</th>
+                            <th scope="col">Healthcare Worker</th>
+                            <th scope="col">Healthcare Facility</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for history, record in zipped_details %}
+                        <tr>
+                            <td>{{ history.appointment_name }}</td>
+                            <td>{{ history.doctor_name }}</td>
+                            <td>{{ history.hospital_name }}</td>
+                            <td>{{ history.hospital_address }}</td>
+                            <td>{{ history.createdAt|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">No records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+            <a href="{% url 'view_health_history' %}" class="btn btn-link">View my full health picture >></a>
           </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <h2>Pending Requests</h2>
                 <div class="list-group">
                   {% for request in zipped_requests %}
@@ -52,10 +74,8 @@
                   {% endfor %}
                 </div>
             </div>
-            <div class="col-md-4">
-              <div class="col-12">
+            <div class="col-md-6">
                 <a href="{% url 'new_health_record' %}" class="btn btn-primary">Add Health Record</a>
-              </div>
             </div>
         </div>
     </div>
