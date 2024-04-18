@@ -118,19 +118,27 @@ def user_dashboard(request):
     # Fetch posts
     posts = Post.objects.filter(user=request.user).order_by("-createdAt")[:5]  # example limit to 5 recent posts
 
-    # Fetch pending requests
-    zipped_requests = get_health_history_details(request=request) if request.user.is_patient else None
-
-    # Fetch approved health records
     updated_params = request.GET.copy()
     updated_params["record_status"] = "approved"
+
+    # Update request.GET with the modified QueryDict
     request.GET = updated_params
-    zipped_history = get_health_history_details(request=request) if request.user.is_patient else None
+
+    zipped_details = get_health_history_details(request=request)
+
+    filtered_details = [
+        details for details in zipped_details
+        if details[0]['record_status'] == 'approved'  # Filter by 'approved' status
+    ]
+    sorted_details = sorted(
+        filtered_details,
+        key=lambda x: x[0]['createdAt'],  # Sort by 'createdAt' date
+        reverse=True  # Most recent first
+    )[:5]
 
     # Passing all the required context to the dashboard template
     context = {
         "posts": posts,
-        "zipped_requests": zipped_requests,
-        "zipped_history": zipped_history
+        "zipped_details": sorted_details,
     }
     return render(request, "user_dashboard.html", context)
