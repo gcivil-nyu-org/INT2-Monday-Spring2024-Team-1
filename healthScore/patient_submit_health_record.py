@@ -127,7 +127,14 @@ def edit_health_record_view(request):
         appointment.name = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
         props = dict()
         for key in request.POST:
-            if key not in ["hospitalID", "doctorId", "appointmentType", "recordId", "appointmentId", "csrfmiddlewaretoken"]:
+            if key not in [
+                "hospitalID",
+                "doctorId",
+                "appointmentType",
+                "recordId",
+                "appointmentId",
+                "csrfmiddlewaretoken",
+            ]:
                 props[key] = request.POST.get(key)
 
         appointment.properties = json.dumps(props)
@@ -142,9 +149,9 @@ def edit_health_record_view(request):
 
         record.save()
 
-        if(request.user.is_staff):
+        if request.user.is_staff:
             return redirect("admin_view_records")
-        
+
         return redirect("view_requests")
 
 

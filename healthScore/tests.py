@@ -281,15 +281,13 @@ class LoginViewTest(TestCase):
 
     def test_post_request_valid_credentials(self):
         response = self.client.post(
-            reverse("login"), {"email": "test@example.com",
-                               "password": "testpassword"}
+            reverse("login"), {"email": "test@example.com", "password": "testpassword"}
         )
         self.assertRedirects(response, reverse("homepage"))
 
     def test_post_request_invalid_credentials(self):
         response = self.client.post(
-            reverse("login"), {"email": "test@example.com",
-                               "password": "wrongpassword"}
+            reverse("login"), {"email": "test@example.com", "password": "wrongpassword"}
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(
@@ -621,8 +619,7 @@ class CommunityTestCase(TestCase):
     def test_create_comments(self):
         comment_data = {"content": "Test Comment"}
         request = self.factory.post(
-            reverse("create_comments", kwargs={
-                    "post_id": self.post.id}), comment_data
+            reverse("create_comments", kwargs={"post_id": self.post.id}), comment_data
         )
         request.user = self.user1
         response = create_comments(request, post_id=self.post.id)
@@ -638,8 +635,7 @@ class CommunityTestCase(TestCase):
         self.assertEqual(old_count - new_count, 1)
 
     def test_delete_comment(self):
-        request = self.factory.get(
-            reverse("delete_comment", args=[self.comment.id]))
+        request = self.factory.get(reverse("delete_comment", args=[self.comment.id]))
         request.user = self.user1
         old_count = Comment.objects.count()
         response = delete_comment(request, comment_id=self.comment.id)
@@ -648,10 +644,8 @@ class CommunityTestCase(TestCase):
         self.assertEqual(old_count - new_count, 1)
 
     def test_edit_post(self):
-        new_post = {"title": "Updated Title",
-                    "description": "Updated Description"}
-        request = self.factory.post(
-            reverse("edit_post", args=[self.post.id]), new_post)
+        new_post = {"title": "Updated Title", "description": "Updated Description"}
+        request = self.factory.post(reverse("edit_post", args=[self.post.id]), new_post)
         request.user = self.user1
         response = edit_post(request, post_id=self.post.id)
         self.assertEqual(response.status_code, 302)
@@ -1290,8 +1284,7 @@ class HospitalTests(TestCase):
         self.assertIn("General Hospital", response.content.decode())
 
     def test_list_hospitals_with_filter(self):
-        response = self.client.get(
-            reverse("list_hospitals") + "?status=pending")
+        response = self.client.get(reverse("list_hospitals") + "?status=pending")
         self.assertEqual(response.status_code, 200)
         self.assertIn("City Hospital", response.content.decode())
         self.assertNotIn("General Hospital", response.content.decode())
@@ -1344,8 +1337,7 @@ class ViewsTestCase(TestCase):
         doctor = HospitalStaff.objects.create(
             id=1, userID=doctor_user.id, hospitalID=self.hospital
         )
-        response = self.client.get(
-            reverse("get_doctor_details", args=[doctor.id]))
+        response = self.client.get(reverse("get_doctor_details", args=[doctor.id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.json()["user"],
@@ -1357,10 +1349,8 @@ class ViewsTestCase(TestCase):
         patient = User.objects.create_patient(
             email="patient1@test.com", password="12345"
         )
-        response = self.client.get(
-            reverse("get_patient_details", args=[patient.id]))
+        response = self.client.get(reverse("get_patient_details", args=[patient.id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response.json()["user"], list(
-                User.objects.filter(id=patient.id).values())
+            response.json()["user"], list(User.objects.filter(id=patient.id).values())
         )

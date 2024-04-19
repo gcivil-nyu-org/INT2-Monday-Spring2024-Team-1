@@ -22,7 +22,7 @@ def medical_or_profile(file, loc, request):
             )
             bucket_name = settings.AWS_STORAGE_BUCKET_NAME
 
-            if("userEmail" in request.POST):
+            if "userEmail" in request.POST:
                 user = request.POST.get("userEmail").split("@")[0]
             else:
                 user = request.user.email.split("@")[0]
