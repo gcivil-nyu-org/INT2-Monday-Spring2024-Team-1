@@ -395,7 +395,7 @@
                     }
                 }
 
-                var secondVisitElement = document.getElementById("second_visit");
+                /*var secondVisitElement = document.getElementById("second_visit");
                 if (secondVisitElement.length>0){
                     var secondVistValue = secondVisitElement.value;
                     if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
@@ -404,7 +404,30 @@
                             </div>`;
                         return false;
                     }
+                }*/
+
+                // -------------
+                console.log("Validating form..."); // Add a log to indicate the function is being executed
+
+                var secondVisitElement = document.getElementById("second_visit");
+                console.log("Second Visit Element:", secondVisitElement); // Log the value of secondVisitElement
+
+                if (secondVisitElement) {
+                    var secondVisitValue = secondVisitElement.value.toLowerCase();
+                    console.log("Second Visit Value:", secondVisitValue); // Log the value of secondVisitValue
+
+                    if (!['yes', 'no'].includes(secondVisitValue)) {
+                        document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
+                Please Enter Yes or No for Second Visit!
+                </div>`;
+                        console.log("Validation failed: Invalid value for second visit."); // Log if validation fails
+                        return false; // Prevent form submission
+                    }
                 }
+                console.log("Validation passed."); // Log if validation passes
+                return true;
+
+                // --------------------
 
                 document.getElementById('message').innerHTML = "";
                 return true;
