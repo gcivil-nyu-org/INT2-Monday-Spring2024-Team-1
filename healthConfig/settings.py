@@ -100,6 +100,7 @@ DATABASES = {
     }
 }
 
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -155,12 +156,11 @@ EMAIL_HOST_USER = "nyu.healthscore.team@gmail.com"
 EMAIL_HOST_PASSWORD = "oray abbz sltz obob"  # app password not the actual password
 
 # S3 Bucket Keys
-AWS_ACCESS_KEY_ID = os.getenv("S3_BUCKET_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("S3_BUCKET_SECRET_KEY")
-AWS_STORAGE_BUCKET_NAME = os.getenv("S3_BUCKET_STORAGE_NAME")
 AWS_S3_SIGNATURE_NAME = "s3v4"
 AWS_S3_REGION_NAME = "us-west-2"
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_VERITY = True
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+RUN_SERVER_PORT = 8080
