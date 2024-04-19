@@ -93,7 +93,7 @@
                             <h4 class="card-title">Submit a Health Request</h4>
                             <hr />
                         </div>
-                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="return validateRecordForm()" enctype="multipart/form-data">
+                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3 ml-3 mr-3">
                                 <div class="dropdown">
@@ -383,51 +383,39 @@
 
 
             function validateRecordForm() {
+                console.log("Validating form..."); // Add a log to indicate the function is being executed
+
                 var bloodGroupElement = document.getElementById("blood_group");
+                console.log("Blood Group Element:", bloodGroupElement); // Log the value of bloodGroupElement
                 if (bloodGroupElement.length>0) {
                     var bloodGroupValue = bloodGroupElement.value;
+                    console.log("Blood Group Value:", bloodGroupValue); // Log the value of bloodGroupValue
                     // ensure only certain values can be entered 
                     if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                             Invalid Blood Type Provided!
                             </div>`;
+                        console.log("Validation failed: Invalid value for blood group.") // Log fail
                         return false;
                     }
-                }
+                    console.log("Validation passed."); // Log pass
+                } 
 
-                /*var secondVisitElement = document.getElementById("second_visit");
+                var secondVisitElement = document.getElementById("second_visit");
+                console.log("Second Visit Element:", secondVisitElement); // Log the value of secondVisitElement
                 if (secondVisitElement.length>0){
                     var secondVistValue = secondVisitElement.value;
+                    console.log("Second Visit Value:", secondVisitValue); // Log the value of secondVisitValue
                     if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                             Please Enter Yes/No for Second Visit!
                             </div>`;
+                        console.log("Validation failed: Invalid value for second visit.") // Log fail
                         return false;
                     }
-                }*/
+                    console.log("Validation passed."); // Log pass
+                } 
 
-                // -------------
-                console.log("Validating form..."); // Add a log to indicate the function is being executed
-
-                var secondVisitElement = document.getElementById("second_visit");
-                console.log("Second Visit Element:", secondVisitElement); // Log the value of secondVisitElement
-
-                if (secondVisitElement) {
-                    var secondVisitValue = secondVisitElement.value.toLowerCase();
-                    console.log("Second Visit Value:", secondVisitValue); // Log the value of secondVisitValue
-
-                    if (!['yes', 'no'].includes(secondVisitValue)) {
-                        document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                Please Enter Yes or No for Second Visit!
-                </div>`;
-                        console.log("Validation failed: Invalid value for second visit."); // Log if validation fails
-                        return false; // Prevent form submission
-                    }
-                }
-                console.log("Validation passed."); // Log if validation passes
-                return true;
-
-                // --------------------
 
                 document.getElementById('message').innerHTML = "";
                 return true;
