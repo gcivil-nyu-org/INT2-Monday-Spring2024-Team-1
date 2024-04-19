@@ -11,12 +11,19 @@ from channels.security.websocket import AllowedHostsOriginValidator
 from django.urls import path, re_path
 
 
-application = ProtocolTypeRouter({
-    'websocket': AllowedHostsOriginValidator(
-        AuthMiddlewareStack(
-            URLRouter([
-                    re_path(r"ws/chat/(?P<receiver_id>\d+)/$", consumers.ChatConsumer.as_asgi()),
-            ])
-        )
-    ),
-})
+application = ProtocolTypeRouter(
+    {
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(
+                URLRouter(
+                    [
+                        re_path(
+                            r"ws/chat/(?P<receiver_id>\d+)/$",
+                            consumers.ChatConsumer.as_asgi(),
+                        ),
+                    ]
+                )
+            )
+        ),
+    }
+)
