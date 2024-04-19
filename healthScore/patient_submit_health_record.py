@@ -119,21 +119,23 @@ def get_edit(request, rec_id):
 @login_required(login_url="/")
 def edit_health_record_view(request):
     if request.method == "POST":
-        rec = json.loads(request.body)
-        id = rec.get("recordId")
+        id = request.POST.get("recordId")
         record = get_object_or_404(HealthRecord, id=id)
-        appID = rec.get("appointmentId")
+        appID = request.POST.get("appointmentId")
         appointment = get_object_or_404(Appointment, id=appID)
 
-        appointment.name = APPOINTMENT_TYPE[rec.get("appointmentType")]
-        appointment.properties = json.dumps(rec.get("appointmentProperties"))
+        appointment.name = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
+        appointment.properties = json.dumps(request.POST.get("appointmentProperties"))
         appointment.save()
 
-        record.doctorID = rec.get("doctorId")
-        record.hospitalID = rec.get("hospitalID")
+        file_url = file_upload(request, "medical_document")
+        record.doctorID = request.POST.get("doctorId")
+        record.hospitalID = request.POST.get("hospitalID")
         record.status = "pending"
         record.appointmentId = appointment
-        record.save()
+        record.healthDocuments = file_url
+
+        # record.save()
 
         return JsonResponse({"message": "Updated succesfully"})
 

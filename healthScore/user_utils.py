@@ -93,6 +93,7 @@ def get_health_history_details(request):
                     "rejectedReason": h.rejectedReason,
                     "record_status": h_details["status"],
                     "appointment_properties": json.dumps(appointment_properties),
+                    "medicalFile": h.healthDocuments
                 }
             )
 
