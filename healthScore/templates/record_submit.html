@@ -387,7 +387,8 @@
 
                 var bloodGroupElement = document.getElementById("blood_group");
                 console.log("Blood Group Element:", bloodGroupElement); // Log the value of bloodGroupElement
-                if (bloodGroupElement) {
+                console.log("Blood Group pre-Value:", bloodGroupValue);
+                if (bloodGroupElement.length > 0) {
                     var bloodGroupValue = bloodGroupElement.value;
                     console.log("Blood Group Value:", bloodGroupValue); // Log the value of bloodGroupValue
                     // ensure only certain values can be entered 
@@ -403,7 +404,7 @@
 
                 var secondVisitElement = document.getElementById("second_visit");
                 console.log("Second Visit Element:", secondVisitElement); // Log the value of secondVisitElement
-                if (secondVisitElement){
+                if (secondVisitElement.length > 0) {
                     var secondVistValue = secondVisitElement.value;
                     console.log("Second Visit Value:", secondVisitValue); // Log the value of secondVisitValue
                     if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
