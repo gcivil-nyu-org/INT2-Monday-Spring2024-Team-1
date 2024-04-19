@@ -156,6 +156,9 @@ EMAIL_HOST_USER = "nyu.healthscore.team@gmail.com"
 EMAIL_HOST_PASSWORD = "oray abbz sltz obob"  # app password not the actual password
 
 # S3 Bucket Keys
+AWS_ACCESS_KEY_ID = os.getenv("S3_BUCKET_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("S3_BUCKET_SECRET_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("S3_BUCKET_STORAGE_NAME")
 AWS_S3_SIGNATURE_NAME = "s3v4"
 AWS_S3_REGION_NAME = "us-west-2"
 AWS_S3_FILE_OVERWRITE = False
