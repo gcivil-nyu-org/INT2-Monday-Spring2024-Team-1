@@ -17,7 +17,7 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    runserver.default_port = settings.RUN_SERVER_PORT
+    # runserver.default_port = settings.RUN_SERVER_PORT
     execute_from_command_line(sys.argv)
 
 
