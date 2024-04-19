@@ -93,7 +93,7 @@
                             <h4 class="card-title">Submit a Health Request</h4>
                             <hr />
                         </div>
-                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="return validateRecordForm()" enctype="multipart/form-data">
+                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3 ml-3 mr-3">
                                 <div class="dropdown">
