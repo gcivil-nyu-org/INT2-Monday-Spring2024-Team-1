@@ -125,19 +125,24 @@ def edit_health_record_view(request):
         appointment = get_object_or_404(Appointment, id=appID)
 
         appointment.name = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
-        appointment.properties = json.dumps(request.POST.get("appointmentProperties"))
+        props = dict()
+        for key in request.POST:
+            if key not in ["hospitalID", "doctorId", "appointmentType", "recordId", "appointmentId", "csrfmiddlewaretoken"]:
+                props[key] = request.POST.get(key)
+
+        appointment.properties = json.dumps(props)
         appointment.save()
 
-        file_url = file_upload(request, "medical_document")
+        file_url = file_upload(request, "medicalHistory")
         record.doctorID = request.POST.get("doctorId")
         record.hospitalID = request.POST.get("hospitalID")
         record.status = "pending"
         record.appointmentId = appointment
         record.healthDocuments = file_url
 
-        # record.save()
+        record.save()
 
-        return JsonResponse({"message": "Updated succesfully"})
+        return redirect("view_requests")
 
 
 @login_required(login_url="/")
