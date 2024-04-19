@@ -142,6 +142,9 @@ def edit_health_record_view(request):
 
         record.save()
 
+        if(request.user.is_staff):
+            return redirect("admin_view_records")
+        
         return redirect("view_requests")
 
 
