@@ -101,7 +101,8 @@ def create_comments(request, post_id):
 
 @login_required(login_url="/")
 def delete_comment(request, comment_id):
-    comment = get_object_or_404(Comment, id=comment_id)
+    userID = request.user.id
+    comment = get_object_or_404(Comment, id=comment_id, commenter=userID)
     if request.method == "GET":
         comment.delete()
 
