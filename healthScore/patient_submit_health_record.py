@@ -119,23 +119,40 @@ def get_edit(request, rec_id):
 @login_required(login_url="/")
 def edit_health_record_view(request):
     if request.method == "POST":
-        rec = json.loads(request.body)
-        id = rec.get("recordId")
+        id = request.POST.get("recordId")
         record = get_object_or_404(HealthRecord, id=id)
-        appID = rec.get("appointmentId")
+        appID = request.POST.get("appointmentId")
         appointment = get_object_or_404(Appointment, id=appID)
 
-        appointment.name = APPOINTMENT_TYPE[rec.get("appointmentType")]
-        appointment.properties = json.dumps(rec.get("appointmentProperties"))
+        appointment.name = APPOINTMENT_TYPE[request.POST.get("appointmentType")]
+        props = dict()
+        for key in request.POST:
+            if key not in [
+                "hospitalID",
+                "doctorId",
+                "appointmentType",
+                "recordId",
+                "appointmentId",
+                "csrfmiddlewaretoken",
+            ]:
+                props[key] = request.POST.get(key)
+
+        appointment.properties = json.dumps(props)
         appointment.save()
 
-        record.doctorID = rec.get("doctorId")
-        record.hospitalID = rec.get("hospitalID")
+        file_url = file_upload(request, "medicalHistory")
+        record.doctorID = request.POST.get("doctorId")
+        record.hospitalID = request.POST.get("hospitalID")
         record.status = "pending"
         record.appointmentId = appointment
+        record.healthDocuments = file_url
+
         record.save()
 
-        return JsonResponse({"message": "Updated succesfully"})
+        if request.user.is_staff:
+            return redirect("admin_view_records")
+
+        return redirect("view_requests")
 
 
 @login_required(login_url="/")
@@ -178,7 +195,7 @@ def add_health_record_view(request):
         appointmentProperties = dict()
         all_fields = request.POST
 
-        medicalDocs = {request.POST.get("appointmentType"): medicalDocUrl}
+        medicalDocs = medicalDocUrl
         for key, value in all_fields.items():
             if (
                 key != "csrfmiddlewaretoken"
