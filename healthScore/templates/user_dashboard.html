@@ -16,6 +16,25 @@
         padding: 15px;
     }
     
+    .health-record-button {
+            background-color: #5B0888;
+            font-size: 15px;
+            font-weight: bold;
+            color: #FFFFFF;
+            border: 2px solid #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+    .health-record-button:hover {
+            background-color: #2d0444;
+            border: 2px solid #2d0444;
+            text-decoration: none;
+            color: white
+        }
+    
     .container > .row {
         margin-top: 20px;
     }
@@ -116,7 +135,13 @@
             </div>
             </div>
             <div class="col-md-6">
-                <a href="{% url 'new_health_record' %}" class="btn btn-primary">Add Health Record</a>
+                <div class="content-section">
+                    <h2>Submitting Health Records</h2>
+                        <p class="text-justify">
+                            Keeping your health records up to date is crucial for ensuring you receive the best care possible. By adding new records, you help your healthcare providers understand your medical history, current conditions, and tailor their care to your specific needs. Click below to add your latest health records securely.
+                        </p>
+                        <a href="{% url 'new_health_record' %}" class="health-record-button">Add Health Record</a>
+                </div>
             </div>
         </div>
     </div>
