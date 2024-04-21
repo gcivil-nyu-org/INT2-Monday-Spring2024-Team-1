@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 from .models import (
     Post,
@@ -101,7 +102,12 @@ def create_comments(request, post_id):
 
 @login_required(login_url="/")
 def delete_comment(request, comment_id):
+    userID = request.user.id
     comment = get_object_or_404(Comment, id=comment_id)
+
+    if comment.post.user.id != userID and comment.commenter.id != userID:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
     if request.method == "GET":
         comment.delete()
 

@@ -191,7 +191,10 @@ def get_admin_edit(request, rec_id):
         else:
             unselectedDoctorList.append(docs)
 
+    record_email = User.objects.get(id=selected_record[0]["userID_id"]).email
+
     data = {
+        "email": record_email,
         "appointment_props": app[0],
         "record": selected_record[0],
         "hospitals": unselectedHospitalList,
