@@ -110,14 +110,13 @@ def login_view(request):
             )
     return render(request, "login.html")
 
+
 @login_required(login_url="/")
 def user_dashboard(request):
     if not request.user.is_patient:
         return redirect("homepage")
 
-    posts = Post.objects.filter(
-        user=request.user
-    ).order_by("-createdAt")[:5]
+    posts = Post.objects.filter(user=request.user).order_by("-createdAt")[:5]
 
     updated_params = request.GET.copy()
     updated_params["record_status"] = "approved"
@@ -127,13 +126,12 @@ def user_dashboard(request):
     zipped_details = get_health_history_details(request=request)
 
     filtered_details = [
-        details for details in zipped_details
-        if details[0]['record_status'] == 'approved'
+        details
+        for details in zipped_details
+        if details[0]["record_status"] == "approved"
     ]
     sorted_details = sorted(
-        filtered_details,
-        key=lambda x: x[0]['createdAt'],
-        reverse=True
+        filtered_details, key=lambda x: x[0]["createdAt"], reverse=True
     )[:5]
 
     all_access_requests = HealthHistoryAccessRequest.objects.filter(

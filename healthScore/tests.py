@@ -1367,7 +1367,7 @@ class UserDashboardTestCase(TestCase):
             contactInfo="1234567890",
             address="123 Main St",
             proofOfIdentity="SomeProof",
-            bloodGroup="A+"
+            bloodGroup="A+",
         )
 
         HealthHistoryAccessRequest.objects.create(
@@ -1378,17 +1378,19 @@ class UserDashboardTestCase(TestCase):
         )
 
     def test_dashboard_view_access(self):
-        url = reverse('user_dashboard')
+        url = reverse("user_dashboard")
         request = self.factory.get(url)
         request.user = self.user
-        response = user_dashboard(request)  # Assuming user_dashboard is the correct view function
+        response = user_dashboard(
+            request
+        )  # Assuming user_dashboard is the correct view function
         self.assertEqual(response.status_code, 200)
 
     def test_user_not_patient(self):
         # Assuming a method or attribute that can change user role
         self.user.is_patient = False
         self.user.save()
-        url = reverse('user_dashboard')
+        url = reverse("user_dashboard")
         request = self.factory.get(url)
         request.user = self.user
         response = user_dashboard(request)
