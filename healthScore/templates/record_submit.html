@@ -383,38 +383,29 @@
 
 
             function validateRecordForm() {
-                console.log("Validating form..."); // Add a log to indicate the function is being executed
 
                 var bloodGroupElement = document.getElementById("blood_group");
-                console.log("Blood Group Element:", bloodGroupElement); // Log the value of bloodGroupElement
                 console.log("Blood Group pre-Value:", bloodGroupValue);
                 if (bloodGroupElement.length > 0) {
                     var bloodGroupValue = bloodGroupElement.value;
-                    console.log("Blood Group Value:", bloodGroupValue); // Log the value of bloodGroupValue
                     // ensure only certain values can be entered 
                     if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                             Invalid Blood Type Provided!
                             </div>`;
-                        console.log("Validation failed: Invalid value for blood group.") // Log fail
                         return false;
                     }
-                    console.log("Validation passed."); // Log pass
                 } 
 
                 var secondVisitElement = document.getElementById("second_visit");
-                console.log("Second Visit Element:", secondVisitElement); // Log the value of secondVisitElement
                 if (secondVisitElement.length > 0) {
                     var secondVistValue = secondVisitElement.value;
-                    console.log("Second Visit Value:", secondVisitValue); // Log the value of secondVisitValue
                     if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                             Please Enter Yes/No for Second Visit!
                             </div>`;
-                        console.log("Validation failed: Invalid value for second visit.") // Log fail
                         return false;
                     }
-                    console.log("Validation passed."); // Log pass
                 } 
 
 
