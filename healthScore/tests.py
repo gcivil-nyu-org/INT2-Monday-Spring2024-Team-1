@@ -286,7 +286,7 @@ class LoginViewTest(TestCase):
         response = self.client.post(
             reverse("login"), {"email": "test@example.com", "password": "testpassword"}
         )
-        self.assertRedirects(response, reverse("homepage"))
+        self.assertRedirects(response, reverse("user_dashboard"))
 
     def test_post_request_invalid_credentials(self):
         response = self.client.post(
