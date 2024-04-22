@@ -101,7 +101,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("homepage")
+            return redirect("user_dashboard")
         else:
             return render(
                 request,
