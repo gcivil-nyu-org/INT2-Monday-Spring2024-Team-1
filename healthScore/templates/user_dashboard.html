@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Score</title>
+  <style>
+    .content-section {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+    
+    .health-record-button {
+            background-color: #5B0888;
+            font-size: 15px;
+            font-weight: bold;
+            color: #FFFFFF;
+            border: 2px solid #5B0888;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+    .health-record-button:hover {
+            background-color: #2d0444;
+            border: 2px solid #2d0444;
+            text-decoration: none;
+            color: white
+        }
+    
+    .container > .row {
+        margin-top: 20px;
+    }
+
+    .container > .row + .row {
+        margin-top: 40px;
+    }
+  </style>
+</head>
+
+<body>
+    <!-- Header -->
+    {% include 'header.html' %}
+    <div class="container mt-4">
+        <div class="row">
+          <div class="col-md-6">
+          <div class="content-section">
+            <h2>Recent Posts</h2>
+            <div class="list-group">
+              {% for post in posts %}
+              <a href="{% url 'view_post' post_id=post.id %}" class="list-group-item list-group-item-action">{{ post.title }} - {{ post.createdAt }}</a>
+              {% empty %}
+              <p>No posts found.</p>
+              {% endfor %}
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'my_posts' %}" class="btn btn-link">View all my posts >></a>
+            </div>
+          </div>
+          </div>
+          <div class="col-md-6">
+            <div class="content-section">
+            <h2>Health History</h2>
+            <div class="col-lg-12">
+                <table class="table my-4 table-custom">
+                    <thead>
+                        <tr>
+                            <th scope="col">Reason for Visit</th>
+                            <th scope="col">Healthcare Worker</th>
+                            <th scope="col">Healthcare Facility</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for history, record in zipped_details %}
+                        <tr>
+                            <td>{{ history.appointment_name }}</td>
+                            <td>{{ history.doctor_name }}</td>
+                            <td>{{ history.hospital_name }}</td>
+                            <td>{{ history.hospital_address }}</td>
+                            <td>{{ history.createdAt|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">No records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a href="{% url 'view_health_history' %}" class="btn btn-link">View my full health picture >></a>
+          </div>
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="content-section">
+                <h2>Pending Requests</h2>
+                <p>You currently have {{ total_requests }} pending requests for your health records.</p>
+                <div class="col-lg-12">
+                    <table class="table my-4 table-custom">
+                        <thead>
+                            <tr>
+                                <th scope="col">Requestor Name</th>
+                                <th scope="col">Requestor Email</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in access_requests %}
+                            <tr>
+                                <td>{{ request.requestorName }}</td>
+                                <td>{{ request.requestorEmail }}</td>
+                                <td>{{ request.createdAt|date:"Y-m-d" }}</td>
+                                <td>{{ request.purpose }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8">No records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'view_health_history_access_requests' %}" class="btn btn-link">View all pending requests >></a>
+            </div>
+            </div>
+            <div class="col-md-6">
+                <div class="content-section">
+                    <h2>Submitting Health Records</h2>
+                        <p class="text-justify">
+                            Keeping your health records up to date is crucial for ensuring you receive the best care possible. By adding new records, you help your healthcare providers understand your medical history, current conditions, and tailor their care to your specific needs. Click below to add your latest health records securely.
+                        </p>
+                        <a href="{% url 'new_health_record' %}" class="health-record-button">Add Health Record</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>

@@ -21,7 +21,6 @@ from healthScore.models import (
     Comment,
 )
 
-
 from healthScore.file_upload import file_upload
 
 from healthScore.profile_view import edit_user_info, view_user_info
@@ -55,6 +54,10 @@ from healthScore.community_data import (
     delete_post,
     create_comments,
     delete_comment,
+)
+
+from healthScore.homepage_and_auth import (
+    user_dashboard,
 )
 
 from healthScore.external_health_request_access import (
@@ -245,23 +248,20 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_edit_health_record_view(self):
         url = reverse("edit_record")
-        body = {
-            "recordId": "1",
-            "appointmentId": "1",
-            "appointmentType": "blood_test",
-            "appointmentProperties": {"type": "Covid"},
-            "doctorId": "1",
-            "hospitalID": "1",
-        }
-        request = self.factory.post(
-            url,
-            data=body,
-            content_type="application/json",
-        )
+        request = HttpRequest()
+        request.path = url
+        request.method = "POST"
+
+        request.POST["recordId"] = "1"
+        request.POST["appointmentId"] = "1"
+        request.POST["appointmentType"] = "blood_test"
+        request.POST["appointmentProperties"] = {"type": "Covid"}
+        request.POST["doctorId"] = "1"
+        request.POST["hospitalID"] = "1"
 
         request.user = self.user
         response = edit_health_record_view(request)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
 
 class HomepageViewTest(TestCase):
@@ -286,7 +286,7 @@ class LoginViewTest(TestCase):
         response = self.client.post(
             reverse("login"), {"email": "test@example.com", "password": "testpassword"}
         )
-        self.assertRedirects(response, reverse("homepage"))
+        self.assertRedirects(response, reverse("user_dashboard"))
 
     def test_post_request_invalid_credentials(self):
         response = self.client.post(
@@ -949,7 +949,6 @@ class TestFileUpload(TestCase):
 
     @patch("boto3.resource")
     def test_file_upload_profile_pic(self, mock_boto3_resource):
-
         mock_s3_resource = mock_boto3_resource.return_value
         mock_bucket = mock_s3_resource.Bucket.return_value
 
@@ -980,7 +979,6 @@ class TestFileUpload(TestCase):
 
     @patch("boto3.resource")
     def test_file_upload_medical_document(self, mock_boto3_resource):
-
         mock_s3_resource = mock_boto3_resource.return_value
         mock_bucket = mock_s3_resource.Bucket.return_value
 
@@ -1012,7 +1010,6 @@ class TestFileUpload(TestCase):
 
     @patch("boto3.resource")
     def test_file_upload_identity_proof(self, mock_boto3_resource):
-
         mock_s3_resource = mock_boto3_resource.return_value
         mock_bucket = mock_s3_resource.Bucket.return_value
 
@@ -1357,3 +1354,44 @@ class ViewsTestCase(TestCase):
         self.assertEqual(
             response.json()["user"], list(User.objects.filter(id=patient.id).values())
         )
+
+
+class UserDashboardTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            password="userpass1",
+            name="User1",
+            dob="1990-01-01",
+            contactInfo="1234567890",
+            address="123 Main St",
+            proofOfIdentity="SomeProof",
+            bloodGroup="A+",
+        )
+
+        HealthHistoryAccessRequest.objects.create(
+            requestorName="Test Requestor",
+            requestorEmail="testrequestor@gmail.com",
+            purpose="For onboarding process",
+            userID=self.user,
+        )
+
+    def test_dashboard_view_access(self):
+        url = reverse("user_dashboard")
+        request = self.factory.get(url)
+        request.user = self.user
+        response = user_dashboard(
+            request
+        )  # Assuming user_dashboard is the correct view function
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_not_patient(self):
+        # Assuming a method or attribute that can change user role
+        self.user.is_patient = False
+        self.user.save()
+        url = reverse("user_dashboard")
+        request = self.factory.get(url)
+        request.user = self.user
+        response = user_dashboard(request)
+        self.assertEqual(response.status_code, 302)

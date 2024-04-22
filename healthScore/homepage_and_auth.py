@@ -1,5 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from .user_utils import get_health_history_details
+from .models import (
+    Post,
+    HealthHistoryAccessRequest,
+)
 
 
 # To overcame issues with regards to permissions (POST calls will give CSRF errors if the below tag is not used)
@@ -95,7 +101,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("homepage")
+            return redirect("user_dashboard")
         else:
             return render(
                 request,
@@ -103,3 +109,43 @@ def login_view(request):
                 {"error_message": "Invalid email or password. Please try again."},
             )
     return render(request, "login.html")
+
+
+@login_required(login_url="/")
+def user_dashboard(request):
+    if not request.user.is_patient:
+        return redirect("homepage")
+
+    posts = Post.objects.filter(user=request.user).order_by("-createdAt")[:5]
+
+    updated_params = request.GET.copy()
+    updated_params["record_status"] = "approved"
+
+    request.GET = updated_params
+
+    zipped_details = get_health_history_details(request=request)
+
+    filtered_details = [
+        details
+        for details in zipped_details
+        if details[0]["record_status"] == "approved"
+    ]
+    sorted_details = sorted(
+        filtered_details, key=lambda x: x[0]["createdAt"], reverse=True
+    )[:5]
+
+    all_access_requests = HealthHistoryAccessRequest.objects.filter(
+        userID=request.user
+    ).order_by("-createdAt")
+
+    total_requests = all_access_requests.count()
+
+    recent_requests = all_access_requests[:5]
+
+    context = {
+        "posts": posts,
+        "zipped_details": sorted_details,
+        "access_requests": recent_requests,
+        "total_requests": total_requests,
+    }
+    return render(request, "user_dashboard.html", context)
