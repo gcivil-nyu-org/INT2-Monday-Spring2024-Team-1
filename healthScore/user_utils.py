@@ -102,8 +102,6 @@ def get_health_history_details(request):
         return zipped_details
 
 
-
-
 def get_health_history_details_doctor(request):
     if request.method == "GET":
         userID = request.user
@@ -178,5 +176,4 @@ def get_health_history_details_doctor(request):
                 }
             )
 
-        
         return detailed_history_list

@@ -119,7 +119,7 @@ urlpatterns = [
     path(
         "viewHealthHistoryDoc",
         patient_view_records.view_health_history_doc,
-        name="view_health_history_doc"
+        name="view_health_history_doc",
     ),
     # community apis
     path("community/", community_data.community_home, name="community"),

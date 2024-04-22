@@ -221,5 +221,7 @@ def view_health_history_doc(request):
         request.GET = updated_params
 
         zipped_details = get_health_history_details_doctor(request=request)
-        return render(request, "view_records_doctors.html", {"docs_records": zipped_details})
+        return render(
+            request, "view_records_doctors.html", {"docs_records": zipped_details}
+        )
     return redirect("homepage")

@@ -30,7 +30,7 @@ from healthScore.patient_view_records import (
     view_report,
     get_record,
     view_health_history,
-    view_health_history_doc
+    view_health_history_doc,
 )
 
 from healthScore.patient_submit_health_record import (
@@ -1398,7 +1398,6 @@ class UserDashboardTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
-
 class viewDocHealthHistoryTestCase(TransactionTestCase):
     reset_sequences = True
 
@@ -1463,7 +1462,6 @@ class viewDocHealthHistoryTestCase(TransactionTestCase):
         request.user = self.user
         response = view_health_history_doc(request)
         self.assertEqual(response.status_code, 200)
-
 
     def test_admin_view_history_fail(self):
         url = reverse("admin_view_records")
