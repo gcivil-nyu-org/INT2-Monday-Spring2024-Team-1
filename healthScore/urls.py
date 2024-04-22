@@ -59,11 +59,6 @@ urlpatterns = [
         patient_view_records.view_health_history,
         name="view_health_history",
     ),
-    path(
-        "viewHealthHistoryDoc",
-        patient_view_records.view_health_history_doc,
-        name="view_health_history_doc"
-    ),
     path("viewReports", patient_view_records.view_report, name="view_reports"),
     path("getRecord/<str:rec_id>/", patient_view_records.get_record, name="get_record"),
     # Submitting health request apis
@@ -120,6 +115,11 @@ urlpatterns = [
         "activateHealthcareStaff",
         healthcare_data.activate_healthcare_staff,
         name="activate_healthcare_staff",
+    ),
+    path(
+        "viewHealthHistoryDoc",
+        patient_view_records.view_health_history_doc,
+        name="view_health_history_doc"
     ),
     # community apis
     path("community/", community_data.community_home, name="community"),
