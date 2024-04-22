@@ -107,9 +107,7 @@ def get_health_history_details(request):
 def get_health_history_details_doctor(request):
     if request.method == "GET":
         userID = request.user
-        print(userID.id)
         history_list = HealthRecord.objects.filter(doctorID=userID.id)
-        # history_list = HealthRecord.objects.filter(doctorID=10)
 
         record_status = request.GET.get("record_status")
         if record_status:
@@ -127,18 +125,6 @@ def get_health_history_details_doctor(request):
                 name__icontains=healthcare_worker
             ).values_list("id", flat=True)
             history_list = history_list.filter(doctorID__in=doctor_ids)
-
-        filter_date = request.GET.get("date")
-        if filter_date:
-            filter_date = datetime.strptime(filter_date, "%Y-%m-%d").date()
-            current_tz = timezone.get_current_timezone()
-            start_of_day = timezone.make_aware(
-                datetime.combine(filter_date, datetime.min.time()), current_tz
-            )
-            end_of_day = start_of_day + timedelta(days=1)
-            history_list = history_list.filter(
-                createdAt__range=(start_of_day, end_of_day)
-            )
 
         healthcare_facility = request.GET.get("healthcare_facility")
         if healthcare_facility:
