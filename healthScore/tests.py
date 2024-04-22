@@ -7,7 +7,7 @@ from django.core import mail
 from unittest.mock import patch
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from datetime import datetime, date
+from datetime import datetime
 import json
 
 from healthScore.models import (
