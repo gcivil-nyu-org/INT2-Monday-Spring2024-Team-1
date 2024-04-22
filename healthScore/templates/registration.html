@@ -390,10 +390,10 @@
 
     <label for="admin_password">Password<span style="color: red;">*</span></label>
     <input type="password" id="admin_password" name="password" required onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
-    <div id="admin_password_requirements" class="password-requirements" style="display: none;">
+    <div id="password_requirements" class="password-requirements" style="display: none;">
         Password must be at least 8 characters long, cannot be common or similar to personal information, and cannot be fully numeric.
     </div>
-    <span id="amin_password_error" class="error-message"></span><br>
+    <span id="admin_password_error" class="error-message"></span><br>
 
     <label for="admin_retype_password">Confirm Password<span style="color: red;">*</span></label>
     <input type="password" id="admin_retype_password" name="retype_password" required>
