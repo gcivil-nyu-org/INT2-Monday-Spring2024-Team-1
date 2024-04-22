@@ -88,23 +88,46 @@
       
     var password = document.getElementById("password").value;
     var retypePassword = document.getElementById("retype_password").value;
-    var hasCapitalLetter = /[A-Z]/.test(password);
-    var hasSpecialCharacter = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
 
     // Ensure password and retype password match
     if (password !== retypePassword) {
-      document.getElementById("retype_password_error").innerHTML = "Passwords do not match";
-      return false;
+        document.getElementById("retype_password_error").innerHTML = "Passwords do not match";
+        return false;
     } else {
-      document.getElementById("retype_password_error").innerHTML = "";
+        document.getElementById("retype_password_error").innerHTML = "";
     }
 
-    // Ensure password meets all requirements
-    if (password.length < 8 || !hasCapitalLetter || !hasSpecialCharacter) {
-      document.getElementById("password_error").innerHTML = "Password must be at least 8 characters long, contain a capital letter, and a special character";
-      return false;
+    // Ensure password meets length requirements
+    if (password.length < 8) {
+        document.getElementById("password_error").innerHTML = "Password must contain at least 8 characters";
+        return false;
     } else {
-      document.getElementById("password_error").innerHTML = "";
+        document.getElementById("password_error").innerHTML = "";
+    }
+
+    // Check if password is too similar to other personal information
+    var email = document.getElementById("email").value;
+    var fullname = document.getElementById("fullname").value;
+    var dob = document.getElementById("dob").value;
+    var contactInfo = document.getElementById("contactInfo").value;
+
+    var personalInfo = [email, fullname, dob, contactInfo];
+    if (personalInfo.includes(password)) {
+        document.getElementById("password_error").innerHTML = "Your password can't be too similar to your other personal information.";
+        return false;
+    }
+
+    // Check if password is a commonly used password
+    var commonPasswords = ["password", "123456", "12345678", "qwerty", "abc123", "password1"];
+    if (commonPasswords.includes(password.toLowerCase())) {
+        document.getElementById("password_error").innerHTML = "Your password can't be a commonly used password.";
+        return false;
+    }
+
+    // Check if password is entirely numeric
+    if (/^\d+$/.test(password)) {
+        document.getElementById("password_error").innerHTML = "Your password can't be entirely numeric.";
+        return false;
     }
 
     // Ensure all fields are filled out
@@ -117,43 +140,73 @@
         }
       }
     }
+
     document.getElementById("form_error").innerHTML = "";
+    document.getElementById("password_error").innerHTML = "";
+    document.getElementById("retype_password_error").innerHTML = "";
+
     return true;
   }
   
   function validateHealthcareAdminForm() {
-    var password = document.getElementById("admin_password").value;
-    var retypePassword = document.getElementById("admin_retype_password").value;
-    var hasCapitalLetter = /[A-Z]/.test(password);
-    var hasSpecialCharacter = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+      var password = document.getElementById("admin_password").value;
+      var retypePassword = document.getElementById("admin_retype_password").value;
 
-    // Ensure password and retype password match
-    if (password !== retypePassword) {
-      document.getElementById("admin_retype_password_error").innerHTML = "Passwords do not match";
-      return false;
-    } else {
-      document.getElementById("admin_retype_password_error").innerHTML = "";
-    }
-
-    // Ensure password meets all requirements
-    if (password.length < 8 || !hasCapitalLetter || !hasSpecialCharacter) {
-      document.getElementById("admin_password_error").innerHTML = "Password must be at least 8 characters long, contain a capital letter, and a special character";
-      return false;
-    } else {
-      document.getElementById("admin_password_error").innerHTML = "";
-    }
-
-    // Ensure all fields are filled out
-    var formElements = document.getElementById("registration_form").elements;
-    for (var i = 0; i < formElements.length; i++) {
-      if (formElements[i].tagName === "INPUT" || formElements[i].tagName === "SELECT") {
-        if (formElements[i].value === "") {
-          document.getElementById("form_error").innerHTML = "Please fill out all fields";
+      // Ensure password and retype password match
+      if (password !== retypePassword) {
+          document.getElementById("admin_retype_password_error").innerHTML = "Passwords do not match";
           return false;
-        }
+      } else {
+          document.getElementById("admin_retype_password_error").innerHTML = "";
       }
-    }
-    document.getElementById("form_error").innerHTML = "";
+
+      // Ensure password meets all requirements
+      if (password.length < 8) {
+          document.getElementById("admin_password_error").innerHTML = "Password must contain at least 8 characters";
+          return false;
+      } else {
+          document.getElementById("admin_password_error").innerHTML = "";
+      }
+
+      // Check if password is too similar to other personal information
+      var email = document.getElementById("admin_email").value;
+      var fullname = document.getElementById("admin_fullname").value;
+      var contactInfo = document.getElementById("admin_contactInfo").value;
+
+      var personalInfo = [email, fullname, contactInfo];
+      if (personalInfo.includes(password)) {
+          document.getElementById("admin_password_error").innerHTML = "Your password can't be too similar to your other personal information.";
+          return false;
+      }
+
+      // Check if password is a commonly used password
+      var commonPasswords = ["password", "123456", "12345678", "qwerty", "abc123", "password1"];
+      if (commonPasswords.includes(password.toLowerCase())) {
+          document.getElementById("admin_password_error").innerHTML = "Your password can't be a commonly used password.";
+          return false;
+      }
+
+      // Check if password is entirely numeric
+      if (/^\d+$/.test(password)) {
+          document.getElementById("admin_password_error").innerHTML = "Your password can't be entirely numeric.";
+          return false;
+      }
+
+      // Ensure all fields are filled out
+      var formElements = document.getElementById("registration_form").elements;
+      for (var i = 0; i < formElements.length; i++) {
+          if (formElements[i].tagName === "INPUT" || formElements[i].tagName === "SELECT") {
+            if (formElements[i].value === "") {
+                document.getElementById("form_error").innerHTML = "Please fill out all fields";
+                return false;
+            }
+          }
+      }
+
+      document.getElementById("form_error").innerHTML = "";
+      document.getElementById("admin_password_error").innerHTML = "";
+      document.getElementById("admin_retype_password_error").innerHTML = "";
+
     return true;
   }
 
@@ -229,7 +282,7 @@
     <label for="password">Password<span style="color: red;">*</span></label>
     <input type="password" id="password" name="password" required onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
     <div id="password_requirements" class="password-requirements" style="display: none;">
-        Password must be at least 8 characters long, contain a capital letter, and a special character.
+        Password must be at least 8 characters long, cannot be common or similar to personal information, and cannot be fully numeric.
     </div>
     <span id="password_error" class="error-message"></span><br>
     
@@ -337,10 +390,10 @@
 
     <label for="admin_password">Password<span style="color: red;">*</span></label>
     <input type="password" id="admin_password" name="password" required onfocus="showPasswordRequirements()" onblur="hidePasswordRequirements()">
-    <div id="admin_password_requirements" class="password-requirements" style="display: none;">
-        Password must be at least 8 characters long, contain a capital letter, and a special character.
+    <div id="password_requirements" class="password-requirements" style="display: none;">
+        Password must be at least 8 characters long, cannot be common or similar to personal information, and cannot be fully numeric.
     </div>
-    <span id="amin_password_error" class="error-message"></span><br>
+    <span id="admin_password_error" class="error-message"></span><br>
 
     <label for="admin_retype_password">Confirm Password<span style="color: red;">*</span></label>
     <input type="password" id="admin_retype_password" name="retype_password" required>
