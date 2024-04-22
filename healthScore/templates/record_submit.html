@@ -385,7 +385,6 @@
             function validateRecordForm() {
 
                 var bloodGroupElement = document.getElementById("blood_group");
-                console.log("Blood Group pre-Value:", bloodGroupValue);
                 if (bloodGroupElement.length > 0) {
                     var bloodGroupValue = bloodGroupElement.value;
                     // ensure only certain values can be entered 
@@ -395,10 +394,10 @@
                             </div>`;
                         return false;
                     }
-                } 
+                }
 
                 var secondVisitElement = document.getElementById("second_visit");
-                if (secondVisitElement.length > 0) {
+                if (secondVisitElement.length>0) {
                     var secondVistValue = secondVisitElement.value;
                     if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
