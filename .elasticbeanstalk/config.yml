@@ -1,0 +1,6 @@
+branch-defaults:
+  jasmine_dev:
+    environment: null
+    group_suffix: null
+global:
+  profile: eb-cli
