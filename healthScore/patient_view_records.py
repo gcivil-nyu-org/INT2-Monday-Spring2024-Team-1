@@ -26,7 +26,7 @@ from .models import (
     HospitalStaff,
 )
 
-from .user_utils import get_health_history_details
+from .user_utils import get_health_history_details, get_health_history_details_doctor
 
 DATE_FORMAT = "%Y-%m-%d"
 APPOINTMENT_TYPE = {
@@ -208,4 +208,20 @@ def view_health_history(request):
 
         zipped_details = get_health_history_details(request=request)
         return render(request, "view_history.html", {"zipped_details": zipped_details})
+    return redirect("homepage")
+
+
+@login_required(login_url="/")
+def view_health_history_doc(request):
+    if request.user.is_healthcare_worker:
+        updated_params = request.GET.copy()
+        updated_params["record_status"] = "pending"
+
+        # Update request.GET with the modified QueryDict
+        request.GET = updated_params
+
+        zipped_details = get_health_history_details_doctor(request=request)
+        return render(
+            request, "view_records_doctors.html", {"docs_records": zipped_details}
+        )
     return redirect("homepage")

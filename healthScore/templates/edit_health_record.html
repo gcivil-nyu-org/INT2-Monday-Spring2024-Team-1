@@ -109,7 +109,7 @@
                         <hr />
                     </div>
                     <form id="updateRecord" method="post" action="{% url 'edit_record' %}"
-                        onsubmit="validateRecordForm()" enctype="multipart/form-data">
+                        onsubmit="return validateRecordForm()" enctype="multipart/form-data">
 
 
                         <div class="mb-3 ml-3 mr-3">
@@ -366,7 +366,7 @@
 
         function validateRecordForm() {
             var bloodGroupElement = document.getElementById("blood_group");
-            if (bloodGroupElement.length > 0) {
+            if (bloodGroupElement && bloodGroupElement.value.length > 0) {
                 var bloodGroupValue = bloodGroupElement.value;
                 // ensure only certain values can be entered 
                 if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
@@ -378,8 +378,8 @@
             }
 
             var secondVisitElement = document.getElementById("second_visit");
-            if (secondVisitElement.length > 0) {
-                var secondVistValue = secondVisitElement.value;
+            if (secondVisitElement && secondVisitElement.value.length > 0) {
+                var secondVisitElement = secondVisitElement.value;
                 if (!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
                     document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
                             Please Enter Yes/No for Second Visit!

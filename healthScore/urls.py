@@ -116,6 +116,11 @@ urlpatterns = [
         healthcare_data.activate_healthcare_staff,
         name="activate_healthcare_staff",
     ),
+    path(
+        "viewHealthHistoryDoc",
+        patient_view_records.view_health_history_doc,
+        name="view_health_history_doc",
+    ),
     # community apis
     path("community/", community_data.community_home, name="community"),
     path("community/all-posts/", community_data.view_all_posts, name="all_posts"),

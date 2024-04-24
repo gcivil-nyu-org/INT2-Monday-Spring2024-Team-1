@@ -93,7 +93,7 @@
                             <h4 class="card-title">Submit a Health Request</h4>
                             <hr />
                         </div>
-                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
+                        <form id="submitRecord" method="post" onsubmit="return validateRecordForm()" action="{% url 'new_health_record'%}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="mb-3 ml-3 mr-3">
                                 <div class="dropdown">
@@ -153,7 +153,7 @@
                             <h4 class="card-title">Submit a Health Request</h4>
                             <hr />
                         </div>
-                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="validateRecordForm()" enctype="multipart/form-data">
+                        <form id="submitRecord" method="post" action="{% url 'new_health_record'%}" onsubmit="return validateRecordForm()" enctype="multipart/form-data">
                             {% csrf_token %}
                             <input type="hidden" id="staffHospitalId" name="hospitalID" value="{{ data.hospitalID }}">
 
@@ -383,24 +383,25 @@
 
 
             function validateRecordForm() {
-                var bloodGroupElement = document.getElementById("blood_group");
-                if (bloodGroupElement.length>0) {
-                    var bloodGroupValue = bloodGroupElement.value;
-                    // ensure only certain values can be entered 
-                    if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
+
+                var secondVisitElement = document.getElementById("second_visit");
+                if (secondVisitElement && secondVisitElement.value.length>0){
+                    var secondVisitValue = secondVisitElement.value;
+                    if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                            Invalid Blood Type Provided!
+                            Please Enter Yes/No for Second Visit!
                             </div>`;
                         return false;
                     }
                 }
 
-                var secondVisitElement = document.getElementById("second_visit");
-                if (secondVisitElement.length>0){
-                    var secondVistValue = secondVisitElement.value;
-                    if(!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
+                var bloodGroupElement = document.getElementById("blood_group");
+                if (bloodGroupElement && bloodGroupElement.value.length>0) {
+                    var bloodGroupValue = bloodGroupElement.value;
+                    // ensure only certain values can be entered 
+                    if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
                         document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
-                            Please Enter Yes/No for Second Visit!
+                            Invalid Blood Type Provided!
                             </div>`;
                         return false;
                     }
