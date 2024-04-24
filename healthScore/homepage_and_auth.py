@@ -18,6 +18,7 @@ from .models import (
 )
 
 from .file_upload import file_upload
+from django.views.decorators.cache import never_cache
 
 
 def homepage(request):
@@ -92,7 +93,11 @@ def registration(request):
     return render(request, "registration.html")
 
 
+@never_cache
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("user_dashboard")
+
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
