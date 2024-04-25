@@ -11,9 +11,13 @@ def medical_or_profile(file, loc, request):
                 for chunk in file.chunks():
                     f.write(chunk)
 
+            print("here")
             aws_access_key_id = settings.AWS_ACCESS_KEY_ID
             aws_secret_access_key = settings.AWS_SECRET_ACCESS_KEY
             aws_region = settings.AWS_S3_REGION_NAME
+            print("ID: ", aws_access_key_id)
+            print("secret: ", aws_secret_access_key)
+            print("region: ", aws_region)
             s3 = boto3.resource(
                 "s3",
                 aws_access_key_id=aws_access_key_id,
@@ -21,11 +25,15 @@ def medical_or_profile(file, loc, request):
                 region_name=aws_region,
             )
             bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+            print("bucket: ", bucket_name)
 
             if "userEmail" in request.POST:
                 user = request.POST.get("userEmail").split("@")[0]
+                print("userEmail 1: ", user)
             else:
                 user = request.user.email.split("@")[0]
+                print("userEmail 2: ", user)
+
             s3.Bucket(bucket_name).upload_file(
                 file_path,
                 "documents-health-score/" + loc + "/" + user + "/" + file.name,
@@ -34,6 +42,8 @@ def medical_or_profile(file, loc, request):
             file_name = loc + "/" + user + "/" + file.name
             file_url = f"https://{bucket_name}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/documents-health-score/{file_name}"
             os.remove(file_path)
+
+            print("file_url", file_url)
 
             return file_url
         except Exception:
