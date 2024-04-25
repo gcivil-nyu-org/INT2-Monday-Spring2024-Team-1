@@ -67,6 +67,7 @@ urlpatterns = [
         patient_submit_health_record.get_doctors,
         name="get_doctors",
     ),
+    # Sorted
     path(
         "getEdit/<str:rec_id>/", patient_submit_health_record.get_edit, name="get_edit"
     ),

@@ -83,6 +83,8 @@ def get_doctors(request, hos_id):
 
 def get_edit(request, rec_id):
     selected_record = list(HealthRecord.objects.filter(id=rec_id).values())
+    if(len(selected_record)==0):
+        return redirect("view_requests")
     app = list(
         Appointment.objects.filter(id=selected_record[0]["appointmentId_id"]).values()
     )
