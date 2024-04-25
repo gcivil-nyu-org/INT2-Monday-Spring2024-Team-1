@@ -35,8 +35,8 @@ deploy:
     access_key_id: $ACCESS_KEY_ID
     secret_access_key: $SECRET_ACCESS_KEY
     region: $REGION
-    app: health-score-integration
-    env: Health-score-integration-env
+    app: health-score-dev
+    env: Health-score-dev-env
     bucket_name: $BUCKET_NAME
     on:
       repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
