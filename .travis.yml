@@ -9,7 +9,7 @@ install:
 script:
 - black --check .
 - flake8 --max-line-length=300 .
-# - coverage run manage.py test
+- coverage run manage.py test
 - python manage.py makemigrations
 - python manage.py migrate
 - env
@@ -40,5 +40,5 @@ deploy:
     bucket_name: $BUCKET_NAME_S
     on:
       repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
-      branch: fix/d
+      branch: develop
     skip_cleanup: 'true'
