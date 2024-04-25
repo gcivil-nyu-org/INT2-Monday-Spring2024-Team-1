@@ -20,12 +20,12 @@ after_script:
 
 deploy:
   - provider: elasticbeanstalk
-    access_key_id: $ACCESS_KEY_ID
-    secret_access_key: $SECRET_ACCESS_KEY
-    region: $REGION
-    app: health-score
-    env: health-env4
-    bucket_name: $BUCKET_NAME
+    access_key_id: $ACCESS_KEY_ID_S
+    secret_access_key: $SECRET_ACCESS_KEY_S
+    region: $REGION_S
+    app: health-score-prod-1
+    env: Health-score-prod-1-env
+    bucket_name: $BUCKET_NAME_S
     on:
       repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
       branch: master
@@ -40,5 +40,5 @@ deploy:
     bucket_name: $BUCKET_NAME_S
     on:
       repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
-      branch: fix/deployment
+      branch: develop
     skip_cleanup: 'true'
