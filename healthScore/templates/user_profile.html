@@ -178,6 +178,7 @@
                 feedbackElement.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
                 // If you want to update the UI with the new user information, you can do it here
             }
+            window.location.reload()
         })
         .catch((error) => {
             console.error('Error:', error);

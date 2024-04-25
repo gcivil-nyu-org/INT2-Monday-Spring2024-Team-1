@@ -11,4 +11,4 @@ http://health-env4.eba-sjmgxapv.us-west-2.elasticbeanstalk.com/
 [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1.svg?branch=develop)](https://app.travis-ci.com/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1)
 [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1?branch=develop)
 
-http://health-score-integration-env.eba-kxwt66bh.us-west-2.elasticbeanstalk.com/
+http://health-score-dev-1-env.eba-mfzgfp5q.us-east-1.elasticbeanstalk.com/

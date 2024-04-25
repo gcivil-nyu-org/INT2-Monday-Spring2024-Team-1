@@ -21,33 +21,52 @@ from healthScore.models import (
     Comment,
 )
 
-
 from healthScore.file_upload import file_upload
 
-from healthScore.views import (
-    edit_user_info,
-    view_health_history,
-    view_report,
-    view_user_info,
+from healthScore.profile_view import edit_user_info, view_user_info
+
+from healthScore.patient_view_records import (
     view_health_history_requests,
-    add_health_record_view,
-    record_sent_view,
-    activate_healthcare_staff,
-    deactivate_healthcare_staff,
-    create_post,
-    view_all_posts,
-    view_post,
-    create_comments,
-    get_doctors,
+    view_report,
     get_record,
+    view_health_history,
+    view_health_history_doc,
+)
+
+from healthScore.patient_submit_health_record import (
+    get_doctors,
     get_edit,
     edit_health_record_view,
+    add_health_record_view,
+    record_sent_view,
+)
+
+from healthScore.healthcare_data import (
     add_healthcare_staff,
+    deactivate_healthcare_staff,
+    activate_healthcare_staff,
+)
+
+from healthScore.community_data import (
+    view_all_posts,
+    view_post,
+    create_post,
+    edit_post,
+    delete_post,
+    create_comments,
+    delete_comment,
+)
+
+from healthScore.homepage_and_auth import (
+    user_dashboard,
+)
+
+from healthScore.external_health_request_access import (
     request_health_history,
     view_health_history_access_requests,
-    delete_post,
-    edit_post,
-    delete_comment,
+)
+
+from healthScore.admin_view_user_healthrecords import (
     admin_view_health_history_requests,
     get_admin_edit,
 )
@@ -230,23 +249,20 @@ class viewHealthHistoryTestCase(TransactionTestCase):
 
     def test_edit_health_record_view(self):
         url = reverse("edit_record")
-        body = {
-            "recordId": "1",
-            "appointmentId": "1",
-            "appointmentType": "blood_test",
-            "appointmentProperties": {"type": "Covid"},
-            "doctorId": "1",
-            "hospitalID": "1",
-        }
-        request = self.factory.post(
-            url,
-            data=body,
-            content_type="application/json",
-        )
+        request = HttpRequest()
+        request.path = url
+        request.method = "POST"
+
+        request.POST["recordId"] = "1"
+        request.POST["appointmentId"] = "1"
+        request.POST["appointmentType"] = "blood_test"
+        request.POST["appointmentProperties"] = {"type": "Covid"}
+        request.POST["doctorId"] = "1"
+        request.POST["hospitalID"] = "1"
 
         request.user = self.user
         response = edit_health_record_view(request)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
 
 class HomepageViewTest(TestCase):
@@ -271,7 +287,7 @@ class LoginViewTest(TestCase):
         response = self.client.post(
             reverse("login"), {"email": "test@example.com", "password": "testpassword"}
         )
-        self.assertRedirects(response, reverse("homepage"))
+        self.assertRedirects(response, reverse("user_dashboard"))
 
     def test_post_request_invalid_credentials(self):
         response = self.client.post(
@@ -934,7 +950,6 @@ class TestFileUpload(TestCase):
 
     @patch("boto3.resource")
     def test_file_upload_profile_pic(self, mock_boto3_resource):
-
         mock_s3_resource = mock_boto3_resource.return_value
         mock_bucket = mock_s3_resource.Bucket.return_value
 
@@ -965,7 +980,6 @@ class TestFileUpload(TestCase):
 
     @patch("boto3.resource")
     def test_file_upload_medical_document(self, mock_boto3_resource):
-
         mock_s3_resource = mock_boto3_resource.return_value
         mock_bucket = mock_s3_resource.Bucket.return_value
 
@@ -997,7 +1011,6 @@ class TestFileUpload(TestCase):
 
     @patch("boto3.resource")
     def test_file_upload_identity_proof(self, mock_boto3_resource):
-
         mock_s3_resource = mock_boto3_resource.return_value
         mock_bucket = mock_s3_resource.Bucket.return_value
 
@@ -1342,3 +1355,126 @@ class ViewsTestCase(TestCase):
         self.assertEqual(
             response.json()["user"], list(User.objects.filter(id=patient.id).values())
         )
+
+
+class UserDashboardTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            password="userpass1",
+            name="User1",
+            dob="1990-01-01",
+            contactInfo="1234567890",
+            address="123 Main St",
+            proofOfIdentity="SomeProof",
+            bloodGroup="A+",
+        )
+
+        HealthHistoryAccessRequest.objects.create(
+            requestorName="Test Requestor",
+            requestorEmail="testrequestor@gmail.com",
+            purpose="For onboarding process",
+            userID=self.user,
+        )
+
+    def test_dashboard_view_access(self):
+        url = reverse("user_dashboard")
+        request = self.factory.get(url)
+        request.user = self.user
+        response = user_dashboard(
+            request
+        )  # Assuming user_dashboard is the correct view function
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_not_patient(self):
+        # Assuming a method or attribute that can change user role
+        self.user.is_patient = False
+        self.user.save()
+        url = reverse("user_dashboard")
+        request = self.factory.get(url)
+        request.user = self.user
+        response = user_dashboard(request)
+        self.assertEqual(response.status_code, 302)
+
+
+class viewDocHealthHistoryTestCase(TransactionTestCase):
+    reset_sequences = True
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = User.objects.create_patient(
+            email="user1@example.com",
+            name="User1",
+            password="userpass1",
+            dob=datetime.strptime("1990-01-01", "%Y-%m-%d"),
+            contactInfo="1234567890",
+            proofOfIdentity="Proof1",
+            address="Address1",
+            securityQues="",
+            securityAns="",
+            bloodGroup="A+",
+            is_healthcare_worker=True,
+        )
+        self.appointment = Appointment.objects.create(
+            name="Eye Test",
+            properties=json.dumps(
+                {
+                    "cylindrical_power_right": 1.25,
+                    "cylindrical_power_left": 0.75,
+                    "spherical_power_left": -2.00,
+                    "spherical_power_right": -1.50,
+                    "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                }
+            ),
+        )
+        self.health_record = HealthRecord.objects.create(
+            doctorID=1,
+            userID=self.user,
+            hospitalID=1,
+            status="pending",
+            appointmentId=self.appointment,
+        )
+        self.hospital = Hospital.objects.create(
+            name="Hospital A",
+            address="Address A",
+            contactInfo="1234567890",
+        )
+        self.hospital_staff = HospitalStaff.objects.create(
+            hospitalID=self.hospital,
+            admin=False,
+            name="Doctor A",
+            specialization="Cardiology",
+            contactInfo="1234567890",
+            userID=self.user.id,
+        )
+
+    def test_admin_view_history(self):
+        url = reverse("admin_view_records")
+        # appointment name healthcare_worker, healthcare_facility and date are passed
+        request_struct = {
+            "appointment_name": "Eye Test",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital A",
+            "date": "2024-03-08",
+        }
+        request = self.factory.get(url, request_struct)
+        request.user = self.user
+        response = view_health_history_doc(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_view_history_fail(self):
+        url = reverse("admin_view_records")
+        # appointment name healthcare_worker, healthcare_facility and date are passed
+        request_struct = {
+            "appointment_name": "Eye Test",
+            "healthcare_worker": "Doctor A",
+            "healthcare_facility": "Hospital A",
+            "date": "2024-03-08",
+        }
+        request = self.factory.post(url, request_struct)
+        request.user = self.user
+        request.user.is_healthcare_worker = False
+        # else case
+        response = view_health_history_doc(request)
+        self.assertEqual(response.status_code, 302)

@@ -101,29 +101,25 @@
     {% include 'header.html' %}
 
     <div class="container my-4">
-        <h2 class="text-center">Your Health History</h2>
+        <h2 class="text-center">Health History</h2>
 
         <!-- Filter Section -->
         <div class="row">
             <div class="col-lg-12">
-                <h4>Filter Your Health History</h4>
+                <h4>Filter Health History</h4>
                 <!-- {{docs_records}} -->
-                <form method="GET" action="{% url 'view_health_history' %}" class="form-inline">
+                <form method="GET" action="{% url 'view_health_history_doc' %}" class="form-inline">
                     <div class="form-group mx-sm-3 mb-2">
                         <label for="appointment_name" class="sr-only">Reason for Visit:</label>
                         <input type="text" class="form-control" id="appointment_name" name="appointment_name"
                             placeholder="Reason for Visit" value="{{ request.GET.appointment_name }}">
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <label for="date" class="sr-only">Date:</label>
-                        <input type="date" class="form-control" id="date" name="date" value="{{ request.GET.date }}">
                     </div>
 
                     <div class="form-group mx-sm-3 mb-2">
                         <button type="submit" class="btn btn-secondary">Filter</button>
                     </div>
                     <div class="form-group mx-sm-3 mb-2">
-                        <a href="{% url 'view_health_history' %}" class="btn btn-outline-secondary ml-2">Clear</a>
+                        <a href="{% url 'view_health_history_doc' %}" class="btn btn-outline-secondary ml-2">Clear</a>
                     </div>
                 </form>
             </div>
@@ -140,6 +136,7 @@
                                 <th scope="col">User</th>
                                 <th scope="col">Reason for Visit</th>
                                 <th scope="col">Visit Details</th>
+                                <th scope="col">Date</th>
                                 <th scope="col">Decision</th>
                             </tr>
                         </thead>
@@ -152,6 +149,7 @@
                                     data-toggle="modal" data-target="#myModal">{{record.user_id}}</td>
                                 <td>{{ record.appointment_name }}</td>
                                 <td>{{ record.appointment_type }}</td>
+                                <td>{{ record.createdAt }}</td>
                                 <td>
                                     <button onclick="sendAccept(`{{ record.record_id }}|{{ 'approved' }}`)"
                                         type="button" class="btn btn-success">Approve</button>

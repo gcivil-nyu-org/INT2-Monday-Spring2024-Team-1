@@ -108,7 +108,8 @@
                         <h4 class="card-title">Edit your request</h4>
                         <hr />
                     </div>
-                    <form id="updateRecord">
+                    <form id="updateRecord" method="post" action="{% url 'edit_record' %}"
+                    onsubmit="return validateRecordForm()" enctype="multipart/form-data">
 
 
                         <div class="mb-3 ml-3 mr-3">
@@ -145,13 +146,37 @@
                             </div>
                         </div>
 
+                        <div class="mb-3 ml-3 mr-3" style="display: none;">
+                            <div class="input-group">
+                                <input name="recordId" value="{{data.record.id}}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3 ml-3 mr-3" style="display: none;">
+                            <div class="input-group">
+                                <input name="appointmentId" value="{{data.record.appointmentId_id}}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3 ml-3 mr-3" style="display: none;">
+                            <div class="input-group">
+                                <input name="userEmail" value="{{data.email}}">
+                            </div>
+                        </div>
+
                         <div id="appointmentProps">
                             <!-- Data filled dynamically -->
                         </div>
 
+                        <div id="documents" class="mb-3 ml-3 mr-3">
+                            <label for="medical_document">Medical Document (If any)</label>
+                            <input type="file" id="medical_document" name="medical_document"
+                                accept=".jpg, .jpeg, .png, .pdf"><br>
+                        </div>
+
                         {% csrf_token %}
                         <div class="col-12 submitButton">
-                            <button type="button" class="btn btn-primary" onclick="updateRecord()">Save
+                            <button type="submit" class="btn btn-primary">Save
                                 Changes</button>
                         </div>
 
@@ -419,6 +444,36 @@
             }
             return true
         }
+
+        function validateRecordForm() {
+            var bloodGroupElement = document.getElementById("blood_group");
+            if (bloodGroupElement && bloodGroupElement.value.length > 0) {
+                var bloodGroupValue = bloodGroupElement.value;
+                // ensure only certain values can be entered 
+                if (!['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'N/A'].includes(bloodGroupValue)) {
+                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
+                            Invalid Blood Type Provided!
+                            </div>`;
+                    return false;
+                }
+            }
+
+            var secondVisitElement = document.getElementById("second_visit");
+            if (secondVisitElement && secondVisitElement.value.length > 0) {
+                var secondVisitElement = secondVisitElement.value;
+                if (!['yes', 'no'].includes(secondVisitValue.toLowerCase())) {
+                    document.getElementById('message').innerHTML = `<div class='alert alert-danger dropdownStyle' role='alert'>
+                            Please Enter Yes/No for Second Visit!
+                            </div>`;
+                    return false;
+                }
+            }
+
+            document.getElementById('message').innerHTML = "";
+            return true;
+        }
+
+        
 
         function updateRecord() {
             const form = document.getElementById('updateRecord');

@@ -1,12 +1,23 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 
-from . import views
+from . import homepage_and_auth
+from . import profile_view
+from . import patient_view_records
+from . import patient_submit_health_record
+from . import healthcare_data
+from . import community_data
+from . import external_health_request_access
+from . import admin_view_user_healthrecords
+from . import doctor_data
+from . import healthscore_admin_view
+
 
 urlpatterns = [
-    path("homepage", views.homepage, name="homepage"),
-    path("registration/", views.registration, name="registration"),
-    path("login/", views.login_view, name="login"),
+    # Homepage and user auth
+    path("homepage", homepage_and_auth.homepage, name="homepage"),
+    path("registration/", homepage_and_auth.registration, name="registration"),
+    path("login/", homepage_and_auth.login_view, name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path(
         "password-reset/",
@@ -34,101 +45,160 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-    path("editUserInfo", views.edit_user_info, name="edit_user_info"),
-    path("userInfo", views.view_user_info, name="user_info"),
-    path("viewRequests", views.view_health_history_requests, name="view_requests"),
-    path("viewHealthHistory", views.view_health_history, name="view_health_history"),
-    path("viewReports", views.view_report, name="view_reports"),
+    # Profile information
+    path("editUserInfo", profile_view.edit_user_info, name="edit_user_info"),
+    path("userInfo", profile_view.view_user_info, name="user_info"),
+    # view records
+    path(
+        "viewRequests",
+        patient_view_records.view_health_history_requests,
+        name="view_requests",
+    ),
+    path(
+        "viewHealthHistory",
+        patient_view_records.view_health_history,
+        name="view_health_history",
+    ),
+    path("viewReports", patient_view_records.view_report, name="view_reports"),
+    path("getRecord/<str:rec_id>/", patient_view_records.get_record, name="get_record"),
     # Submitting health request apis
-    path("getDoctors/<str:hos_id>/", views.get_doctors, name="get_doctors"),
-    path("getRecord/<str:rec_id>/", views.get_record, name="get_record"),
-    path("getEdit/<str:rec_id>/", views.get_edit, name="get_edit"),
-    path("edit-record/", views.edit_health_record_view, name="edit_record"),
-    path("new-record/", views.add_health_record_view, name="new_health_record"),
-    path("request-sent/", views.record_sent_view, name="new_health_record_sent"),
+    path(
+        "getDoctors/<str:hos_id>/",
+        patient_submit_health_record.get_doctors,
+        name="get_doctors",
+    ),
+    path(
+        "getEdit/<str:rec_id>/", patient_submit_health_record.get_edit, name="get_edit"
+    ),
+    path(
+        "edit-record/",
+        patient_submit_health_record.edit_health_record_view,
+        name="edit_record",
+    ),
+    path(
+        "new-record/",
+        patient_submit_health_record.add_health_record_view,
+        name="new_health_record",
+    ),
+    path(
+        "request-sent/",
+        patient_submit_health_record.record_sent_view,
+        name="new_health_record_sent",
+    ),
+    # Get healthcare related data
     path(
         "healthcareFacility/",
-        views.hospital_staff_directory,
+        healthcare_data.hospital_staff_directory,
         name="hospital_staff_directory",
     ),
     path(
-        "getFacilityDoctors/", views.get_facility_doctors, name="get_facility_doctors"
+        "getFacilityDoctors/",
+        healthcare_data.get_facility_doctors,
+        name="get_facility_doctors",
     ),
-    path("getFacilityAdmins/", views.get_facility_admins, name="get_facility_admins"),
-    path("addHealthcareStaff", views.add_healthcare_staff, name="add_healthcare_staff"),
+    path(
+        "getFacilityAdmins/",
+        healthcare_data.get_facility_admins,
+        name="get_facility_admins",
+    ),
+    path(
+        "addHealthcareStaff",
+        healthcare_data.add_healthcare_staff,
+        name="add_healthcare_staff",
+    ),
     path(
         "deleteHealthcareStaff",
-        views.deactivate_healthcare_staff,
+        healthcare_data.deactivate_healthcare_staff,
         name="deactivate_healthcare_staff",
     ),
     path(
         "activateHealthcareStaff",
-        views.activate_healthcare_staff,
+        healthcare_data.activate_healthcare_staff,
         name="activate_healthcare_staff",
     ),
-    # community
-    path("community/", views.community_home, name="community"),
-    path("community/all-posts/", views.view_all_posts, name="all_posts"),
-    path("community/my-posts/", views.view_my_posts, name="my_posts"),
-    path("create-post", views.create_post, name="create_post"),
-    path("edit-post/<int:post_id>/", views.edit_post, name="edit_post"),
-    path("delete-post/<int:post_id>/", views.delete_post, name="delete_post"),
-    path("view-post/<int:post_id>/", views.view_post, name="view_post"),
+    path(
+        "viewHealthHistoryDoc",
+        patient_view_records.view_health_history_doc,
+        name="view_health_history_doc",
+    ),
+    # community apis
+    path("community/", community_data.community_home, name="community"),
+    path("community/all-posts/", community_data.view_all_posts, name="all_posts"),
+    path("community/my-posts/", community_data.view_my_posts, name="my_posts"),
+    path("create-post", community_data.create_post, name="create_post"),
+    path("edit-post/<int:post_id>/", community_data.edit_post, name="edit_post"),
+    path("delete-post/<int:post_id>/", community_data.delete_post, name="delete_post"),
+    path("view-post/<int:post_id>/", community_data.view_post, name="view_post"),
     path(
         "create-comments/<int:post_id>/comment/",
-        views.create_comments,
+        community_data.create_comments,
         name="create_comments",
     ),
     path(
         "delete-comment/<int:comment_id>/",
-        views.delete_comment,
+        community_data.delete_comment,
         name="delete_comment",
     ),
+    # External health request related apis
     path(
         "requestHealthHistory",
-        views.request_health_history,
+        external_health_request_access.request_health_history,
         name="request_health_history",
     ),
     path(
         "viewHealthHistoryAccessRequests",
-        views.view_health_history_access_requests,
+        external_health_request_access.view_health_history_access_requests,
         name="view_health_history_access_requests",
     ),
     path(
         "update_request_status",
-        views.update_request_status,
+        external_health_request_access.update_request_status,
         name="update_request_status",
     ),
     path(
-        "send-approval-emails", views.send_approval_emails, name="send_approval_emails"
+        "send-approval-emails",
+        external_health_request_access.send_approval_emails,
+        name="send_approval_emails",
     ),
-    path("send-reject-emails", views.send_rejection_emails, name="send_reject_emails"),
+    path(
+        "send-reject-emails",
+        external_health_request_access.send_rejection_emails,
+        name="send_reject_emails",
+    ),
+    # health admin's view user records
     path(
         "recordDecision/",
-        views.view_healthworkers_user_record,
+        admin_view_user_healthrecords.view_healthworkers_user_record,
         name="view_healthworkers_user_record",
     ),
     path(
         "admin_view_records/",
-        views.admin_view_health_history_requests,
+        admin_view_user_healthrecords.admin_view_health_history_requests,
         name="admin_view_records",
     ),
-    path("adminGetEdit/<str:rec_id>/", views.get_admin_edit, name="adminGetEdit"),
-    path("hospitals/", views.list_hospitals, name="list_hospitals"),
     path(
-        "hospitals/update_status/<int:hospital_id>/",
-        views.update_hospital_status,
-        name="update_hospital_status",
+        "adminGetEdit/<str:rec_id>/",
+        admin_view_user_healthrecords.get_admin_edit,
+        name="adminGetEdit",
     ),
-    path("get_patients", views.get_patients, name="get_patients"),
+    # Doctor related apis
+    path("get_patients", doctor_data.get_patients, name="get_patients"),
     path(
         "get_doctor_details/<str:doctor_id>/",
-        views.get_doctor_details,
+        doctor_data.get_doctor_details,
         name="get_doctor_details",
     ),
     path(
         "get_patient_details/<str:patient_id>/",
-        views.get_patient_details,
+        doctor_data.get_patient_details,
         name="get_patient_details",
     ),
+    # healthScore admin apis
+    path("hospitals/", healthscore_admin_view.list_hospitals, name="list_hospitals"),
+    path(
+        "hospitals/update_status/<int:hospital_id>/",
+        healthscore_admin_view.update_hospital_status,
+        name="update_hospital_status",
+    ),
+    path("userDashboard", homepage_and_auth.user_dashboard, name="user_dashboard"),
 ]
