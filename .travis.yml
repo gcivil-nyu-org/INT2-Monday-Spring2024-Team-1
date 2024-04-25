@@ -12,7 +12,7 @@ script:
 # - coverage run manage.py test
 - python manage.py makemigrations
 - python manage.py migrate
-# - env
+- env
 
 after_script:
 - coveralls
