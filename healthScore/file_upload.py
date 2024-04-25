@@ -26,6 +26,7 @@ def medical_or_profile(file, loc, request):
                 user = request.POST.get("userEmail").split("@")[0]
             else:
                 user = request.user.email.split("@")[0]
+
             s3.Bucket(bucket_name).upload_file(
                 file_path,
                 "documents-health-score/" + loc + "/" + user + "/" + file.name,

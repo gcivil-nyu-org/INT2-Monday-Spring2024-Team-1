@@ -9,10 +9,10 @@ install:
 script:
 - black --check .
 - flake8 --max-line-length=300 .
-# - coverage run manage.py test
+- coverage run manage.py test
 - python manage.py makemigrations
 - python manage.py migrate
-# - env
+- env
 
 after_script:
 - coveralls
