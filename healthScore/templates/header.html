@@ -13,11 +13,12 @@
         }
 
         header {
+            background-color: #FFFFFF;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
-            background-color: #FFFFFF;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .register-button {
@@ -56,26 +57,28 @@
             text-decoration: underline;
         }
 
-        .nav-link {
-            color: #222222;
-            padding: 10px;
-            font-weight: normal;
-        }
-
-        .nav-link:hover {
-            color: #000;
-        }
-
-        .nav-scroller .nav {
+        .nav-links {
             display: flex;
-            flex-wrap: nowrap;
-            padding-bottom: 1rem;
-            margin-top: -1px;
-            overflow-x: auto;
-            text-align: center;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
         }
+
+        .nav-item {
+            margin-right: 20px;
+        }
+
+        .nav-link {
+            color: #5F5F5F;
+            font-weight: bold;
+            font-size: 16px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+            .nav-link:hover {
+                color: #560a82;
+            }
 
         .header-profile-pic {
             width: 50px;
@@ -105,46 +108,45 @@
 
             <div class="d-flex flex-grow-1">
                 {% if user.is_authenticated and user.is_patient %}
-                    <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                        <li><a href="/hs/viewHealthHistory" class="nav-link">Health History</a></li>
-                        <li><a href="/hs/viewRequests" class="nav-link">Requests</a></li>
-                        <li><a href='{% url "view_health_history_access_requests" %}' class="nav-link">Incoming</a></li>
-                        <!-- <li><a href="#" class="nav-link">Appointments</a></li> -->
-                        <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
-                        <li><a href="{% url "community" %}" class="nav-link">Community</a></li>
-                    </ul>
+                <ul class="nav-links">
+                    <li class="nav-item"><a class="nav-link" href="/hs/viewHealthHistory">Health History</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/hs/viewRequests">Requests</a></li>
+                    <li class="nav-item"><a class="nav-link" href='{% url "view_health_history_access_requests" %}'>Incoming</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/hs/new-record">Add Record</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url "community" %}">Community</a></li>
+                </ul>
 
                     <!-- Healthcare Worker Navigation -->
                 {% elif user.is_authenticated and user.is_healthcare_worker %}
-                    <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                        <li><a href="/" class="nav-link">Dashboard</a></li>
-                        <li><a href="/hs/recordDecision/" class="nav-link">Patients</a></li>
-                        <li><a href="{% url "community" %}" class="nav-link">Community</a></li>
-                        <!-- <li><a href="#" class="nav-link">Schedule</a></li> -->
-                    </ul>
+                <ul class="nav-links">
+                    <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/hs/recordDecision/">Patients</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url "community" %}">Community</a></li>
+                    <!-- <li><a href="#" class="nav-link">Schedule</a></li> -->
+                </ul>
 
                     <!-- Staff Member Navigation -->
                 {% elif user.is_authenticated and user.is_staff %}
-                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="/" class="nav-link">Dashboard</a></li>
-                    <li><a href="/hs/healthcareFacility" class="nav-link">Facility</a></li>
-                    <li><a href="/hs/new-record" class="nav-link">Add Record</a></li>
-                    <li><a href="/hs/admin_view_records" class="nav-link">Facility Records</a></li>
+                <ul class="nav-links">
+                    <li class="nav-item"><a href="/" class="nav-link">Dashboard</a></li>
+                    <li class="nav-item"><a href="/hs/healthcareFacility" class="nav-link">Facility</a></li>
+                    <li class="nav-item"><a href="/hs/new-record" class="nav-link">Add Record</a></li>
+                    <li class="nav-item"><a href="/hs/admin_view_records" class="nav-link">Facility Records</a></li>
                 </ul>
 
                 <!-- Health Score Admin -->
                 {% elif user.is_authenticated and user.is_superuser %}
-                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="/" class="nav-link">Dashboard</a></li>
-                    <li><a href="/hs/hospitals" class="nav-link">Hospitals</a></li>
+                <ul class="nav-links">
+                    <li class="nav-item"><a href="/" class="nav-link">Dashboard</a></li>
+                    <li class="nav-item"><a href="/hs/hospitals" class="nav-link">Hospitals</a></li>
                 </ul>
                 
                 {% else %}
-                <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="#features-section" class="nav-link px-2">Why Health Score</a></li>
-                    <li><a href="#faq-section" class="nav-link px-2">FAQs</a></li>
-                    <li><a href="#health-request-section" class="nav-link px-2">Health Requests</a></li>
-                    <li><a href="#about-section" class="nav-link px-2">About</a></li>
+                <ul class="nav-links">
+                    <li class="nav-item"><a href="#features-section" class="nav-link px-2">Why Health Score</a></li>
+                    <li class="nav-item"><a href="#faq-section" class="nav-link px-2">FAQs</a></li>
+                    <li class="nav-item"><a href="#health-request-section" class="nav-link px-2">Health Requests</a></li>
+                    <li class="nav-item"><a href="#about-section" class="nav-link px-2">About</a></li>
                 </ul>
                 {% endif %}
             </div>
