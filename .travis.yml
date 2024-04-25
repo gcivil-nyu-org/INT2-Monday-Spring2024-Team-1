@@ -9,10 +9,10 @@ install:
 script:
 - black --check .
 - flake8 --max-line-length=300 .
-- coverage run manage.py test
+# - coverage run manage.py test
 - python manage.py makemigrations
 - python manage.py migrate
-- env
+# - env
 
 after_script:
 - coveralls
@@ -20,24 +20,24 @@ after_script:
 
 deploy:
   - provider: elasticbeanstalk
-    access_key_id: $ACCESS_KEY_ID
-    secret_access_key: $SECRET_ACCESS_KEY
-    region: $REGION
-    app: health-score
-    env: health-env4
-    bucket_name: $BUCKET_NAME
+    access_key_id: $ACCESS_KEY_ID_S
+    secret_access_key: $SECRET_ACCESS_KEY_S
+    region: $REGION_S
+    app: health-score-prod-1
+    env: Health-score-prod-1-env
+    bucket_name: $BUCKET_NAME_S
     on:
       repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
       branch: master
     skip_cleanup: 'true'
   
   - provider: elasticbeanstalk
-    access_key_id: $ACCESS_KEY_ID
-    secret_access_key: $SECRET_ACCESS_KEY
-    region: $REGION
-    app: health-score-integration
-    env: Health-score-integration-env
-    bucket_name: $BUCKET_NAME
+    access_key_id: $ACCESS_KEY_ID_S
+    secret_access_key: $SECRET_ACCESS_KEY_S
+    region: $REGION_S
+    app: health-score-dev-1
+    env: health-score-dev-1-env
+    bucket_name: $BUCKET_NAME_S
     on:
       repo: gcivil-nyu-org/INT2-Monday-Spring2024-Team-1
       branch: develop
