@@ -28,15 +28,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-n1oep)=z2l=)(()n!2)rsd-vw_+x0@r*lqi#v5oxo37n8^@liy"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
-
 INSTALLED_APPS = [
-    "daphne",
     "chat",
     "healthScore.apps.HealthscoreConfig",
     "django.contrib.admin",
@@ -77,14 +75,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "healthConfig.wsgi.application"
-ASGI_APPLICATION = "healthConfig.asgi.application"
-
-# Configuring the communication layer used by Django channels for websocket handling
-CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -102,7 +95,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -164,3 +156,9 @@ AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_VERITY = True
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# Pusher Configuration
+PUSHER_APP_ID = "1793983"
+PUSHER_KEY = "0a8d04ab960f9057daa7"
+PUSHER_SECRET = "ae3cfa56ae3be33c0257"
+PUSHER_CLUSTER = "us3"
