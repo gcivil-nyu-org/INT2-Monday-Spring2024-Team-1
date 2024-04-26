@@ -158,7 +158,7 @@ AWS_S3_VERITY = True
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # Pusher Configuration
-PUSHER_APP_ID = "1793983"
-PUSHER_KEY = "0a8d04ab960f9057daa7"
-PUSHER_SECRET = "ae3cfa56ae3be33c0257"
+PUSHER_APP_ID = os.getenv("PUSHER_APP_ID")
+PUSHER_KEY = os.getenv("PUSHER_KEY")
+PUSHER_SECRET = os.getenv("PUSHER_SECRET")
 PUSHER_CLUSTER = "us3"
