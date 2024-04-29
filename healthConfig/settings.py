@@ -34,9 +34,7 @@ ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
-
 INSTALLED_APPS = [
-    "daphne",
     "chat",
     "healthScore.apps.HealthscoreConfig",
     "django.contrib.admin",
@@ -77,14 +75,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "healthConfig.wsgi.application"
-ASGI_APPLICATION = "healthConfig.asgi.application"
-
-# Configuring the communication layer used by Django channels for websocket handling
-CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -102,7 +95,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -164,3 +156,9 @@ AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_VERITY = True
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# Pusher Configuration
+PUSHER_APP_ID = os.getenv("PUSHER_APP_ID")
+PUSHER_KEY = os.getenv("PUSHER_KEY")
+PUSHER_SECRET = os.getenv("PUSHER_SECRET")
+PUSHER_CLUSTER = "us3"

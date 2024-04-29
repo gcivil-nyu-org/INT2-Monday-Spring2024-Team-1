@@ -5,7 +5,7 @@ A global centralized medical history system to keep track of verified medical re
 [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1.svg?branch=master)](https://app.travis-ci.com/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1)
 [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1/badge.svg?branch=master)](https://coveralls.io/github/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1?branch=master)
 
-http://health-env4.eba-sjmgxapv.us-west-2.elasticbeanstalk.com/
+http://health-score-prod-2-env.eba-6smpw9m6.us-east-1.elasticbeanstalk.com/
 
 ## Develop
 [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1.svg?branch=develop)](https://app.travis-ci.com/gcivil-nyu-org/INT2-Monday-Spring2024-Team-1)

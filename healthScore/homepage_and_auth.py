@@ -57,6 +57,7 @@ def registration(request):
             "password": password,
             "name": fullname,
             "contactInfo": phone_number,
+            "profilePic": "https://elasticbeanstalk-us-east-1-992382724291.s3.amazonaws.com/documents-health-score/userProfile/default/default-pic.png",
         }
 
         if role == "User":
